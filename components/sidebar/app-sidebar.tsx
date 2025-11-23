@@ -1,16 +1,15 @@
+"use client";
+
 import * as React from "react";
 import {
-  IconCamera,
   IconChartBar,
   IconDashboard,
-  IconFileAi,
-  IconFileDescription,
-  IconFolder,
   IconHelp,
   IconListDetails,
   IconSearch,
   IconSettings,
   IconUsers,
+  IconFolder,
 } from "@tabler/icons-react";
 import Logo from "@/public/logo.png";
 
@@ -28,114 +27,33 @@ import {
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import Image from "next/image";
-import { getSessionWithRole } from "@/app/data/auth/require-roles";
 
-// Admin navigation
-const adminNavMain = [
-  {
-    title: "Dashboard",
-    url: "/admin",
-    icon: IconDashboard,
-  },
-  {
-    title: "Courses",
-    url: "/admin/courses",
-    icon: IconListDetails,
-  },
-  {
-    title: "Analytics",
-    url: "/admin/analytics",
-    icon: IconChartBar,
-  },
-  {
-    title: "Projects",
-    url: "/admin/projects",
-    icon: IconFolder,
-  },
-  {
-    title: "Team",
-    url: "/admin/team",
-    icon: IconUsers,
-  },
-];
-
-// Teacher navigation
-const teacherNavMain = [
-  {
-    title: "Dashboard",
-    url: "/teacher",
-    icon: IconDashboard,
-  },
-  {
-    title: "My Courses",
-    url: "/admin/courses",
-    icon: IconListDetails,
-  },
-];
-
-const navSecondary = [
-  {
-    title: "Settings",
-    url: "#",
-    icon: IconSettings,
-  },
-  {
-    title: "Get Help",
-    url: "#",
-    icon: IconHelp,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: IconSearch,
-  },
-];
-  navClouds: [
+const data = {
+  navMain: [
     {
-      title: "Capture",
-      icon: IconCamera,
-      isActive: true,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
+      title: "Dashboard",
+      url: "/admin",
+      icon: IconDashboard,
     },
     {
-      title: "Proposal",
-      icon: IconFileDescription,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
+      title: "Courses",
+      url: "/admin/courses",
+      icon: IconListDetails,
     },
     {
-      title: "Prompts",
-      icon: IconFileAi,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
+      title: "Analytics",
+      url: "/admin/analytics",
+      icon: IconChartBar,
+    },
+    {
+      title: "Projects",
+      url: "/admin/projects",
+      icon: IconFolder,
+    },
+    {
+      title: "Team",
+      url: "/admin/team",
+      icon: IconUsers,
     },
   ],
   navSecondary: [
@@ -157,12 +75,7 @@ const navSecondary = [
   ],
 };
 
-export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const session = await getSessionWithRole();
-  
-  // Determine navigation based on user role
-  const navMain = session?.user?.role === "admin" ? adminNavMain : teacherNavMain;
-  
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -181,9 +94,8 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={navMain} />
-
-        <NavSecondary items={navSecondary} className="mt-auto" />
+        <NavMain items={data.navMain} />
+        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
