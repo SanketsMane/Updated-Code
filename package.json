@@ -9,6 +9,7 @@
     "lint": "next lint",
     "postinstall": "prisma generate",
     "test-email": "npx tsx scripts/test-email.ts",
+    "seed-users": "npx tsx scripts/seed-users.ts",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio"
