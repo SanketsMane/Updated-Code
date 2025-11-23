@@ -110,6 +110,18 @@ Visit `http://localhost:3000` to access your LMS platform.
 | `pnpm db:migrate` | Run database migrations |
 | `pnpm db:studio` | Open Prisma Studio |
 | `pnpm test-email` | Test email configuration |
+| `pnpm seed-users` | Create admin and teacher test accounts |
+
+## 🧪 Test Credentials
+
+For development and testing purposes, the following accounts are pre-configured:
+
+| Role | Email | Access Level |
+|------|-------|-------------|
+| **Admin** | `bksun170882@gmail.com` | Full system access, user management, course approval |
+| **Teacher** | `contactsanket1@gmail.com` | Course creation, student management, analytics |
+
+> **Note**: Use email OTP authentication to log in with these accounts. The system will send verification codes to these email addresses.
 
 ## 🔧 Configuration
 

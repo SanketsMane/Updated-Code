@@ -1,86 +1,66 @@
-import { PrismaClient } from '../lib/generated/prisma';
+import { PrismaClient } from "../lib/generated/prisma";
 
 const prisma = new PrismaClient();
 
-async function seedUsers() {
-  console.log('🌱 Seeding test users...');
+async function main() {
+  console.log("🌱 Seeding database with admin and teacher accounts...");
 
-  try {
-    // Create Admin User
-    const adminUser = await prisma.user.create({
-      data: {
-        id: 'admin-test-001',
-        name: 'Admin User',
-        email: 'admin@kidokool.com',
-        emailVerified: true,
-        role: 'admin',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    });
+  // Create admin user
+  const adminUser = await prisma.user.upsert({
+    where: { email: "bksun170882@gmail.com" },
+    update: {
+      role: "admin",
+      name: "Admin User",
+    },
+    create: {
+      id: `admin_${Date.now()}`,
+      email: "bksun170882@gmail.com",
+      name: "Admin User",
+      emailVerified: true,
+      role: "admin",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
 
-    // Create Teacher User
-    const teacherUser = await prisma.user.create({
-      data: {
-        id: 'teacher-test-001',
-        name: 'Teacher User',
-        email: 'teacher@kidokool.com',
-        emailVerified: true,
-        role: 'teacher',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    });
+  // Create teacher user
+  const teacherUser = await prisma.user.upsert({
+    where: { email: "contactsanket1@gmail.com" },
+    update: {
+      role: "teacher",
+      name: "Teacher User",
+    },
+    create: {
+      id: `teacher_${Date.now()}`,
+      email: "contactsanket1@gmail.com",
+      name: "Teacher User", 
+      emailVerified: true,
+      role: "teacher",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
 
-    // Create Student User
-    const studentUser = await prisma.user.create({
-      data: {
-        id: 'student-test-001',
-        name: 'Student User',
-        email: 'student@kidokool.com',
-        emailVerified: true,
-        role: 'student',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    });
+  console.log("✅ Admin user created/updated:", {
+    id: adminUser.id,
+    email: adminUser.email,
+    role: adminUser.role,
+  });
 
-    console.log('✅ Test users created successfully!');
-    console.log('\n📧 Test Credentials:');
-    console.log('=====================');
-    console.log('🔑 Admin Login:');
-    console.log('   Email: admin@kidokool.com');
-    console.log('   Role: admin');
-    console.log('');
-    console.log('👨‍🏫 Teacher Login:');
-    console.log('   Email: teacher@kidokool.com');
-    console.log('   Role: teacher');
-    console.log('');
-    console.log('🎓 Student Login:');
-    console.log('   Email: student@kidokool.com');
-    console.log('   Role: student');
-    console.log('');
-    console.log('💡 Use the email OTP verification to log in with these accounts.');
+  console.log("✅ Teacher user created/updated:", {
+    id: teacherUser.id,
+    email: teacherUser.email,
+    role: teacherUser.role,
+  });
 
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('Unique constraint')) {
-      console.log('⚠️  Test users already exist. Skipping creation.');
-      console.log('\n📧 Existing Test Credentials:');
-      console.log('=============================');
-      console.log('🔑 Admin: admin@kidokool.com');
-      console.log('👨‍🏫 Teacher: teacher@kidokool.com');  
-      console.log('🎓 Student: student@kidokool.com');
-    } else {
-      console.error('❌ Error seeding users:', error);
-      throw error;
-    }
-  } finally {
-    await prisma.$disconnect();
-  }
+  console.log("🎉 Database seeding completed successfully!");
 }
 
-seedUsers()
-  .catch((error) => {
-    console.error('💥 Seed script failed:', error);
+main()
+  .catch((e) => {
+    console.error("❌ Error seeding database:", e);
     process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
   });
