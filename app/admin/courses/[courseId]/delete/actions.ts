@@ -1,13 +1,13 @@
 "use server";
 
-import { requireAdmin } from "@/app/data/admin/require-admin";
+import { requireTeacherOrAdmin } from "@/app/data/auth/require-roles";
 import { protectAdminAction } from "@/lib/action-security";
 import { prisma } from "@/lib/db";
 import { ApiResponse } from "@/lib/types";
 import { revalidatePath } from "next/cache";
 
 export async function deleteCourse(courseId: string): Promise<ApiResponse> {
-  const session = await requireAdmin();
+  const session = await requireTeacherOrAdmin();
 
   try {
     // Apply security protection for admin actions

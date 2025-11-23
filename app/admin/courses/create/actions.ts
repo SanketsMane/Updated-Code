@@ -1,6 +1,6 @@
 "use server";
 
-import { requireAdmin } from "@/app/data/admin/require-admin";
+import { requireTeacherOrAdmin } from "@/app/data/auth/require-roles";
 import { protectAdminAction } from "@/lib/action-security";
 import { prisma } from "@/lib/db";
 import { stripe } from "@/lib/stripe";
@@ -10,7 +10,7 @@ import { courseSchema, CourseSchemaType } from "@/lib/zodSchemas";
 export async function CreateCourse(
   values: CourseSchemaType
 ): Promise<ApiResponse> {
-  const session = await requireAdmin();
+  const session = await requireTeacherOrAdmin();
 
   try {
     // Apply security protection for admin actions

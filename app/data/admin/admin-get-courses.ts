@@ -1,14 +1,20 @@
 import "server-only";
 
 import { prisma } from "@/lib/db";
-import { requireAdmin } from "./require-admin";
+import { requireTeacherOrAdmin } from "../auth/require-roles";
 
 export async function adminGetCourses() {
   await new Promise((resolve) => setTimeout(resolve, 2000));
 
-  await requireAdmin();
+  const session = await requireTeacherOrAdmin();
+
+  // If teacher, only show their own courses
+  const whereCondition = session.user.role === "teacher" 
+    ? { userId: session.user.id }
+    : {};
 
   const data = await prisma.course.findMany({
+    where: whereCondition,
     orderBy: {
       createdAt: "desc",
     },

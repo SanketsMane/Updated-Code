@@ -59,11 +59,11 @@ export default async function middleware(request: NextRequest) {
     return securityResponse;
   }
 
-  // Then apply auth middleware only to admin routes
-  if (request.nextUrl.pathname.startsWith("/admin")) {
+  // Apply auth middleware to admin and teacher routes
+  if (request.nextUrl.pathname.startsWith("/admin") || request.nextUrl.pathname.startsWith("/teacher")) {
     return authMiddleware(request);
   }
 
-  // For non-admin routes, just continue
+  // For non-protected routes, just continue
   return NextResponse.next();
 }

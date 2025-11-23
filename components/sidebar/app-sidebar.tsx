@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import {
   IconCamera,
@@ -30,35 +28,68 @@ import {
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import Image from "next/image";
+import { getSessionWithRole } from "@/app/data/auth/require-roles";
 
-const data = {
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/admin",
-      icon: IconDashboard,
-    },
-    {
-      title: "Courses",
-      url: "/admin/courses",
-      icon: IconListDetails,
-    },
-    {
-      title: "Analytics",
-      url: "/admin/analytics",
-      icon: IconChartBar,
-    },
-    {
-      title: "Projects",
-      url: "/admin/projects",
-      icon: IconFolder,
-    },
-    {
-      title: "Team",
-      url: "/admin/team",
-      icon: IconUsers,
-    },
-  ],
+// Admin navigation
+const adminNavMain = [
+  {
+    title: "Dashboard",
+    url: "/admin",
+    icon: IconDashboard,
+  },
+  {
+    title: "Courses",
+    url: "/admin/courses",
+    icon: IconListDetails,
+  },
+  {
+    title: "Analytics",
+    url: "/admin/analytics",
+    icon: IconChartBar,
+  },
+  {
+    title: "Projects",
+    url: "/admin/projects",
+    icon: IconFolder,
+  },
+  {
+    title: "Team",
+    url: "/admin/team",
+    icon: IconUsers,
+  },
+];
+
+// Teacher navigation
+const teacherNavMain = [
+  {
+    title: "Dashboard",
+    url: "/teacher",
+    icon: IconDashboard,
+  },
+  {
+    title: "My Courses",
+    url: "/admin/courses",
+    icon: IconListDetails,
+  },
+];
+
+const navSecondary = [
+  {
+    title: "Settings",
+    url: "#",
+    icon: IconSettings,
+  },
+  {
+    title: "Get Help",
+    url: "#",
+    icon: IconHelp,
+  },
+  {
+    title: "Search",
+    url: "#",
+    icon: IconSearch,
+  },
+];
   navClouds: [
     {
       title: "Capture",
@@ -126,7 +157,12 @@ const data = {
   ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const session = await getSessionWithRole();
+  
+  // Determine navigation based on user role
+  const navMain = session?.user?.role === "admin" ? adminNavMain : teacherNavMain;
+  
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -145,9 +181,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={navMain} />
 
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavSecondary items={navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

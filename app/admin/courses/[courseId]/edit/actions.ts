@@ -1,6 +1,6 @@
 "use server";
 
-import { requireAdmin } from "@/app/data/admin/require-admin";
+import { requireTeacherOrAdmin } from "@/app/data/auth/require-roles";
 import { protectAdminAction } from "@/lib/action-security";
 import { prisma } from "@/lib/db";
 import { ApiResponse } from "@/lib/types";
@@ -17,7 +17,22 @@ export async function editCourse(
   data: CourseSchemaType,
   courseId: string
 ): Promise<ApiResponse> {
-  const user = await requireAdmin();
+  const session = await requireTeacherOrAdmin();
+
+  // Check if teacher is trying to edit their own course
+  if (session.user.role === "teacher") {
+    const course = await prisma.course.findUnique({
+      where: { id: courseId },
+      select: { userId: true }
+    });
+    
+    if (!course || course.userId !== session.user.id) {
+      return {
+        status: "error",
+        message: "You can only edit your own courses"
+      };
+    }
+  }
 
   try {
     // Apply security protection for admin actions
@@ -65,7 +80,7 @@ export async function reorderLessons(
   lessons: { id: string; position: number }[],
   courseId: string
 ): Promise<ApiResponse> {
-  await requireAdmin();
+  await requireTeacherOrAdmin();
   try {
     if (!lessons || lessons.length === 0) {
       return {
@@ -106,7 +121,7 @@ export async function reorderChapters(
   courseId: string,
   chapters: { id: string; position: number }[]
 ): Promise<ApiResponse> {
-  await requireAdmin();
+  await requireTeacherOrAdmin();
   try {
     if (!chapters || chapters.length === 0) {
       return {
@@ -146,7 +161,7 @@ export async function reorderChapters(
 export async function createChapter(
   values: ChapterSchemaType
 ): Promise<ApiResponse> {
-  await requireAdmin();
+  await requireTeacherOrAdmin();
   try {
     const result = chapterSchema.safeParse(values);
 
@@ -196,7 +211,7 @@ export async function createChapter(
 export async function createLesson(
   values: ChapterSchemaType
 ): Promise<ApiResponse> {
-  await requireAdmin();
+  await requireTeacherOrAdmin();
   try {
     const result = lessonSchema.safeParse(values);
 
@@ -255,7 +270,7 @@ export async function deleteLesson({
   courseId: string;
   lessonId: string;
 }): Promise<ApiResponse> {
-  await requireAdmin();
+  await requireTeacherOrAdmin();
   try {
     const chapterWithLessons = await prisma.chapter.findUnique({
       where: {
@@ -331,7 +346,7 @@ export async function deleteChapter({
   chapterId: string;
   courseId: string;
 }): Promise<ApiResponse> {
-  await requireAdmin();
+  await requireTeacherOrAdmin();
   try {
     const courseWithChapters = await prisma.course.findUnique({
       where: {
