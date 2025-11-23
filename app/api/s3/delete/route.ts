@@ -1,28 +1,21 @@
 import { requireAdmin } from "@/app/data/admin/require-admin";
-import arcjet, { fixedWindow } from "@/lib/arcjet";
-
+import { protectGeneral } from "@/lib/security";
 import { env } from "@/lib/env";
 import { S3 } from "@/lib/S3Client";
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { NextResponse } from "next/server";
 
-const aj = arcjet.withRule(
-  fixedWindow({
-    mode: "LIVE",
-    window: "1m",
-    max: 5,
-  })
-);
-
 export async function DELETE(request: Request) {
   const session = await requireAdmin();
   try {
-    const decision = await aj.protect(request, {
-      fingerprint: session?.user.id as string,
+    // Apply rate limiting for file deletions (5 per minute)
+    const securityCheck = await protectGeneral(request, session?.user.id as string, {
+      maxRequests: 5,
+      windowMs: 60000
     });
-
-    if (decision.isDenied()) {
-      return NextResponse.json({ error: "dudde not good" }, { status: 429 });
+    
+    if (!securityCheck.success) {
+      return NextResponse.json({ error: securityCheck.error }, { status: securityCheck.status });
     }
     const body = await request.json();
 

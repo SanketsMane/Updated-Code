@@ -8,8 +8,14 @@ export const env = createEnv({
     BETTER_AUTH_URL: z.string().url(),
     AUTH_GITHUB_CLIENT_ID: z.string().min(1),
     AUTH_GITHUB_SECRET: z.string().min(1),
-    RESEND_API_KEY: z.string().min(1),
-    ARCJET_KEY: z.string().min(1),
+    // Email configuration (optional - will use defaults if not provided)
+    EMAIL_SERVICE: z.string().optional(),
+    EMAIL_HOST: z.string().optional(), 
+    EMAIL_PORT: z.string().optional(),
+    EMAIL_SECURE: z.string().optional(),
+    EMAIL_USER: z.string().optional(),
+    EMAIL_PASS: z.string().optional(),
+    EMAIL_FROM: z.string().optional(),
     AWS_ACCESS_KEY_ID: z.string().min(1),
     AWS_SECRET_ACCESS_KEY: z.string().min(1),
     AWS_ENDPOINT_URL_S3: z.string().min(1),
@@ -18,6 +24,8 @@ export const env = createEnv({
     STRIPE_SECRET_KEY: z.string().min(1),
     STRIPE_WEBHOOK_SECRET: z.string().min(1),
   },
+  
+  skipValidation: !!process.env.SKIP_ENV_VALIDATION,
 
   client: {
     NEXT_PUBLIC_S3_BUCKET_NAME_IMAGES: z.string().min(1),

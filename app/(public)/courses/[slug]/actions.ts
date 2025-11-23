@@ -1,22 +1,13 @@
 "use server";
 
 import { requireUser } from "@/app/data/user/require-user";
-import arcjet, { fixedWindow } from "@/lib/arcjet";
+import { protectEnrollmentAction } from "@/lib/action-security";
 import { prisma } from "@/lib/db";
 import { env } from "@/lib/env";
 import { stripe } from "@/lib/stripe";
 import { ApiResponse } from "@/lib/types";
-import { request } from "@arcjet/next";
 import { redirect } from "next/navigation";
 import Stripe from "stripe";
-
-const aj = arcjet.withRule(
-  fixedWindow({
-    mode: "LIVE",
-    window: "1m",
-    max: 5,
-  })
-);
 
 export async function enrollInCourseAction(
   courseId: string
@@ -25,15 +16,12 @@ export async function enrollInCourseAction(
 
   let checkoutUrl: string;
   try {
-    const req = await request();
-    const decision = await aj.protect(req, {
-      fingerprint: user.id,
-    });
-
-    if (decision.isDenied()) {
+    // Apply security protection for enrollment actions
+    const securityCheck = await protectEnrollmentAction(user.id);
+    if (!securityCheck.success) {
       return {
         status: "error",
-        message: "You have been blocked",
+        message: securityCheck.error || "Security check failed",
       };
     }
     const course = await prisma.course.findUnique({

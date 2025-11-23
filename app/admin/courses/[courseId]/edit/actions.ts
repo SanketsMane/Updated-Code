@@ -1,7 +1,7 @@
 "use server";
 
 import { requireAdmin } from "@/app/data/admin/require-admin";
-import arcjet, { fixedWindow } from "@/lib/arcjet";
+import { protectAdminAction } from "@/lib/action-security";
 import { prisma } from "@/lib/db";
 import { ApiResponse } from "@/lib/types";
 import {
@@ -11,16 +11,7 @@ import {
   CourseSchemaType,
   lessonSchema,
 } from "@/lib/zodSchemas";
-import { request } from "@arcjet/next";
 import { revalidatePath } from "next/cache";
-
-const aj = arcjet.withRule(
-  fixedWindow({
-    mode: "LIVE",
-    window: "1m",
-    max: 5,
-  })
-);
 
 export async function editCourse(
   data: CourseSchemaType,
@@ -29,23 +20,13 @@ export async function editCourse(
   const user = await requireAdmin();
 
   try {
-    const req = await request();
-    const decision = await aj.protect(req, {
-      fingerprint: user.user.id,
-    });
-
-    if (decision.isDenied()) {
-      if (decision.reason.isRateLimit()) {
-        return {
-          status: "error",
-          message: "You have been blocked due to rate limiting",
-        };
-      } else {
-        return {
-          status: "error",
-          message: "You are a bot! if this is a mistake contact our support",
-        };
-      }
+    // Apply security protection for admin actions
+    const securityCheck = await protectAdminAction(user.user.id);
+    if (!securityCheck.success) {
+      return {
+        status: "error",
+        message: securityCheck.error || "Security check failed",
+      };
     }
 
     const result = courseSchema.safeParse(data);
