@@ -1,8 +1,7 @@
 import { requireAdmin } from "../../data/admin/require-admin";
-import { adminGetDashboardStats } from "../../data/admin/admin-get-dashboard-stats";
+import { adminGetAnalyticsStats } from "../../data/admin/admin-get-analytics-stats";
 import { adminGetEnrollmentStats } from "../../data/admin/admin-get-enrollment-stats";
 import { ChartAreaInteractive } from "@/components/sidebar/chart-area-interactive";
-import { SectionCards } from "@/components/sidebar/section-cards";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   IconTrendingUp, 
@@ -13,11 +12,12 @@ import {
   IconEye,
   IconClock
 } from "@tabler/icons-react";
+import Link from "next/link";
 
 export default async function AdminAnalyticsPage() {
   await requireAdmin();
   
-  const dashboardStats = await adminGetDashboardStats();
+  const analyticsData = await adminGetAnalyticsStats();
   const enrollmentData = await adminGetEnrollmentStats();
 
   return (
@@ -39,9 +39,9 @@ export default async function AdminAnalyticsPage() {
             <IconTrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$12,431</div>
+            <div className="text-2xl font-bold">${analyticsData.totalRevenue.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">
-              +12% from last month
+              From {analyticsData.totalEnrollments} enrollments
             </p>
           </CardContent>
         </Card>
@@ -52,9 +52,9 @@ export default async function AdminAnalyticsPage() {
             <IconUsers className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboardStats.totalStudents}</div>
+            <div className="text-2xl font-bold">{analyticsData.totalStudents}</div>
             <p className="text-xs text-muted-foreground">
-              +8% from last month
+              Enrolled students
             </p>
           </CardContent>
         </Card>
@@ -65,9 +65,9 @@ export default async function AdminAnalyticsPage() {
             <IconBook className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboardStats.totalCourses}</div>
+            <div className="text-2xl font-bold">{analyticsData.totalCourses}</div>
             <p className="text-xs text-muted-foreground">
-              +3 new this month
+              Available courses
             </p>
           </CardContent>
         </Card>
@@ -78,9 +78,9 @@ export default async function AdminAnalyticsPage() {
             <IconCertificate className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">68%</div>
+            <div className="text-2xl font-bold">{analyticsData.completionRate}%</div>
             <p className="text-xs text-muted-foreground">
-              +2% from last month
+              Average lesson completion
             </p>
           </CardContent>
         </Card>
@@ -108,22 +108,29 @@ export default async function AdminAnalyticsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <IconEye className="h-5 w-5" />
-              Course Performance
+              Top Performing Courses
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Most Popular Course</span>
-              <span className="text-sm text-muted-foreground">React Masterclass</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Highest Rated</span>
-              <span className="text-sm text-muted-foreground">JavaScript Fundamentals (4.9★)</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Most Completed</span>
-              <span className="text-sm text-muted-foreground">HTML & CSS Basics</span>
-            </div>
+            {analyticsData.topPerformingCourses.slice(0, 3).map((course, index) => (
+              <div key={course.id} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">#{index + 1}</span>
+                  <Link 
+                    href={`/admin/courses/${course.id}`}
+                    className="text-sm hover:underline"
+                  >
+                    {course.title}
+                  </Link>
+                </div>
+                <span className="text-sm text-muted-foreground">
+                  {course.enrollments} enrollments
+                </span>
+              </div>
+            ))}
+            {analyticsData.topPerformingCourses.length === 0 && (
+              <p className="text-sm text-muted-foreground">No courses available</p>
+            )}
           </CardContent>
         </Card>
 
@@ -135,18 +142,22 @@ export default async function AdminAnalyticsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm">New enrollment in React Course</span>
-              <span className="text-xs text-muted-foreground">2 hours ago</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Course completion certificate issued</span>
-              <span className="text-xs text-muted-foreground">4 hours ago</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm">New course published</span>
-              <span className="text-xs text-muted-foreground">1 day ago</span>
-            </div>
+            {analyticsData.recentActivity.slice(0, 5).map((activity) => (
+              <div key={activity.id} className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-sm">{activity.action}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {activity.user} enrolled in {activity.course}
+                  </p>
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {new Date(activity.createdAt).toLocaleDateString()}
+                </span>
+              </div>
+            ))}
+            {analyticsData.recentActivity.length === 0 && (
+              <p className="text-sm text-muted-foreground">No recent activity</p>
+            )}
           </CardContent>
         </Card>
       </div>

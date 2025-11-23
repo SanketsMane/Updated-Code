@@ -1,4 +1,5 @@
 import { requireAdmin } from "../../data/admin/require-admin";
+import { adminGetProjectStats } from "../../data/admin/admin-get-project-stats";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,55 +11,16 @@ import {
   IconEye,
   IconEdit,
   IconTrash,
-  IconDownload
+  IconDownload,
+  IconBook,
+  IconListDetails
 } from "@tabler/icons-react";
+import Link from "next/link";
 
 export default async function AdminProjectsPage() {
   await requireAdmin();
 
-  // Mock project data - in real app, fetch from database
-  const projects = [
-    {
-      id: 1,
-      name: "React Development Course",
-      description: "Comprehensive React.js course with hands-on projects",
-      status: "Active",
-      students: 245,
-      createdAt: "2024-01-15",
-      lastModified: "2024-11-20",
-      progress: 85,
-    },
-    {
-      id: 2,
-      name: "JavaScript Fundamentals",
-      description: "Complete JavaScript course from basics to advanced",
-      status: "Active",
-      students: 189,
-      createdAt: "2024-02-10",
-      lastModified: "2024-11-18",
-      progress: 92,
-    },
-    {
-      id: 3,
-      name: "Python for Beginners",
-      description: "Learn Python programming from scratch",
-      status: "Draft",
-      students: 0,
-      createdAt: "2024-11-01",
-      lastModified: "2024-11-22",
-      progress: 45,
-    },
-    {
-      id: 4,
-      name: "Web Design Masterclass",
-      description: "UI/UX design principles and tools",
-      status: "Completed",
-      students: 156,
-      createdAt: "2024-01-05",
-      lastModified: "2024-10-15",
-      progress: 100,
-    },
-  ];
+  const { projects, stats } = await adminGetProjectStats();
 
   return (
     <div className="space-y-6">
@@ -83,7 +45,7 @@ export default async function AdminProjectsPage() {
             <IconFolder className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{projects.length}</div>
+            <div className="text-2xl font-bold">{stats.totalProjects}</div>
           </CardContent>
         </Card>
 
@@ -93,9 +55,7 @@ export default async function AdminProjectsPage() {
             <IconEye className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {projects.filter(p => p.status === "Active").length}
-            </div>
+            <div className="text-2xl font-bold">{stats.activeProjects}</div>
           </CardContent>
         </Card>
 
@@ -105,9 +65,7 @@ export default async function AdminProjectsPage() {
             <IconEdit className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {projects.filter(p => p.status === "Draft").length}
-            </div>
+            <div className="text-2xl font-bold">{stats.draftProjects}</div>
           </CardContent>
         </Card>
 
@@ -117,18 +75,25 @@ export default async function AdminProjectsPage() {
             <IconDownload className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {projects.filter(p => p.status === "Completed").length}
-            </div>
+            <div className="text-2xl font-bold">{stats.completedProjects}</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Projects List */}
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold">All Projects</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold">All Projects</h2>
+          <Link href="/admin/courses/create">
+            <Button className="flex items-center gap-2">
+              <IconFolderPlus className="h-4 w-4" />
+              Create New Project
+            </Button>
+          </Link>
+        </div>
+        
         <div className="grid gap-4">
-          {projects.map((project) => (
+          {projects.length > 0 ? projects.map((project) => (
             <Card key={project.id}>
               <CardHeader>
                 <div className="flex items-center justify-between">
@@ -149,38 +114,53 @@ export default async function AdminProjectsPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="grid gap-4 md:grid-cols-4">
+                <div className="grid gap-4 md:grid-cols-5">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <IconUsers className="h-4 w-4" />
                     {project.students} students
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <IconBook className="h-4 w-4" />
+                    {project.chapters} chapters
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <IconListDetails className="h-4 w-4" />
+                    {project.lessons} lessons
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <IconCalendar className="h-4 w-4" />
                     Created {project.createdAt}
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    Progress: {project.progress}%
+                    ${project.price}
                   </div>
-                  <div className="flex items-center gap-2">
+                </div>
+                
+                <div className="flex items-center gap-2 mt-4">
+                  <Link href={`/admin/courses/${project.id}`}>
                     <Button variant="outline" size="sm">
                       <IconEye className="h-4 w-4 mr-1" />
                       View
                     </Button>
+                  </Link>
+                  <Link href={`/admin/courses/${project.id}/edit`}>
                     <Button variant="outline" size="sm">
                       <IconEdit className="h-4 w-4 mr-1" />
                       Edit
                     </Button>
-                    <Button variant="outline" size="sm">
+                  </Link>
+                  <Link href={`/admin/courses/${project.id}/delete`}>
+                    <Button variant="outline" size="sm" className="text-red-600">
                       <IconTrash className="h-4 w-4 mr-1" />
                       Delete
                     </Button>
-                  </div>
+                  </Link>
                 </div>
                 
                 {/* Progress Bar */}
                 <div className="mt-4">
                   <div className="flex items-center justify-between text-sm mb-1">
-                    <span>Completion Progress</span>
+                    <span>Completion Progress ({project.level})</span>
                     <span>{project.progress}%</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
@@ -192,7 +172,23 @@ export default async function AdminProjectsPage() {
                 </div>
               </CardContent>
             </Card>
-          ))}
+          )) : (
+            <Card>
+              <CardContent className="text-center py-8">
+                <IconFolder className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No projects found</h3>
+                <p className="text-muted-foreground mb-4">
+                  Create your first course project to get started.
+                </p>
+                <Link href="/admin/courses/create">
+                  <Button>
+                    <IconFolderPlus className="h-4 w-4 mr-2" />
+                    Create New Project
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>
