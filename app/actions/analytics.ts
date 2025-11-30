@@ -1,0 +1,519 @@
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+
+// Get user learning analytics
+export async function getUserAnalytics(userId?: string) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user?.id) {
+    redirect("/sign-in");
+  }
+
+  const targetUserId = userId || session.user.id;
+
+  // Get basic stats
+  const [
+    enrollmentCount,
+    completedCourses,
+    totalLessonsCompleted,
+    totalSessionsBooked,
+    completedSessions,
+    messagesCount,
+    blogPostsCount,
+  ] = await Promise.all([
+    // Enrollment count
+    prisma.enrollment.count({
+      where: { userId: targetUserId }
+    }),
+    
+    // Completed courses - for now, simplified to count active enrollments
+    // TODO: Implement proper completion logic based on lesson progress
+    prisma.enrollment.count({
+      where: { 
+        userId: targetUserId,
+        status: "Active"
+      }
+    }),
+    
+    // Total lessons completed
+    prisma.lessonProgress.count({
+      where: { 
+        userId: targetUserId,
+        completed: true
+      }
+    }),
+    
+    // Total sessions booked
+    prisma.liveSession.count({
+      where: { studentId: targetUserId }
+    }),
+    
+    // Completed sessions
+    prisma.liveSession.count({
+      where: { 
+        studentId: targetUserId,
+        status: "Completed"
+      }
+    }),
+    
+    // Messages sent
+    prisma.message.count({
+      where: { senderId: targetUserId }
+    }),
+    
+    // Blog posts authored
+    prisma.blogPost.count({
+      where: { authorId: targetUserId }
+    }),
+  ]);
+
+  // Get recent activity
+  const recentActivity = await getRecentActivity(targetUserId);
+  
+  // Get learning progress
+  const learningProgress = await getLearningProgress(targetUserId);
+  
+  // Get engagement metrics
+  const engagementMetrics = await getEngagementMetrics(targetUserId);
+
+  return {
+    stats: {
+      enrollmentCount,
+      completedCourses,
+      totalLessonsCompleted,
+      totalSessionsBooked,
+      completedSessions,
+      messagesCount,
+      blogPostsCount,
+      completionRate: enrollmentCount > 0 ? Math.round((completedCourses / enrollmentCount) * 100) : 0,
+      sessionCompletionRate: totalSessionsBooked > 0 ? Math.round((completedSessions / totalSessionsBooked) * 100) : 0,
+    },
+    recentActivity,
+    learningProgress,
+    engagementMetrics,
+  };
+}
+
+// Get teacher analytics
+export async function getTeacherAnalytics() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user?.id) {
+    redirect("/sign-in");
+  }
+
+  // Check if user is a teacher
+  const teacherProfile = await prisma.teacherProfile.findUnique({
+    where: { userId: session.user.id }
+  });
+
+  if (!teacherProfile) {
+    throw new Error("Teacher profile not found");
+  }
+
+  const [
+    coursesCreated,
+    totalEnrollments,
+    totalEarnings,
+    sessionsCompleted,
+    averageRating,
+    studentsCount,
+    blogPostsCount,
+  ] = await Promise.all([
+    // Courses created
+    prisma.course.count({
+      where: { userId: session.user.id }
+    }),
+    
+    // Total enrollments across all courses
+    prisma.enrollment.count({
+      where: {
+        Course: {
+          userId: session.user.id
+        }
+      }
+    }),
+    
+    // Total earnings (simplified calculation)
+    prisma.enrollment.aggregate({
+      where: {
+        Course: {
+          userId: session.user.id
+        }
+      },
+      _sum: {
+        amount: true
+      }
+    }),
+    
+    // Sessions completed
+    prisma.liveSession.count({
+      where: {
+        teacherId: session.user.id,
+        status: "Completed"
+      }
+    }),
+    
+    // Average rating
+    prisma.review.aggregate({
+      where: {
+        course: {
+          userId: session.user.id
+        }
+      },
+      _avg: {
+        rating: true
+      }
+    }),
+    
+    // Unique students
+    prisma.enrollment.findMany({
+      where: {
+        Course: {
+          userId: session.user.id
+        }
+      },
+      select: {
+        userId: true
+      },
+      distinct: ["userId"]
+    }),
+    
+    // Blog posts
+    prisma.blogPost.count({
+      where: { authorId: session.user.id }
+    }),
+  ]);
+
+  // Get revenue over time
+  const revenueData = await getRevenueOverTime(session.user.id);
+  
+  // Get course performance
+  const coursePerformance = await getCoursePerformance(session.user.id);
+
+  return {
+    stats: {
+      coursesCreated,
+      totalEnrollments,
+      totalEarnings: totalEarnings._sum.amount || 0,
+      sessionsCompleted,
+      averageRating: averageRating._avg.rating || 0,
+      studentsCount: studentsCount.length,
+      blogPostsCount,
+    },
+    revenueData,
+    coursePerformance,
+  };
+}
+
+// Get platform analytics (admin only)
+export async function getPlatformAnalytics() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user?.id) {
+    redirect("/sign-in");
+  }
+
+  // Check if user is admin
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id }
+  });
+
+  if (!user || user.role !== "admin") {
+    throw new Error("Unauthorized: Admin access required");
+  }
+
+  const [
+    totalUsers,
+    totalCourses,
+    totalEnrollments,
+    totalRevenue,
+    totalSessions,
+    totalBlogPosts,
+    activeUsers,
+  ] = await Promise.all([
+    prisma.user.count(),
+    prisma.course.count(),
+    prisma.enrollment.count(),
+    prisma.enrollment.aggregate({
+      _sum: { pricePaid: true }
+    }),
+    prisma.liveSession.count(),
+    prisma.blogPost.count(),
+    // Active users (users with activity in last 30 days)
+    prisma.user.count({
+      where: {
+        OR: [
+          {
+            enrollment: {
+              some: {
+                createdAt: {
+                  gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+                }
+              }
+            }
+          },
+          {
+            sentMessages: {
+              some: {
+                createdAt: {
+                  gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+                }
+              }
+            }
+          }
+        ]
+      }
+    }),
+  ]);
+
+  // Get user growth over time
+  const userGrowthData = await getUserGrowthData();
+  
+  // Get revenue over time
+  const revenueOverTime = await getPlatformRevenueData();
+
+  return {
+    stats: {
+      totalUsers,
+      totalCourses,
+      totalEnrollments,
+      totalRevenue: totalRevenue._sum.pricePaid || 0,
+      totalSessions,
+      totalBlogPosts,
+      activeUsers,
+      conversionRate: totalUsers > 0 ? Math.round((totalEnrollments / totalUsers) * 100) : 0,
+    },
+    userGrowthData,
+    revenueOverTime,
+  };
+}
+
+// Helper functions
+async function getRecentActivity(userId: string) {
+  const [recentEnrollments, recentProgress, recentSessions] = await Promise.all([
+    prisma.enrollment.findMany({
+      where: { userId },
+      include: {
+        Course: { select: { title: true } }
+      },
+      orderBy: { createdAt: "desc" },
+      take: 5
+    }),
+    prisma.lessonProgress.findMany({
+      where: { userId },
+      include: {
+        Lesson: {
+          select: {
+            title: true,
+            Chapter: { 
+              select: { 
+                Course: { select: { title: true } }
+              } 
+            }
+          }
+        }
+      },
+      orderBy: { updatedAt: "desc" },
+      take: 5
+    }),
+    prisma.liveSession.findMany({
+      where: { studentId: userId },
+      include: {
+        teacher: { 
+          select: { 
+            user: { select: { name: true } }
+          } 
+        }
+      },
+      orderBy: { createdAt: "desc" },
+      take: 5
+    })
+  ]);
+
+  return { recentEnrollments, recentProgress, recentSessions };
+}
+
+async function getLearningProgress(userId: string) {
+  const enrollments = await prisma.enrollment.findMany({
+    where: { userId },
+    include: {
+      Course: {
+        include: {
+          chapter: {
+            include: {
+              lessons: {
+                include: {
+                  lessonProgress: {
+                    where: { userId }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  });
+
+  return enrollments.map(enrollment => {
+    // Flatten lessons from all chapters
+    const allLessons = enrollment.Course.chapter.flatMap(chapter => chapter.lessons);
+    const totalLessons = allLessons.length;
+    const completedLessons = allLessons.filter(
+      lesson => lesson.lessonProgress[0]?.completed
+    ).length;
+    
+    return {
+      courseId: enrollment.Course.id,
+      courseTitle: enrollment.Course.title,
+      totalLessons,
+      completedLessons,
+      progress: totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0,
+      enrolledAt: enrollment.createdAt,
+      completedAt: null, // Enrollment doesn't have completedAt field
+    };
+  });
+}
+
+async function getEngagementMetrics(userId: string) {
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  
+  const [
+    lessonsCompletedLast30Days,
+    sessionsLast30Days,
+    messagesLast30Days,
+  ] = await Promise.all([
+    prisma.lessonProgress.count({
+      where: {
+        userId,
+        completed: true,
+        updatedAt: { gte: thirtyDaysAgo }
+      }
+    }),
+    prisma.liveSession.count({
+      where: {
+        studentId: userId,
+        createdAt: { gte: thirtyDaysAgo }
+      }
+    }),
+    prisma.message.count({
+      where: {
+        senderId: userId,
+        createdAt: { gte: thirtyDaysAgo }
+      }
+    }),
+  ]);
+
+  return {
+    lessonsCompletedLast30Days,
+    sessionsLast30Days,
+    messagesLast30Days,
+  };
+}
+
+async function getRevenueOverTime(teacherId: string) {
+  // This would typically be more sophisticated with proper date grouping
+  const enrollments = await prisma.enrollment.findMany({
+    where: {
+      course: { userId: teacherId }
+    },
+    orderBy: { createdAt: "asc" },
+    select: {
+      amount: true,
+      createdAt: true
+    }
+  });
+
+  // Group by month
+  const monthlyRevenue: { [key: string]: number } = {};
+  
+  enrollments.forEach(enrollment => {
+    const month = new Date(enrollment.createdAt).toISOString().slice(0, 7);
+    monthlyRevenue[month] = (monthlyRevenue[month] || 0) + (enrollment.amount || 0);
+  });
+
+  return Object.entries(monthlyRevenue).map(([month, revenue]) => ({
+    month,
+    revenue
+  }));
+}
+
+async function getCoursePerformance(teacherId: string) {
+  const courses = await prisma.course.findMany({
+    where: { userId: teacherId },
+    include: {
+      _count: {
+        select: {
+          enrollment: true,
+          reviews: true
+        }
+      },
+      reviews: {
+        select: { rating: true }
+      }
+    }
+  });
+
+  return courses.map(course => ({
+    id: course.id,
+    title: course.title,
+    enrollments: course._count.enrollment,
+    reviews: course._count.reviews,
+    averageRating: course.reviews.length > 0 
+      ? course.reviews.reduce((sum, review) => sum + review.rating, 0) / course.reviews.length
+      : 0,
+    revenue: course.enrollment?.reduce((sum: number, enrollment: any) => sum + (enrollment.pricePaid || 0), 0) || 0,
+  }));
+}
+
+async function getUserGrowthData() {
+  // Get user registrations by month for the last 12 months
+  const users = await prisma.user.findMany({
+    where: {
+      createdAt: {
+        gte: new Date(Date.now() - 12 * 30 * 24 * 60 * 60 * 1000)
+      }
+    },
+    orderBy: { createdAt: "asc" },
+    select: { createdAt: true }
+  });
+
+  const monthlyUsers: { [key: string]: number } = {};
+  
+  users.forEach(user => {
+    const month = new Date(user.createdAt).toISOString().slice(0, 7);
+    monthlyUsers[month] = (monthlyUsers[month] || 0) + 1;
+  });
+
+  return Object.entries(monthlyUsers).map(([month, count]) => ({
+    month,
+    users: count
+  }));
+}
+
+async function getPlatformRevenueData() {
+  const enrollments = await prisma.enrollment.findMany({
+    where: {
+      createdAt: {
+        gte: new Date(Date.now() - 12 * 30 * 24 * 60 * 60 * 1000)
+      }
+    },
+    orderBy: { createdAt: "asc" },
+    select: {
+      price_paid: true,
+      createdAt: true
+    }
+  });
+
+  const monthlyRevenue: { [key: string]: number } = {};
+  
+  enrollments.forEach(enrollment => {
+    const month = new Date(enrollment.createdAt).toISOString().slice(0, 7);
+    monthlyRevenue[month] = (monthlyRevenue[month] || 0) + (enrollment.price_paid || 0);
+  });
+
+  return Object.entries(monthlyRevenue).map(([month, revenue]) => ({
+    month,
+    revenue
+  }));
+}

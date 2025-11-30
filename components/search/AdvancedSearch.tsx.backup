@@ -1,0 +1,654 @@
+"use client";
+
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  Search,
+  Filter,
+  X,
+  Star,
+  Clock,
+  DollarSign,
+  Users,
+  BookOpen,
+  Video,
+  Award,
+  ChevronDown,
+  SlidersHorizontal,
+  Sparkles
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+
+export interface SearchFilters {
+  query: string;
+  categories: string[];
+  levels: string[];
+  priceRange: [number, number];
+  duration: string[];
+  rating: number;
+  isFree: boolean;
+  hasVideo: boolean;
+  hasCertificate: boolean;
+  isLiveSession: boolean;
+  instructors: string[];
+  sortBy: string;
+  sortOrder: 'asc' | 'desc';
+}
+
+interface AdvancedSearchProps {
+  onSearch: (filters: SearchFilters) => void;
+  isLoading?: boolean;
+  resultCount?: number;
+  placeholder?: string;
+  showMobileSheet?: boolean;
+}
+
+const CATEGORIES = [
+  "Web Development", "Mobile Development", "Data Science", "Machine Learning",
+  "DevOps", "UI/UX Design", "Digital Marketing", "Business", "Photography",
+  "Music", "Language Learning", "Personal Development", "Health & Fitness"
+];
+
+const LEVELS = ["Beginner", "Intermediate", "Advanced", "Expert"];
+
+const DURATION_OPTIONS = [
+  { label: "0-2 hours", value: "0-2" },
+  { label: "2-5 hours", value: "2-5" },
+  { label: "5-10 hours", value: "5-10" },
+  { label: "10-20 hours", value: "10-20" },
+  { label: "20+ hours", value: "20+" },
+];
+
+const SORT_OPTIONS = [
+  { label: "Relevance", value: "relevance" },
+  { label: "Newest", value: "created_at" },
+  { label: "Rating", value: "rating" },
+  { label: "Price", value: "price" },
+  { label: "Popularity", value: "enrollment_count" },
+  { label: "Duration", value: "duration" },
+];
+
+export function AdvancedSearch({
+  onSearch,
+  isLoading = false,
+  resultCount = 0,
+  placeholder = "Search courses, instructors, topics...",
+  showMobileSheet = true
+}: AdvancedSearchProps) {
+  const [filters, setFilters] = useState<SearchFilters>({
+    query: "",
+    categories: [],
+    levels: [],
+    priceRange: [0, 500],
+    duration: [],
+    rating: 0,
+    isFree: false,
+    hasVideo: false,
+    hasCertificate: false,
+    isLiveSession: false,
+    instructors: [],
+    sortBy: "relevance",
+    sortOrder: "desc"
+  });
+
+  const [showFilters, setShowFilters] = useState(false);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  // Load recent searches from localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('recent-searches');
+      if (saved) {
+        setRecentSearches(JSON.parse(saved));
+      }
+    }
+  }, []);
+
+  // Debounced search suggestions
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (filters.query.length > 2) {
+        generateSuggestions(filters.query);
+      } else {
+        setSearchSuggestions([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [filters.query]);
+
+  const generateSuggestions = useCallback((query: string) => {
+    // Mock suggestions - in real app, this would be an API call
+    const mockSuggestions = [
+      `${query} for beginners`,
+      `Advanced ${query}`,
+      `${query} tutorial`,
+      `${query} course`,
+      `Learn ${query}`,
+    ];
+    setSearchSuggestions(mockSuggestions.slice(0, 5));
+  }, []);
+
+  const handleSearch = useCallback(() => {
+    if (filters.query.trim()) {
+      // Add to recent searches
+      const updated = [filters.query, ...recentSearches.filter(s => s !== filters.query)].slice(0, 5);
+      setRecentSearches(updated);
+      localStorage.setItem('recent-searches', JSON.stringify(updated));
+    }
+    
+    setShowSuggestions(false);
+    onSearch(filters);
+  }, [filters, recentSearches, onSearch]);
+
+  const handleFilterChange = useCallback(<K extends keyof SearchFilters>(
+    key: K,
+    value: SearchFilters[K]
+  ) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+  }, []);
+
+  const handleCategoryToggle = useCallback((category: string) => {
+    setFilters(prev => ({
+      ...prev,
+      categories: prev.categories.includes(category)
+        ? prev.categories.filter(c => c !== category)
+        : [...prev.categories, category]
+    }));
+  }, []);
+
+  const handleLevelToggle = useCallback((level: string) => {
+    setFilters(prev => ({
+      ...prev,
+      levels: prev.levels.includes(level)
+        ? prev.levels.filter(l => l !== level)
+        : [...prev.levels, level]
+    }));
+  }, []);
+
+  const handleDurationToggle = useCallback((duration: string) => {
+    setFilters(prev => ({
+      ...prev,
+      duration: prev.duration.includes(duration)
+        ? prev.duration.filter(d => d !== duration)
+        : [...prev.duration, duration]
+    }));
+  }, []);
+
+  const clearFilters = useCallback(() => {
+    setFilters({
+      query: filters.query, // Keep the search query
+      categories: [],
+      levels: [],
+      priceRange: [0, 500],
+      duration: [],
+      rating: 0,
+      isFree: false,
+      hasVideo: false,
+      hasCertificate: false,
+      isLiveSession: false,
+      instructors: [],
+      sortBy: "relevance",
+      sortOrder: "desc"
+    });
+  }, [filters.query]);
+
+  const activeFilterCount = useMemo(() => {
+    return (
+      filters.categories.length +
+      filters.levels.length +
+      filters.duration.length +
+      (filters.rating > 0 ? 1 : 0) +
+      (filters.isFree ? 1 : 0) +
+      (filters.hasVideo ? 1 : 0) +
+      (filters.hasCertificate ? 1 : 0) +
+      (filters.isLiveSession ? 1 : 0) +
+      (filters.priceRange[0] > 0 || filters.priceRange[1] < 500 ? 1 : 0)
+    );
+  }, [filters]);
+
+  const FilterContent = () => (
+    <div className="space-y-6">
+      {/* Sort Options */}
+      <div className="space-y-3">
+        <Label className="text-sm font-medium flex items-center gap-2">
+          <SlidersHorizontal className="h-4 w-4" />
+          Sort By
+        </Label>
+        <div className="flex gap-2">
+          <Select 
+            value={filters.sortBy} 
+            onValueChange={(value) => handleFilterChange('sortBy', value)}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {SORT_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button
+            variant={filters.sortOrder === 'asc' ? "default" : "outline"}
+            size="sm"
+            onClick={() => handleFilterChange('sortOrder', filters.sortOrder === 'asc' ? 'desc' : 'asc')}
+          >
+            {filters.sortOrder === 'asc' ? '↑' : '↓'}
+          </Button>
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Categories */}
+      <Collapsible>
+        <CollapsibleTrigger className="flex items-center justify-between w-full py-2">
+          <Label className="text-sm font-medium flex items-center gap-2">
+            <BookOpen className="h-4 w-4" />
+            Categories {filters.categories.length > 0 && `(${filters.categories.length})`}
+          </Label>
+          <ChevronDown className="h-4 w-4" />
+        </CollapsibleTrigger>
+        <CollapsibleContent className="space-y-2">
+          <div className="grid grid-cols-2 gap-2">
+            {CATEGORIES.map((category) => (
+              <Button
+                key={category}
+                variant={filters.categories.includes(category) ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleCategoryToggle(category)}
+                className="justify-start text-xs h-8"
+              >
+                {category}
+              </Button>
+            ))}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+
+      <Separator />
+
+      {/* Difficulty Level */}
+      <div className="space-y-3">
+        <Label className="text-sm font-medium flex items-center gap-2">
+          <Award className="h-4 w-4" />
+          Difficulty Level
+        </Label>
+        <div className="flex flex-wrap gap-2">
+          {LEVELS.map((level) => (
+            <Button
+              key={level}
+              variant={filters.levels.includes(level) ? "default" : "outline"}
+              size="sm"
+              onClick={() => handleLevelToggle(level)}
+              className="h-8"
+            >
+              {level}
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Price Range */}
+      <div className="space-y-3">
+        <Label className="text-sm font-medium flex items-center gap-2">
+          <DollarSign className="h-4 w-4" />
+          Price Range: ${filters.priceRange[0]} - ${filters.priceRange[1]}
+        </Label>
+        <Slider
+          value={filters.priceRange}
+          onValueChange={(value) => handleFilterChange('priceRange', value as [number, number])}
+          max={500}
+          step={10}
+          className="w-full"
+        />
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="free-courses"
+            checked={filters.isFree}
+            onCheckedChange={(checked) => handleFilterChange('isFree', checked)}
+          />
+          <Label htmlFor="free-courses" className="text-sm">Free courses only</Label>
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Duration */}
+      <Collapsible>
+        <CollapsibleTrigger className="flex items-center justify-between w-full py-2">
+          <Label className="text-sm font-medium flex items-center gap-2">
+            <Clock className="h-4 w-4" />
+            Duration {filters.duration.length > 0 && `(${filters.duration.length})`}
+          </Label>
+          <ChevronDown className="h-4 w-4" />
+        </CollapsibleTrigger>
+        <CollapsibleContent className="space-y-2">
+          <div className="space-y-2">
+            {DURATION_OPTIONS.map((option) => (
+              <Button
+                key={option.value}
+                variant={filters.duration.includes(option.value) ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleDurationToggle(option.value)}
+                className="justify-start w-full h-8"
+              >
+                {option.label}
+              </Button>
+            ))}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+
+      <Separator />
+
+      {/* Rating */}
+      <div className="space-y-3">
+        <Label className="text-sm font-medium flex items-center gap-2">
+          <Star className="h-4 w-4" />
+          Minimum Rating
+        </Label>
+        <div className="flex gap-1">
+          {[1, 2, 3, 4, 5].map((rating) => (
+            <Button
+              key={rating}
+              variant="ghost"
+              size="sm"
+              onClick={() => handleFilterChange('rating', rating === filters.rating ? 0 : rating)}
+              className="p-1"
+            >
+              <Star
+                className={cn(
+                  "h-5 w-5",
+                  rating <= filters.rating
+                    ? "fill-yellow-400 text-yellow-400"
+                    : "text-gray-300"
+                )}
+              />
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Additional Filters */}
+      <div className="space-y-3">
+        <Label className="text-sm font-medium flex items-center gap-2">
+          <Sparkles className="h-4 w-4" />
+          Features
+        </Label>
+        <div className="space-y-3">
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="has-video"
+              checked={filters.hasVideo}
+              onCheckedChange={(checked) => handleFilterChange('hasVideo', checked)}
+            />
+            <Label htmlFor="has-video" className="text-sm flex items-center gap-2">
+              <Video className="h-4 w-4" />
+              Video content
+            </Label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="has-certificate"
+              checked={filters.hasCertificate}
+              onCheckedChange={(checked) => handleFilterChange('hasCertificate', checked)}
+            />
+            <Label htmlFor="has-certificate" className="text-sm flex items-center gap-2">
+              <Award className="h-4 w-4" />
+              Certificate included
+            </Label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="live-session"
+              checked={filters.isLiveSession}
+              onCheckedChange={(checked) => handleFilterChange('isLiveSession', checked)}
+            />
+            <Label htmlFor="live-session" className="text-sm flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Live sessions
+            </Label>
+          </div>
+        </div>
+      </div>
+
+      {/* Clear Filters */}
+      {activeFilterCount > 0 && (
+        <>
+          <Separator />
+          <Button variant="outline" onClick={clearFilters} className="w-full">
+            Clear all filters ({activeFilterCount})
+          </Button>
+        </>
+      )}
+    </div>
+  );
+
+  return (
+    <div className="w-full space-y-4">
+      {/* Search Input */}
+      <div className="relative">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder={placeholder}
+            value={filters.query}
+            onChange={(e) => handleFilterChange('query', e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSearch();
+              }
+            }}
+            onFocus={() => setShowSuggestions(true)}
+            className="pl-10 pr-20 h-12 text-base"
+          />
+          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
+            {/* Desktop Filter Toggle */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowFilters(!showFilters)}
+              className="hidden lg:flex items-center gap-2"
+            >
+              <Filter className="h-4 w-4" />
+              Filters
+              {activeFilterCount > 0 && (
+                <Badge variant="secondary" className="ml-1">
+                  {activeFilterCount}
+                </Badge>
+              )}
+            </Button>
+          </div>
+            
+            {/* Mobile Filter Sheet */}
+            {showMobileSheet && (
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="sm" className="lg:hidden">
+                    <Filter className="h-4 w-4" />
+                    {activeFilterCount > 0 && (
+                      <Badge variant="secondary" className="ml-1">
+                        {activeFilterCount}
+                      </Badge>
+                    )}
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="bottom" className="h-[80vh]">
+                  <SheetHeader>
+                    <SheetTitle>Search Filters</SheetTitle>
+                    <SheetDescription>
+                      Refine your search results
+                    </SheetDescription>
+                  </SheetHeader>
+                  <div className="mt-6 overflow-y-auto max-h-[60vh]">
+                    <FilterContent />
+                  </div>
+                </SheetContent>
+              </Sheet>
+            )}
+            
+            <Button onClick={handleSearch} disabled={isLoading} size="sm">
+              {isLoading ? "..." : "Search"}
+            </Button>
+          </div>
+        </div>
+
+        {/* Search Suggestions */}
+        {showSuggestions && (searchSuggestions.length > 0 || recentSearches.length > 0) && (
+          <Card className="absolute top-full left-0 right-0 mt-1 z-50 shadow-lg">
+            <CardContent className="p-3">
+              {searchSuggestions.length > 0 && (
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">Suggestions</Label>
+                  {searchSuggestions.map((suggestion, index) => (
+                    <Button
+                      key={index}
+                      variant="ghost"
+                      className="w-full justify-start h-8 text-sm"
+                      onClick={() => {
+                        handleFilterChange('query', suggestion);
+                        setShowSuggestions(false);
+                      }}
+                    >
+                      <Search className="h-3 w-3 mr-2" />
+                      {suggestion}
+                    </Button>
+                  ))}
+                </div>
+              )}
+              
+              {recentSearches.length > 0 && (
+                <>
+                  {searchSuggestions.length > 0 && <Separator className="my-2" />}
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Recent searches</Label>
+                    {recentSearches.map((search, index) => (
+                      <Button
+                        key={index}
+                        variant="ghost"
+                        className="w-full justify-start h-8 text-sm"
+                        onClick={() => {
+                          handleFilterChange('query', search);
+                          setShowSuggestions(false);
+                        }}
+                      >
+                        <Clock className="h-3 w-3 mr-2" />
+                        {search}
+                      </Button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {/* Active Filters Display */}
+      {activeFilterCount > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {filters.categories.map((category) => (
+            <Badge key={category} variant="secondary" className="gap-1">
+              {category}
+              <X
+                className="h-3 w-3 cursor-pointer"
+                onClick={() => handleCategoryToggle(category)}
+              />
+            </Badge>
+          ))}
+          {filters.levels.map((level) => (
+            <Badge key={level} variant="secondary" className="gap-1">
+              {level}
+              <X
+                className="h-3 w-3 cursor-pointer"
+                onClick={() => handleLevelToggle(level)}
+              />
+            </Badge>
+          ))}
+          {filters.isFree && (
+            <Badge variant="secondary" className="gap-1">
+              Free
+              <X
+                className="h-3 w-3 cursor-pointer"
+                onClick={() => handleFilterChange('isFree', false)}
+              />
+            </Badge>
+          )}
+          {filters.rating > 0 && (
+            <Badge variant="secondary" className="gap-1">
+              {filters.rating}+ stars
+              <X
+                className="h-3 w-3 cursor-pointer"
+                onClick={() => handleFilterChange('rating', 0)}
+              />
+            </Badge>
+          )}
+        </div>
+      )}
+
+      {/* Desktop Filters Panel */}
+      {showFilters && (
+        <Card className="hidden lg:block">
+          <CardHeader>
+            <CardTitle className="text-lg">Filters</CardTitle>
+            {resultCount > 0 && (
+              <p className="text-sm text-muted-foreground">
+                {resultCount.toLocaleString()} results found
+              </p>
+            )}
+          </CardHeader>
+          <CardContent>
+            <FilterContent />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Click outside to close suggestions */}
+      {showSuggestions && (
+        <div
+          className="fixed inset-0 z-40"
+          onClick={() => setShowSuggestions(false)}
+        />
+      )}
+    </div>
+  );
+}

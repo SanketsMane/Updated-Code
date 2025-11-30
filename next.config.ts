@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        hostname: "marshal-lms-yt-video-subscribe.fly.storage.tigris.dev",
+        hostname: "KIDOKOOL-yt-video-subscribe.fly.storage.tigris.dev",
         port: "",
         protocol: "https",
       },

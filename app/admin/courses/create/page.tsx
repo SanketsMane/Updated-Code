@@ -113,9 +113,9 @@ export default function CourseCreationPage() {
         <CardContent>
           <Form {...form}>
             <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
-              <FormField
+              <FormField<CourseSchemaType>
                 control={form.control}
-                name="title"
+                name="price"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Title</FormLabel>
@@ -175,7 +175,7 @@ export default function CourseCreationPage() {
                 )}
               />
 
-              <FormField
+              <FormField<CourseSchemaType>
                 control={form.control}
                 name="description"
                 render={({ field }) => (
@@ -189,9 +189,9 @@ export default function CourseCreationPage() {
                 )}
               />
 
-              <FormField
+              <FormField<CourseSchemaType>
                 control={form.control}
-                name="fileKey"
+                name="level"
                 render={({ field }) => (
                   <FormItem className="w-full">
                     <FormLabel>Thumbnail image</FormLabel>
@@ -208,7 +208,7 @@ export default function CourseCreationPage() {
               />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
+                <FormField<CourseSchemaType>
                   control={form.control}
                   name="category"
                   render={({ field }) => (
@@ -237,7 +237,7 @@ export default function CourseCreationPage() {
                   )}
                 />
 
-                <FormField
+                <FormField<CourseSchemaType>
                   control={form.control}
                   name="level"
                   render={({ field }) => (
@@ -266,7 +266,7 @@ export default function CourseCreationPage() {
                   )}
                 />
 
-                <FormField
+                <FormField<CourseSchemaType>
                   control={form.control}
                   name="duration"
                   render={({ field }) => (
@@ -284,7 +284,7 @@ export default function CourseCreationPage() {
                   )}
                 />
 
-                <FormField
+                <FormField<CourseSchemaType>
                   control={form.control}
                   name="price"
                   render={({ field }) => (
@@ -299,7 +299,7 @@ export default function CourseCreationPage() {
                 />
               </div>
 
-              <FormField
+              <FormField<CourseSchemaType>
                 control={form.control}
                 name="status"
                 render={({ field }) => (

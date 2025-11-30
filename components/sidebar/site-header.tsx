@@ -1,6 +1,8 @@
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ThemeToggle } from "../ui/themeToggle";
+import { MessageNotification } from "../messaging/MessageNotification";
+import { NotificationBell } from "../notifications/NotificationBell";
 
 export function SiteHeader() {
   return (
@@ -13,6 +15,8 @@ export function SiteHeader() {
         />
         <h1 className="text-base font-medium">KIDOKOOL.</h1>
         <div className="ml-auto flex items-center gap-2">
+          <NotificationBell />
+          <MessageNotification />
           <ThemeToggle />
         </div>
       </div>

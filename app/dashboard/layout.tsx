@@ -1,9 +1,35 @@
+"use client";
+
 import { SiteHeader } from "@/components/sidebar/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { ReactNode } from "react";
 import { AppSidebar } from "./_components/DashboardAppSidebar";
+import { useAuth } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { Loader2 } from "lucide-react";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
+  const { data: session, isPending } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isPending && !session) {
+      router.push("/login");
+    }
+  }, [session, isPending, router]);
+
+  if (isPending) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!session) {
+    return null;
+  }
   return (
     <SidebarProvider
       style={
@@ -16,9 +42,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
-        <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6 px-4 lg:px-6">
+        <div className="flex flex-1 flex-col h-[calc(100vh-var(--header-height))]">
+          <div className="@container/main flex flex-1 flex-col gap-2 h-full">
+            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6 px-4 lg:px-6 h-full">
               {children}
             </div>
           </div>

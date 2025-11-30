@@ -1,10 +1,41 @@
-import { AppSidebar } from "@/components/sidebar/app-sidebar";
+"use client";
 
+import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { SiteHeader } from "@/components/sidebar/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { ReactNode } from "react";
+import { useAuth } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { Loader2 } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
+  const { data: session, isPending } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isPending && !session) {
+      router.push("/login");
+    } else if (!isPending && session && session.user.role !== "admin") {
+      router.push("/not-admin");
+    }
+  }, [session, isPending, router]);
+
+  if (isPending) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!session) {
+    return null;
+  }
+
+  if (session.user.role !== "admin") {
+    return null;
+  }
   return (
     <SidebarProvider
       style={

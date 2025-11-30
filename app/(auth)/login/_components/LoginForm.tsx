@@ -16,6 +16,7 @@ import { GithubIcon, Loader, Loader2, Send } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
+import Link from "next/link";
 
 export function LoginForm() {
   const router = useRouter();
@@ -117,6 +118,27 @@ export function LoginForm() {
               </>
             )}
           </Button>
+        </div>
+
+        <div className="text-center space-y-2 pt-4 border-t">
+          <p className="text-sm text-muted-foreground">
+            Don't have an account?
+          </p>
+          <div className="flex justify-center gap-4 text-sm">
+            <Link 
+              href="/register" 
+              className="text-primary hover:underline font-medium"
+            >
+              Student Signup
+            </Link>
+            <span className="text-muted-foreground">|</span>
+            <Link 
+              href="/register/teacher" 
+              className="text-emerald-600 hover:underline font-medium"
+            >
+              Become a Teacher
+            </Link>
+          </div>
         </div>
       </CardContent>
     </Card>

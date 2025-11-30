@@ -1,78 +1,108 @@
-# 🎓 KIDOKOOL Learning Management System
+# 🎓 KIDOKOOL LMS Marketplace
 
-> A comprehensive, modern Learning Management System built with cutting-edge technologies for seamless online education and course management.
+> **A Modern Learning Management System & Course Marketplace**  
+> Built with Next.js 15, TypeScript, and cutting-edge technologies for seamless online education, course creation, and marketplace functionality.
 
-[![Next.js](https://img.shields.io/badge/Next.js-15.3.3-black)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-blue)](https://www.postgresql.org/)
-[![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748)](https://www.prisma.io/)
+[![Next.js](https://img.shields.io/badge/Next.js-15.3.3-000000?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+
+---
+
+## 🚀 Overview
+
+KIDOKOOL LMS Marketplace is a comprehensive learning management system that combines course creation, student management, and marketplace functionality. It provides a complete ecosystem for educators to create, sell, and manage online courses while offering students an engaging learning experience.
 
 ## ✨ Key Features
 
-### 🔐 **Authentication & Security**
-- **Better-Auth Integration** - Secure, modern authentication system
-- **Custom Security Engine** - Advanced rate limiting, bot detection, and email validation
-- **Role-Based Access Control** - Admin, instructor, and student permissions
-- **Email Verification** - Secure account activation with OTP
+### 🎯 **Course Management**
+- **Rich Course Builder** - Create multimedia courses with drag-and-drop interface
+- **Video Streaming** - Integrated video player with progress tracking
+- **Interactive Quizzes** - Build assessments with multiple question types
+- **Course Analytics** - Track student engagement and performance
+- **Content Versioning** - Manage course updates and revisions
 
-### 📚 **Course Management**
-- **Rich Course Builder** - Create comprehensive courses with multimedia content
-- **Tiptap Editor Integration** - Advanced WYSIWYG content editing
-- **Video Streaming Support** - Seamless video content delivery
-- **Progress Tracking** - Real-time student progress monitoring
-- **Course Categories** - Organized content categorization
+### 🛒 **Marketplace Features**
+- **Course Discovery** - Advanced search and filtering capabilities
+- **Rating & Reviews** - Student feedback and rating system
+- **Course Previews** - Free preview content for potential students
+- **Wishlist & Favorites** - Save courses for later purchase
+- **Bulk Enrollment** - Corporate and institutional enrollments
 
-### 💳 **Payment & Enrollment**
+### 💰 **Payment & Revenue**
 - **Stripe Integration** - Secure payment processing
-- **Multiple Payment Methods** - Support for cards, digital wallets
-- **Enrollment Management** - Automated course access control
-- **Revenue Analytics** - Comprehensive financial reporting
+- **Multiple Payment Methods** - Cards, wallets, and bank transfers
+- **Revenue Dashboard** - Real-time earnings and analytics
+- **Payout Management** - Automated instructor payments
+- **Discount Coupons** - Promotional pricing strategies
 
-### 📧 **Communication System**
-- **Nodemailer Email Service** - Professional email templates
-- **Automated Notifications** - Course enrollment, welcome emails, password resets
-- **Multi-Provider Support** - Gmail, SMTP, and other email services
-- **Responsive Email Templates** - Mobile-optimized HTML emails
+### 👥 **User Management**
+- **Role-Based Access** - Students, Instructors, Admins
+- **Profile Management** - Comprehensive user profiles
+- **Learning Paths** - Guided course sequences
+- **Certificates** - Automated certificate generation
+- **Social Learning** - Discussion forums and peer interaction
+
+### 🔐 **Security & Authentication**
+- **Better-Auth Integration** - Modern authentication system
+- **Email Verification** - Secure account activation
+- **Two-Factor Authentication** - Enhanced security options
+- **Rate Limiting** - Bot protection and abuse prevention
+- **Data Encryption** - Secure data handling
+
+### 📊 **Analytics & Reporting**
+- **Learning Analytics** - Student progress insights
+- **Business Intelligence** - Revenue and engagement metrics
+- **Custom Reports** - Exportable data reports
+- **Real-time Dashboards** - Live performance monitoring
 
 ### 🎨 **Modern UI/UX**
-- **Tailwind CSS** - Beautiful, responsive design system
+- **Responsive Design** - Mobile-first approach
 - **Dark/Light Mode** - User preference themes
-- **Mobile-First Design** - Optimized for all devices
-- **Accessibility Features** - WCAG compliant interface
-
-### 🗄️ **Database & Performance**
-- **PostgreSQL Database** - Robust, scalable data storage
-- **Prisma ORM** - Type-safe database operations
-- **Optimized Queries** - Fast data retrieval and caching
-- **Database Migrations** - Version-controlled schema changes
+- **Accessibility** - WCAG 2.1 AA compliant
+- **Progressive Web App** - Offline functionality
+- **Component Library** - Reusable UI components
 
 ## 🛠️ Technology Stack
 
-| Category | Technology | Purpose |
-|----------|------------|---------|
-| **Frontend** | Next.js 15, React 19, TypeScript | Modern web application framework |
-| **Styling** | Tailwind CSS, Radix UI | Responsive design system |
-| **Database** | PostgreSQL, Prisma | Data persistence and ORM |
-| **Authentication** | Better-Auth | Secure user management |
-| **Payments** | Stripe | Payment processing |
-| **Email** | Nodemailer | Email notifications |
-| **Security** | Custom Engine | Rate limiting, bot detection |
-| **Editor** | Tiptap | Rich text editing |
+### **Frontend**
+- **Next.js 15.3.3** - React framework with App Router
+- **TypeScript** - Type-safe development
+- **Tailwind CSS** - Utility-first CSS framework
+- **Radix UI** - Accessible component primitives
+- **React Hook Form** - Form management
+- **Zustand** - State management
+
+### **Backend & Database**
+- **PostgreSQL** - Primary database
+- **Prisma ORM** - Type-safe database client
+- **Better-Auth** - Authentication system
+- **Stripe** - Payment processing
+- **AWS S3** - File storage
+- **WebSocket** - Real-time communication
+
+### **Development & Deployment**
+- **pnpm** - Package manager
+- **ESLint & Prettier** - Code quality
+- **Husky** - Git hooks
+- **Vercel** - Deployment platform
+- **GitHub Actions** - CI/CD pipeline
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ and pnpm
-- PostgreSQL database
-- Stripe account (for payments)
-- Email service (Gmail/SMTP)
+- **Node.js** 18.17 or later
+- **PostgreSQL** 14 or later
+- **pnpm** 8.0 or later
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/SanketsMane/LMS-Start.git
-   cd LMS-Start
+   git clone https://github.com/SanketsMane/KIDOKOOL-LMS-Marketplace.git
+   cd KIDOKOOL-LMS-Marketplace
    ```
 
 2. **Install dependencies**
@@ -88,8 +118,8 @@
 
 4. **Database Setup**
    ```bash
-   pnpm db:push
    pnpm db:migrate
+   pnpm db:seed
    ```
 
 5. **Start Development Server**
@@ -97,128 +127,101 @@
    pnpm dev
    ```
 
-Visit `http://localhost:3000` to access your LMS platform.
+6. **Open in browser**
+   ```
+   http://localhost:3000
+   ```
 
-## 📋 Available Scripts
+## 📁 Project Structure
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start development server with Turbopack |
-| `pnpm build` | Build production application |
-| `pnpm start` | Start production server |
-| `pnpm db:push` | Push schema changes to database |
-| `pnpm db:migrate` | Run database migrations |
-| `pnpm db:studio` | Open Prisma Studio |
-| `pnpm test-email` | Test email configuration |
-| `pnpm seed-users` | Create admin and teacher test accounts |
+```
+KIDOKOOL/
+├── app/                    # Next.js App Router
+│   ├── (auth)/            # Authentication pages
+│   ├── (public)/          # Public pages
+│   ├── admin/             # Admin dashboard
+│   ├── dashboard/         # User dashboard
+│   ├── teacher/           # Instructor portal
+│   └── api/               # API routes
+├── components/            # Reusable UI components
+│   ├── ui/               # Base UI components
+│   ├── admin/            # Admin-specific components
+│   ├── teacher/          # Instructor components
+│   └── general/          # General components
+├── lib/                  # Utilities and configurations
+├── prisma/               # Database schema and migrations
+├── hooks/                # Custom React hooks
+└── public/               # Static assets
+```
 
-## 🧪 Test Credentials
+## 🔧 Available Scripts
 
-For development and testing purposes, the following accounts are pre-configured:
+```bash
+# Development
+pnpm dev              # Start development server
+pnpm build            # Build for production
+pnpm start            # Start production server
+pnpm lint             # Run ESLint
 
-| Role | Email | Access Level |
-|------|-------|-------------|
-| **Admin** | `bksun170882@gmail.com` | Full system access, user management, course approval |
-| **Teacher** | `contactsanket1@gmail.com` | Course creation, student management, analytics |
-
-> **Note**: Use email OTP authentication to log in with these accounts. The system will send verification codes to these email addresses.
-
-## 🔧 Configuration
-
-### Environment Variables
-```env
 # Database
-DATABASE_URL="postgresql://..."
+pnpm db:migrate       # Run database migrations
+pnpm db:push          # Push schema changes
+pnpm db:studio        # Open Prisma Studio
+pnpm db:seed          # Seed test data
 
-# Authentication
-BETTER_AUTH_SECRET="your-secret"
-BETTER_AUTH_URL="http://localhost:3000"
-
-# Email Configuration
-EMAIL_USER="your-email@gmail.com"
-EMAIL_PASSWORD="your-app-password"
-EMAIL_FROM_NAME="KIDOKOOL"
-
-# Stripe
-STRIPE_SECRET_KEY="sk_test_..."
-STRIPE_PUBLISHABLE_KEY="pk_test_..."
+# Testing
+pnpm test             # Run tests
+pnpm test:watch       # Run tests in watch mode
 ```
 
-## 🏗️ Project Structure
+## 🌟 Key Highlights
 
-```
-├── app/                 # Next.js app directory
-├── components/          # Reusable UI components
-├── lib/                 # Utility functions and configurations
-│   ├── auth.ts         # Authentication setup
-│   ├── security.ts     # Custom security system
-│   ├── email.ts        # Email service
-│   └── prisma.ts       # Database client
-├── prisma/             # Database schema and migrations
-├── public/             # Static assets
-└── styles/             # Global styles
-```
+- **🎓 Complete LMS Solution** - Everything needed for online education
+- **🛒 Built-in Marketplace** - Sell and discover courses
+- **📱 Mobile Optimized** - Perfect experience on all devices
+- **🔒 Enterprise Security** - Bank-level security standards
+- **⚡ High Performance** - Optimized for speed and scalability
+- **🎨 Modern Design** - Beautiful, intuitive user interface
+- **🔧 Developer Friendly** - Well-documented and maintainable code
 
-## 💡 Core Features Walkthrough
+## 📝 License
 
-### Student Experience
-- Browse and search courses
-- Secure enrollment and payment
-- Track learning progress
-- Access course materials
-- Receive email notifications
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-### Instructor Dashboard
-- Create and manage courses
-- Upload multimedia content
-- Monitor student progress
-- Analytics and reporting
+## 👤 Developer
 
-### Admin Panel
-- User management
-- Course approval
-- System configuration
-- Revenue tracking
-
-## 🔒 Security Features
-
-- **Rate Limiting** - Prevents API abuse
-- **Bot Detection** - Advanced request filtering
-- **Email Validation** - Comprehensive email verification
-- **SQL Injection Protection** - Prisma ORM safety
-- **XSS Prevention** - Input sanitization
-- **CSRF Protection** - Request validation
-
-## 📈 Performance Optimizations
-
-- **Turbopack** - Fast development builds
-- **Image Optimization** - Next.js automatic optimization
-- **Database Indexing** - Optimized query performance
-- **Caching Strategy** - Efficient data retrieval
-- **Code Splitting** - Optimized bundle sizes
+**Sanket Mane**
+- 🌐 GitHub: [@SanketsMane](https://github.com/SanketsMane)
+- 📧 Email: sanketpatil515151@gmail.com
+- 💼 Portfolio: [sanketmane.dev](https://sanketmane.dev)
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📄 License
+## 📞 Support
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+If you have any questions or need help with setup, please:
+- 📧 Email: sanketpatil515151@gmail.com
+- 🐛 Open an issue on GitHub
+- 💬 Start a discussion in the repository
 
-## 👨‍💻 Author
+## 🙏 Acknowledgments
 
-**Sanket Mane** - Full Stack Developer  
-📧 Email: [sanketsmane@gmail.com](mailto:sanketsmane@gmail.com)  
-🐙 GitHub: [@SanketsMane](https://github.com/SanketsMane)  
-🌐 Repository: [LMS-Start](https://github.com/SanketsMane/LMS-Start)
+- Built with [Next.js](https://nextjs.org/)
+- UI components from [Radix UI](https://www.radix-ui.com/)
+- Styled with [Tailwind CSS](https://tailwindcss.com/)
+- Authentication by [Better-Auth](https://www.better-auth.com/)
+- Database management with [Prisma](https://www.prisma.io/)
 
 ---
 
-<div align="center">
-  <p>Built with ❤️ for the future of online education</p>
-  <p>⭐ Star this repository if you find it helpful!</p>
-</div>
+⭐ **Star this repository if you find it helpful!**
+
+Made with ❤️ by [Sanket Mane](https://github.com/SanketsMane)

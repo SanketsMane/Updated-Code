@@ -1,5 +1,5 @@
-import { requireTeacher } from "../../data/auth/require-roles";
-import { adminGetCourses } from "../../data/admin/admin-get-courses";
+import { requireTeacher } from "../data/auth/require-roles";
+import { adminGetCourses } from "../data/admin/admin-get-courses";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
@@ -27,7 +27,7 @@ export default async function TeacherDashboardPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Teacher Dashboard</h1>
+          <h1 className="text-2xl font-bold">Welcome Back!</h1>
           <p className="text-muted-foreground">
             Manage your courses and track student progress
           </p>

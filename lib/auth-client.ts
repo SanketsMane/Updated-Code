@@ -5,3 +5,7 @@ import { adminClient } from "better-auth/client/plugins";
 export const authClient = createAuthClient({
   plugins: [emailOTPClient(), adminClient()],
 });
+
+export const useAuth = () => {
+  return authClient.useSession();
+};

@@ -9,6 +9,12 @@ import {
   IconHelp,
   IconSearch,
   IconSettings,
+  IconMessage,
+  IconVideo,
+  IconBook,
+  IconCalendar,
+  IconUsers,
+  IconBell,
 } from "@tabler/icons-react";
 import Logo from "@/public/logo.png";
 
@@ -34,70 +40,47 @@ const data = {
       url: "/dashboard",
       icon: IconDashboard,
     },
-  ],
-  navClouds: [
     {
-      title: "Capture",
-      icon: IconCamera,
-      isActive: true,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
+      title: "My Courses",
+      url: "/dashboard/courses",
+      icon: IconBook,
     },
     {
-      title: "Proposal",
-      icon: IconFileDescription,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
+      title: "Live Sessions",
+      url: "/dashboard/sessions",
+      icon: IconVideo,
     },
     {
-      title: "Prompts",
+      title: "Messages",
+      url: "/dashboard/messages",
+      icon: IconMessage,
+    },
+    {
+      title: "Notifications",
+      url: "/dashboard/notifications",
+      icon: IconBell,
+    },
+    {
+      title: "Analytics",
+      url: "/dashboard/analytics",
       icon: IconFileAi,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
+    },
+    {
+      title: "Calendar",
+      url: "/dashboard/calendar",
+      icon: IconCalendar,
     },
   ],
   navSecondary: [
     {
       title: "Settings",
-      url: "#",
+      url: "/dashboard/settings",
       icon: IconSettings,
     },
     {
       title: "Get Help",
-      url: "#",
+      url: "/dashboard/help",
       icon: IconHelp,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: IconSearch,
     },
   ],
 };
@@ -122,7 +105,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

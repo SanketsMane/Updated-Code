@@ -20,6 +20,7 @@ import {
 
 export const description = "An interactive area chart";
 
+// This dummy data is kept for backward compatibility and fallback scenarios
 const dummyEnrollmentData = [
   { date: "2024-05-15", enrollments: 12 },
   { date: "2024-05-16", enrollments: 8 },
@@ -62,10 +63,10 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 interface ChartAreaInteractiveProps {
-  data: { date: string; enrollments: number }[];
+  data?: { date: string; enrollments: number }[];
 }
 
-export function ChartAreaInteractive({ data }: ChartAreaInteractiveProps) {
+export function ChartAreaInteractive({ data = dummyEnrollmentData }: ChartAreaInteractiveProps) {
   const totalEnrollmentsNumber = React.useMemo(
     () => data.reduce((acc, curr) => acc + curr.enrollments, 0),
     [data]
