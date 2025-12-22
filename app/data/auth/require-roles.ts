@@ -30,7 +30,7 @@ export const requireTeacher = cache(async () => {
     return redirect("/login");
   }
 
-  if (session.user.role !== "teacher") {
+  if (session.user.role !== "teacher" && session.user.role !== "admin") {
     return redirect("/not-admin");
   }
 

@@ -14,7 +14,7 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId') || session.user.id;
-    const currentCourse = searchParams.get('currentCourse');
+    const currentCourse = searchParams.get('currentCourse') || undefined;
     const limit = parseInt(searchParams.get('limit') || '10');
 
     // Get user preferences and recent activity
@@ -35,7 +35,7 @@ export async function GET(request: Request) {
 
     // Note: Since Enrollment doesn't have completedAt, we'll use active status for now
     const completedCourses = await prisma.enrollment.findMany({
-      where: { 
+      where: {
         userId,
         status: "Active"  // Simplified - all active enrollments considered as progress
       },
@@ -51,7 +51,7 @@ export async function GET(request: Request) {
         courseId: activity.courseId || undefined,
         category: activity.category || undefined,
         timestamp: activity.timestamp
-      })),
+      })) as any[],
       completedCourses: completedCourses.map(c => c.courseId),
       enrolledCourses: enrolledCourses.map(c => c.courseId),
       searchHistory: recentActivity
@@ -66,8 +66,8 @@ export async function GET(request: Request) {
           userPreferences?.priceRangeMin || 0,
           userPreferences?.priceRangeMax || 1000
         ] as [number, number],
-        learningStyle: userPreferences?.learningStyle.toLowerCase() as any || 'visual',
-        timeAvailability: userPreferences?.timeAvailability.toLowerCase() as any || 'medium',
+        learningStyle: userPreferences?.learningStyle?.toLowerCase() as any || 'visual',
+        timeAvailability: userPreferences?.timeAvailability?.toLowerCase() as any || 'medium',
         goals: userPreferences?.goals || []
       }
     };
@@ -76,14 +76,14 @@ export async function GET(request: Request) {
     const [personalized, trending, similar] = await Promise.all([
       recommendationEngine.getPersonalizedRecommendations(context, limit),
       recommendationEngine.getTrendingRecommendations(limit),
-      currentCourse 
+      currentCourse
         ? recommendationEngine.getSimilarCourses(currentCourse, Math.min(limit, 5))
         : []
     ]);
 
     // Store recommendations in database for analytics
     await Promise.all([
-      ...personalized.map(rec => 
+      ...personalized.map(rec =>
         prisma.courseRecommendation.upsert({
           where: {
             userId_courseId: {

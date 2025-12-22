@@ -44,12 +44,12 @@ const teacherData = {
     },
     {
       title: "My Courses",
-      url: "/admin/courses",
+      url: "/teacher/courses",
       icon: IconBook,
     },
     {
       title: "Create Course",
-      url: "/admin/courses/create",
+      url: "/teacher/courses/create",
       icon: IconPlus,
     },
     {
@@ -61,6 +61,11 @@ const teacherData = {
       title: "Students",
       url: "/teacher/students",
       icon: IconUsers,
+    },
+    {
+      title: "Quizzes",
+      url: "/teacher/quizzes",
+      icon: IconHelp,
     },
     {
       title: "Resources",

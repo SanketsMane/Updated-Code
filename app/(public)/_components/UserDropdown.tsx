@@ -26,10 +26,12 @@ interface iAppProps {
   name: string;
   email: string;
   image: string;
+  role?: string;
 }
 
-export function UserDropdown({ email, name, image }: iAppProps) {
+export function UserDropdown({ email, name, image, role }: iAppProps) {
   const handleSignOut = useSignOut();
+  const dashboardHref = role === 'teacher' ? '/teacher' : role === 'admin' ? '/admin' : '/dashboard';
 
   return (
     <DropdownMenu>
@@ -52,7 +54,7 @@ export function UserDropdown({ email, name, image }: iAppProps) {
             {name}
           </span>
           <span className="text-muted-foreground truncate text-xs font-normal">
-            john@john.com
+            {email}
           </span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -64,13 +66,13 @@ export function UserDropdown({ email, name, image }: iAppProps) {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/course">
+            <Link href="/courses">
               <BookOpen size={16} className="opacity-60" aria-hidden="true" />
               <span>Courses</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/dashboard">
+            <Link href={dashboardHref}>
               <LayoutDashboardIcon
                 size={16}
                 className="opacity-60"

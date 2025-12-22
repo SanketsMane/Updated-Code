@@ -1,0 +1,132 @@
+import { prisma } from "@/lib/db";
+import { notFound, redirect } from "next/navigation";
+import { getSessionWithRole } from "@/app/data/auth/require-roles";
+import { FadeIn } from "@/components/ui/fade-in";
+import { Calendar, Clock, Award, Globe, Video, CheckCircle2 } from "lucide-react";
+import { BookingWidget } from "./_components/booking-widget";
+
+interface PageProps {
+    params: Promise<{ teacherId: string }>;
+}
+
+export default async function TeacherProfilePage({ params }: PageProps) {
+    const { teacherId } = await params;
+
+    // 1. Fetch Teacher Profile
+    const teacher = await prisma.teacherProfile.findMany({
+        where: { userId: teacherId },
+        include: {
+            user: true,
+            reviews: true
+        }
+    }).then(res => res[0]); // findUnique by userId not directly possible if userId is not @unique in schema? 
+    // Schema says: userId String @unique. So findUnique should work if I used findUnique({ where: { userId: ... } }) 
+
+    // Let's retry with proper findUnique if schema allows
+    const teacherProfile = await prisma.teacherProfile.findUnique({
+        where: { userId: teacherId },
+        include: {
+            user: true,
+            reviews: {
+                take: 5,
+                orderBy: { createdAt: 'desc' }
+            }
+        }
+    });
+
+    if (!teacherProfile) {
+        return notFound();
+    }
+
+    // 2. Check current user (for booking)
+    const session = await getSessionWithRole();
+
+    return (
+        <div className="min-h-screen bg-background pb-20">
+            {/* Header Profile */}
+            <div className="bg-secondary/30 border-b border-border">
+                <div className="container mx-auto px-6 py-12 md:py-16">
+                    <FadeIn>
+                        <div className="flex flex-col md:flex-row gap-8 items-start">
+                            <img
+                                src={teacherProfile.user.image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${teacherProfile.user.name}`}
+                                alt={teacherProfile.user.name}
+                                className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-background shadow-lg"
+                            />
+                            <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <h1 className="text-3xl md:text-4xl font-bold">{teacherProfile.user.name}</h1>
+                                    {teacherProfile.isVerified && (
+                                        <CheckCircle2 className="text-green-500 w-6 h-6" />
+                                    )}
+                                </div>
+                                <p className="text-xl text-primary font-medium mb-4">{teacherProfile.expertise.join(", ")}</p>
+                                <p className="text-muted-foreground text-lg max-w-2xl leading-relaxed">
+                                    {teacherProfile.bio}
+                                </p>
+
+                                <div className="flex gap-6 mt-6 text-sm font-medium text-muted-foreground">
+                                    <div className="flex items-center gap-2">
+                                        <Award className="w-4 h-4" />
+                                        <span>{teacherProfile.totalReviews} Reviews</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Globe className="w-4 h-4" />
+                                        <span>{teacherProfile.languages.join(", ") || "English"}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Video className="w-4 h-4" />
+                                        <span>1-on-1 Sessions</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </FadeIn>
+                </div>
+            </div>
+
+            <div className="container mx-auto px-6 py-12 grid md:grid-cols-3 gap-10">
+                {/* Main Content: Details, Reviews */}
+                <div className="md:col-span-2 space-y-10">
+                    <section>
+                        <h2 className="text-2xl font-bold mb-4">About Me</h2>
+                        <div className="prose dark:prose-invert max-w-none text-muted-foreground">
+                            <p>{teacherProfile.bio}</p>
+                            <p className="mt-4">
+                                I am dedicated to helping students achieve their goals through personalized instruction.
+                                My sessions are interactive, focused, and tailored to your learning style.
+                            </p>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2 className="text-2xl font-bold mb-4">Expertise</h2>
+                        <div className="flex flex-wrap gap-2">
+                            {teacherProfile.expertise.map(skill => (
+                                <span key={skill} className="px-4 py-2 bg-secondary rounded-lg font-medium">
+                                    {skill}
+                                </span>
+                            ))}
+                        </div>
+                    </section>
+
+                    {/* Reviews Placeholder - Could reuse Testimonials section logic here later */}
+                </div>
+
+                {/* Sidebar: Booking Widget */}
+                <div className="relative">
+                    <div className="sticky top-24">
+                        <BookingWidget
+                            teacherId={teacherProfile.user.id} // User ID for booking relationship? 
+                            // Schema: LiveSession has teacherId (TeacherProfile.id) usually? 
+                            // Let's double check schema. LiveSession.teacherId -> TeacherProfile.id
+                            teacherProfileId={teacherProfile.id}
+                            hourlyRate={teacherProfile.hourlyRate || 0}
+                            userName={teacherProfile.user.name}
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}

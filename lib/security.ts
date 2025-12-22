@@ -5,7 +5,7 @@
  * input sanitization, file upload security, and performance monitoring
  */
 
-import crypto from 'crypto';
+// crypto removed (unused)
 
 interface RateLimitEntry {
   count: number;
@@ -72,7 +72,7 @@ setInterval(() => rateLimiter.cleanup(), 5 * 60 * 1000);
  */
 export function detectBot(request: Request): boolean {
   const userAgent = request.headers.get('user-agent')?.toLowerCase() || '';
-  
+
   // Common bot patterns
   const botPatterns = [
     'bot', 'crawler', 'spider', 'scraper', 'curl', 'wget', 'python',
@@ -137,8 +137,8 @@ export function getClientIP(request: Request): string | null {
  * Protect signup requests with email validation, bot detection, and rate limiting
  */
 export async function protectSignup(
-  request: Request, 
-  identifier: string, 
+  request: Request,
+  identifier: string,
   email: string
 ): Promise<SecurityCheckResult> {
   // Check for bot behavior
@@ -181,8 +181,8 @@ export async function protectSignup(
  * General protection for regular requests
  */
 export async function protectGeneral(
-  request: Request, 
-  identifier: string, 
+  request: Request,
+  identifier: string,
   options: RateLimitOptions = { maxRequests: 10, windowMs: 60000 }
 ): Promise<SecurityCheckResult> {
   // Check for bot behavior

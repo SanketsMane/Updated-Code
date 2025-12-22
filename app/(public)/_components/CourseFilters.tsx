@@ -18,7 +18,7 @@ import { Search, X, Filter } from "lucide-react";
 const categories = [
   "All Categories",
   "Programming & Development",
-  "Business & Marketing", 
+  "Business & Marketing",
   "Design & Creative",
   "Health & Fitness",
   "Language Learning",
@@ -30,7 +30,7 @@ const categories = [
 const levels = [
   "All Levels",
   "Beginner",
-  "Intermediate", 
+  "Intermediate",
   "Advanced"
 ];
 
@@ -46,7 +46,7 @@ const priceRanges = [
 export function CourseFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const [filters, setFilters] = useState({
     search: searchParams.get("search") || "",
     category: searchParams.get("category") || "",
@@ -58,20 +58,20 @@ export function CourseFilters() {
 
   useEffect(() => {
     const params = new URLSearchParams();
-    
+
     Object.entries(filters).forEach(([key, value]) => {
-      if (value && value !== "" && 
-          !value.startsWith("All") && 
-          value !== "All Categories" && 
-          value !== "All Levels" && 
-          value !== "All Prices") {
+      if (value && value !== "" &&
+        !value.startsWith("All") &&
+        value !== "All Categories" &&
+        value !== "All Levels" &&
+        value !== "All Prices") {
         params.set(key, value);
       }
     });
 
     const queryString = params.toString();
     const newUrl = queryString ? `/courses?${queryString}` : "/courses";
-    
+
     router.push(newUrl, { scroll: false });
   }, [filters, router]);
 
@@ -95,169 +95,135 @@ export function CourseFilters() {
     setLocalSearch("");
   };
 
-  const hasActiveFilters = Object.values(filters).some(value => 
-    value && value !== "" && 
-    !value.startsWith("All") && 
-    value !== "All Categories" && 
-    value !== "All Levels" && 
+  const hasActiveFilters = Object.values(filters).some(value =>
+    value && value !== "" &&
+    !value.startsWith("All") &&
+    value !== "All Categories" &&
+    value !== "All Levels" &&
     value !== "All Prices"
   );
 
   return (
-    <Card className="border-2 border-dashed border-gray-200 dark:border-gray-700">
-      <CardContent className="p-6">
-        <div className="space-y-6">
-          {/* Search Bar */}
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Search courses, topics, instructors..."
-                value={localSearch}
-                onChange={(e) => setLocalSearch(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="pl-10 h-12"
-              />
+    <div className="space-y-8">
+      {/* Search Bar */}
+      <div className="relative">
+        <Search className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search courses..."
+          value={localSearch}
+          onChange={(e) => setLocalSearch(e.target.value)}
+          onKeyDown={handleKeyPress}
+          className="pl-10 h-10 bg-background border-border focus-visible:ring-primary/20"
+        />
+      </div>
+
+      <div className="space-y-6">
+        {/* Category Filter */}
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <Filter className="w-4 h-4 text-primary" />
+            Category
+          </h3>
+          <Select
+            value={filters.category || "All Categories"}
+            onValueChange={(value) =>
+              setFilters(prev => ({
+                ...prev,
+                category: value === "All Categories" ? "" : value
+              }))
+            }
+          >
+            <SelectTrigger className="w-full bg-background border-input hover:border-primary/50 transition-colors">
+              <SelectValue placeholder="Select Category" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((category) => (
+                <SelectItem key={category} value={category}>
+                  {category}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Level Filter */}
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-foreground">Level</h3>
+          <Select
+            value={filters.level || "All Levels"}
+            onValueChange={(value) =>
+              setFilters(prev => ({
+                ...prev,
+                level: value === "All Levels" ? "" : value
+              }))
+            }
+          >
+            <SelectTrigger className="w-full bg-background border-input hover:border-primary/50 transition-colors">
+              <SelectValue placeholder="Select Level" />
+            </SelectTrigger>
+            <SelectContent>
+              {levels.map((level) => (
+                <SelectItem key={level} value={level}>
+                  {level}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Price Filter */}
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-foreground">Price</h3>
+          <Select
+            value={filters.priceRange || "All Prices"}
+            onValueChange={(value) =>
+              setFilters(prev => ({
+                ...prev,
+                priceRange: value === "All Prices" ? "" : value
+              }))
+            }
+          >
+            <SelectTrigger className="w-full bg-background border-input hover:border-primary/50 transition-colors">
+              <SelectValue placeholder="Select Price Range" />
+            </SelectTrigger>
+            <SelectContent>
+              {priceRanges.map((range) => (
+                <SelectItem key={range} value={range}>
+                  {range}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Active Filters & Clear */}
+        {hasActiveFilters && (
+          <div className="pt-4 border-t border-border space-y-3">
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(filters).map(([key, value]) => {
+                if (!value || value === "" || value.startsWith("All")) return null;
+                return (
+                  <Badge key={key} variant="secondary" className="px-2 py-1 text-xs gap-1">
+                    {value}
+                    <X
+                      className="h-3 w-3 cursor-pointer hover:text-destructive"
+                      onClick={() => setFilters(prev => ({ ...prev, [key]: "" }))}
+                    />
+                  </Badge>
+                )
+              })}
             </div>
-            <Button 
-              onClick={handleSearch}
-              className="h-12 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearFilters}
+              className="w-full text-muted-foreground hover:text-destructive text-xs h-8"
             >
-              <Search className="h-4 w-4" />
+              Clear All Filters
             </Button>
           </div>
-
-          {/* Filter Controls */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Category</label>
-              <Select 
-                value={filters.category || "All Categories"} 
-                onValueChange={(value) => 
-                  setFilters(prev => ({ 
-                    ...prev, 
-                    category: value === "All Categories" ? "" : value 
-                  }))
-                }
-              >
-                <SelectTrigger className="h-11">
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Level</label>
-              <Select 
-                value={filters.level || "All Levels"} 
-                onValueChange={(value) => 
-                  setFilters(prev => ({ 
-                    ...prev, 
-                    level: value === "All Levels" ? "" : value 
-                  }))
-                }
-              >
-                <SelectTrigger className="h-11">
-                  <SelectValue placeholder="Select level" />
-                </SelectTrigger>
-                <SelectContent>
-                  {levels.map((level) => (
-                    <SelectItem key={level} value={level}>
-                      {level}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Price Range</label>
-              <Select 
-                value={filters.priceRange || "All Prices"} 
-                onValueChange={(value) => 
-                  setFilters(prev => ({ 
-                    ...prev, 
-                    priceRange: value === "All Prices" ? "" : value 
-                  }))
-                }
-              >
-                <SelectTrigger className="h-11">
-                  <SelectValue placeholder="Select price range" />
-                </SelectTrigger>
-                <SelectContent>
-                  {priceRanges.map((range) => (
-                    <SelectItem key={range} value={range}>
-                      {range}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Active Filters */}
-          {hasActiveFilters && (
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium">Active filters:</span>
-              {filters.search && (
-                <Badge variant="secondary" className="gap-1">
-                  Search: {filters.search}
-                  <X 
-                    className="h-3 w-3 cursor-pointer" 
-                    onClick={() => {
-                      setFilters(prev => ({ ...prev, search: "" }));
-                      setLocalSearch("");
-                    }}
-                  />
-                </Badge>
-              )}
-              {filters.category && (
-                <Badge variant="secondary" className="gap-1">
-                  {filters.category}
-                  <X 
-                    className="h-3 w-3 cursor-pointer" 
-                    onClick={() => setFilters(prev => ({ ...prev, category: "" }))}
-                  />
-                </Badge>
-              )}
-              {filters.level && (
-                <Badge variant="secondary" className="gap-1">
-                  {filters.level}
-                  <X 
-                    className="h-3 w-3 cursor-pointer" 
-                    onClick={() => setFilters(prev => ({ ...prev, level: "" }))}
-                  />
-                </Badge>
-              )}
-              {filters.priceRange && (
-                <Badge variant="secondary" className="gap-1">
-                  {filters.priceRange}
-                  <X 
-                    className="h-3 w-3 cursor-pointer" 
-                    onClick={() => setFilters(prev => ({ ...prev, priceRange: "" }))}
-                  />
-                </Badge>
-              )}
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={clearFilters}
-                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-              >
-                <X className="h-3 w-3 mr-1" />
-                Clear all
-              </Button>
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+        )}
+      </div>
+    </div>
   );
 }

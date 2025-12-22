@@ -133,7 +133,7 @@ export async function createSystemNotification(
       title,
       message,
       type,
-      metadata,
+      data: metadata,
     },
   });
 
@@ -184,9 +184,7 @@ export async function createSessionNotification(
   const session = await prisma.liveSession.findUnique({
     where: { id: sessionId },
     include: {
-      teacher: {
-        include: { teacherProfile: true },
-      },
+      teacher: true,
     },
   });
 
@@ -195,23 +193,23 @@ export async function createSessionNotification(
   const notifications = {
     booked: {
       title: "Session Booked Successfully",
-      message: `Your session with ${session.teacher.name} has been confirmed for ${new Date(session.scheduledTime).toLocaleDateString()}.`,
+      message: `Your session with ${(session as any).teacher.name} has been confirmed for ${new Date(session.scheduledAt).toLocaleDateString()}.`,
     },
     reminder: {
       title: "Session Starting Soon",
-      message: `Your session with ${session.teacher.name} starts in 15 minutes. Get ready!`,
+      message: `Your session with ${(session as any).teacher.name} starts in 15 minutes. Get ready!`,
     },
     started: {
       title: "Session Started",
-      message: `Your session with ${session.teacher.name} has started. Join now!`,
+      message: `Your session with ${(session as any).teacher.name} has started. Join now!`,
     },
     completed: {
       title: "Session Completed",
-      message: `Your session with ${session.teacher.name} has ended. Don't forget to leave a review!`,
+      message: `Your session with ${(session as any).teacher.name} has ended. Don't forget to leave a review!`,
     },
     cancelled: {
       title: "Session Cancelled",
-      message: `Your session with ${session.teacher.name} has been cancelled. You'll be refunded shortly.`,
+      message: `Your session with ${(session as any).teacher.name} has been cancelled. You'll be refunded shortly.`,
     },
   };
 

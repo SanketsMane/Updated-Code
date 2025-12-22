@@ -1,16 +1,14 @@
 import { getAllCourses } from "@/app/data/course/get-all-courses";
 import { PublicCourseCard, PublicCourseCardSkeleton } from "../_components/PublicCourseCard";
 import { CourseFilters } from "../_components/CourseFilters";
-import { CourseSearchWrapper } from "./_components/CourseSearchWrapper";
 import { Suspense } from "react";
 import { Badge } from "@/components/ui/badge";
-import { 
-  BookOpen, Filter, Grid, List, Star, Clock, Users, 
-  TrendingUp, Award, Play, Search, ChevronRight, Zap,
-  Target, Trophy, Lightbulb, Code, Palette, BarChart3
+import {
+  BookOpen, Code, Palette, BarChart3, TrendingUp, Target, Lightbulb,
+  Search, Zap, ArrowRight, Sparkles
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { FadeIn } from "@/components/ui/fade-in";
 
 export const dynamic = "force-dynamic";
 
@@ -25,379 +23,188 @@ interface Props {
 }
 
 const featuredCategories = [
-  { name: "Programming", icon: Code, count: 245, color: "from-blue-500 to-cyan-500", popular: true },
-  { name: "Design", icon: Palette, count: 189, color: "from-purple-500 to-pink-500", popular: true },
-  { name: "Business", icon: BarChart3, count: 156, color: "from-green-500 to-emerald-500", popular: false },
-  { name: "Marketing", icon: TrendingUp, count: 134, color: "from-orange-500 to-red-500", popular: false },
-  { name: "Data Science", icon: Target, count: 98, color: "from-indigo-500 to-purple-500", popular: true },
-  { name: "Photography", icon: Lightbulb, count: 87, color: "from-yellow-500 to-orange-500", popular: false }
-];
-
-const courseStats = [
-  { icon: BookOpen, label: "Total Courses", value: "1,200+", color: "text-blue-600" },
-  { icon: Users, label: "Active Learners", value: "45K+", color: "text-green-600" },
-  { icon: Award, label: "Expert Instructors", value: "500+", color: "text-purple-600" },
-  { icon: Star, label: "Average Rating", value: "4.8", color: "text-yellow-600" }
+  { name: "Programming", icon: Code, count: 245, popular: true },
+  { name: "Design", icon: Palette, count: 189, popular: true },
+  { name: "Business", icon: BarChart3, count: 156, popular: false },
+  { name: "Marketing", icon: TrendingUp, count: 134, popular: false },
+  { name: "Data Science", icon: Target, count: 98, popular: true },
+  { name: "Photography", icon: Lightbulb, count: 87, popular: false }
 ];
 
 const trendingTopics = [
-  "React & Next.js", "AI & Machine Learning", "Python Programming", 
-  "UI/UX Design", "Digital Marketing", "Data Analytics", 
+  "React & Next.js", "AI & Machine Learning", "Python Programming",
+  "UI/UX Design", "Digital Marketing", "Data Analytics",
   "Cloud Computing", "Cybersecurity"
 ];
 
 export default async function PublicCoursesRoute({ searchParams }: Props) {
   const params = await searchParams;
+  const allCourses = await getAllCourses();
+
+  // Filter courses based on search parameters
+  let filteredCourses = allCourses;
+
+  if (params.search) {
+    filteredCourses = filteredCourses.filter(course =>
+      course.title.toLowerCase().includes(params.search!.toLowerCase()) ||
+      course.smallDescription?.toLowerCase().includes(params.search!.toLowerCase())
+    );
+  }
+
+  if (params.category) {
+    filteredCourses = filteredCourses.filter(course =>
+      course.category?.toLowerCase() === params.category!.toLowerCase()
+    );
+  }
+
+  if (params.level) {
+    filteredCourses = filteredCourses.filter(course =>
+      course.level?.toLowerCase() === params.level!.toLowerCase()
+    );
+  }
+
   return (
-    <div style={{ fontFamily: 'system-ui, -apple-system, sans-serif', backgroundColor: '#fafafa', minHeight: '100vh' }}>
-      {/* Hero Section */}
-      <section style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        padding: '4rem 2rem',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
-        {/* Floating Elements */}
-        <div style={{
-          position: 'absolute',
-          top: '20%',
-          left: '10%',
-          width: '100px',
-          height: '100px',
-          background: 'rgba(255,255,255,0.1)',
-          borderRadius: '50%',
-          animation: 'float 6s ease-in-out infinite'
-        }}></div>
-        <div style={{
-          position: 'absolute',
-          bottom: '20%',
-          right: '15%',
-          width: '150px',
-          height: '150px',
-          background: 'rgba(255,255,255,0.08)',
-          borderRadius: '50%',
-          animation: 'float 8s ease-in-out infinite reverse'
-        }}></div>
-
-        <div style={{ maxWidth: '1200px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 10 }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            backgroundColor: 'rgba(255, 255, 255, 0.2)',
-            padding: '0.5rem 1rem',
-            borderRadius: '999px',
-            color: 'white',
-            fontSize: '0.9rem',
-            marginBottom: '1.5rem',
-            backdropFilter: 'blur(10px)'
-          }}>
-            <BookOpen style={{ width: '1rem', height: '1rem' }} />
-            Course Marketplace
-          </div>
-
-          <h1 style={{
-            fontSize: 'clamp(2.5rem, 8vw, 4rem)',
-            fontWeight: '800',
-            color: 'white',
-            marginBottom: '1rem',
-            lineHeight: '1.1'
-          }}>
-            Master Skills That
-            <br />
-            <span style={{
-              background: 'linear-gradient(135deg, #ffeaa7, #fab1a0)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
-            }}>Drive Success</span>
-          </h1>
-
-          <p style={{
-            fontSize: '1.2rem',
-            color: 'rgba(255,255,255,0.9)',
-            maxWidth: '600px',
-            margin: '0 auto 2rem auto',
-            lineHeight: '1.6'
-          }}>
-            Discover 1,200+ premium courses from industry experts. Learn practical skills, 
-            earn certificates, and advance your career with hands-on projects.
-          </p>
-
-          {/* Search Bar */}
-          <div style={{
-            maxWidth: '600px',
-            margin: '0 auto',
-            position: 'relative'
-          }}>
-            <CourseSearchWrapper placeholder="Search courses, instructors, topics..." />
-          </div>
+    <div className="min-h-screen bg-background font-sans text-foreground">
+      {/* Billboard Hero Section */}
+      <section className="relative overflow-hidden bg-background border-b border-border">
+        {/* Abstract Background */}
+        <div className="absolute inset-0 bg-secondary/30">
+          <div className="absolute inset-0 bg-grid-primary/5 [mask-image:linear-gradient(0deg,transparent,black)]" />
+          <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-primary/5 to-transparent blur-3xl opacity-50" />
         </div>
-      </section>
 
-      {/* Stats Section */}
-      <section style={{
-        padding: '3rem 2rem',
-        backgroundColor: 'white',
-        borderBottom: '1px solid #e5e7eb'
-      }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '2rem',
-            textAlign: 'center'
-          }}>
-            {courseStats.map((stat, index) => {
-              const Icon = stat.icon;
-              return (
-                <div key={index} style={{
-                  padding: '1.5rem',
-                  backgroundColor: '#f8fafc',
-                  borderRadius: '1rem',
-                  border: '1px solid #e2e8f0',
-                  transition: 'all 0.3s ease'
-                }}>
-                  <Icon style={{ 
-                    width: '2.5rem', 
-                    height: '2.5rem', 
-                    margin: '0 auto 1rem auto',
-                    color: stat.color.replace('text-', '#')
-                  }} />
-                  <div style={{
-                    fontSize: '2rem',
-                    fontWeight: 'bold',
-                    color: '#1f2937',
-                    marginBottom: '0.5rem'
-                  }}>
-                    {stat.value}
-                  </div>
-                  <div style={{
-                    color: '#6b7280',
-                    fontWeight: '500'
-                  }}>
-                    {stat.label}
+        <div className="container mx-auto relative z-10 py-16 lg:py-24">
+          <FadeIn>
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              {/* Left Content */}
+              <div className="flex flex-col items-start text-left">
+                <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary mb-6 border border-primary/20">
+                  <Sparkles className="h-4 w-4" />
+                  <span>Explore 1,200+ Premium Courses</span>
+                </div>
+
+                <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight mb-6 leading-[1.15]">
+                  Master New Skills with <br />
+                  <span className="text-primary bg-clip-text text-transparent bg-gradient-to-r from-primary to-orange-500">
+                    World-Class Instructors
+                  </span>
+                </h1>
+
+                <p className="text-lg text-muted-foreground mb-8 max-w-xl leading-relaxed">
+                  Join millions of learners. Get unlimited access to structured courses, hands-on projects, and certificate programs.
+                </p>
+
+                {/* Trending Tags */}
+                <div className="flex flex-wrap gap-2 items-center">
+                  <span className="text-sm font-semibold text-foreground mr-2">Trending:</span>
+                  {trendingTopics.slice(0, 5).map((topic, index) => (
+                    <Link
+                      key={index}
+                      href={`/courses?search=${encodeURIComponent(topic)}`}
+                      className="px-3 py-1 rounded-full bg-background border border-border hover:border-primary/50 text-xs font-medium text-muted-foreground hover:text-primary transition-all shadow-sm"
+                    >
+                      {topic}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right Illustration/Image Placeholer */}
+              <div className="hidden lg:block relative">
+                <div className="bg-gradient-to-tr from-primary/20 to-orange-500/20 rounded-2xl p-8 aspect-[4/3] flex items-center justify-center relative overflow-hidden ring-1 ring-border shadow-2xl">
+                  <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,white,transparent)]" />
+
+                  {/* Rich Course Success Card Illustration */}
+                  <div className="relative z-10 w-full max-w-sm">
+                    {/* Main Success Card */}
+                    <div className="bg-background rounded-2xl p-6 shadow-2xl border border-border/50 transform -rotate-2 hover:rotate-0 transition-all duration-500 group">
+                      <div className="flex items-center gap-4 mb-6">
+                        <div className="h-14 w-14 rounded-full bg-gradient-to-br from-primary to-orange-400 p-[2px]">
+                          <div className="h-full w-full rounded-full bg-background p-1">
+                            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80" alt="User" className="h-full w-full rounded-full object-cover" />
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-bold text-lg leading-tight">Alex Morgan</h3>
+                          <p className="text-xs text-muted-foreground">Full Stack Developer</p>
+                        </div>
+                        <div className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                          <Sparkles className="w-3 h-3" />
+                          Top 1%
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div className="bg-secondary/50 rounded-xl p-4 flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                            <Code className="h-5 w-5" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex justify-between text-sm mb-1">
+                              <span className="font-medium">React Mastery</span>
+                              <span className="font-bold text-primary">100%</span>
+                            </div>
+                            <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                              <div className="h-full bg-primary w-full" />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2">
+                          <div className="flex-1 bg-orange-50 dark:bg-orange-950/20 rounded-xl p-3 text-center border border-orange-100 dark:border-orange-800/20">
+                            <div className="text-orange-600 font-bold text-xl">12</div>
+                            <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Certificates</div>
+                          </div>
+                          <div className="flex-1 bg-purple-50 dark:bg-purple-950/20 rounded-xl p-3 text-center border border-purple-100 dark:border-purple-800/20">
+                            <div className="text-purple-600 font-bold text-xl">850</div>
+                            <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Points</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Floating Badge */}
+                    <div className="absolute -right-4 -top-4 bg-white dark:bg-slate-800 p-3 rounded-xl shadow-xl border border-border animate-bounce duration-[3000ms]">
+                      <div className="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 p-2 rounded-lg">
+                        <Target className="w-6 h-6" />
+                      </div>
+                    </div>
                   </div>
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            </div>
+          </FadeIn>
         </div>
       </section>
 
-      {/* Featured Categories */}
-      <section style={{
-        padding: '4rem 2rem',
-        backgroundColor: '#fafafa'
-      }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <h2 style={{
-              fontSize: 'clamp(2rem, 5vw, 2.5rem)',
-              fontWeight: 'bold',
-              color: '#1f2937',
-              marginBottom: '1rem'
-            }}>
-              Popular Categories
-            </h2>
-            <p style={{
-              fontSize: '1.1rem',
-              color: '#6b7280',
-              maxWidth: '600px',
-              margin: '0 auto'
-            }}>
-              Explore our most in-demand course categories and find your perfect learning path.
-            </p>
-          </div>
-
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: '1.5rem'
-          }}>
-            {featuredCategories.map((category, index) => {
-              const Icon = category.icon;
-              return (
-                <Link
-                  key={index}
-                  href={`/courses?category=${category.name}`}
-                  style={{
-                    display: 'block',
-                    padding: '2rem',
-                    backgroundColor: 'white',
-                    borderRadius: '1rem',
-                    border: category.popular ? '2px solid #667eea' : '1px solid #e2e8f0',
-                    textDecoration: 'none',
-                    position: 'relative',
-                    transition: 'all 0.3s ease',
-                    overflow: 'hidden'
-                  }}
-                >
-                  {category.popular && (
-                    <div style={{
-                      position: 'absolute',
-                      top: '1rem',
-                      right: '1rem',
-                      backgroundColor: '#667eea',
-                      color: 'white',
-                      padding: '0.25rem 0.75rem',
-                      borderRadius: '999px',
-                      fontSize: '0.75rem',
-                      fontWeight: '600'
-                    }}>
-                      POPULAR
-                    </div>
-                  )}
-                  
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    marginBottom: '1rem'
-                  }}>
-                    <div style={{
-                      width: '3rem',
-                      height: '3rem',
-                      background: `linear-gradient(135deg, ${category.color.replace('from-', '').replace(' to-', ', ')})`,
-                      borderRadius: '0.75rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      marginRight: '1rem'
-                    }}>
-                      <Icon style={{ width: '1.5rem', height: '1.5rem', color: 'white' }} />
-                    </div>
-                    <div>
-                      <h3 style={{
-                        fontSize: '1.25rem',
-                        fontWeight: '600',
-                        color: '#1f2937',
-                        margin: 0
-                      }}>
-                        {category.name}
-                      </h3>
-                      <p style={{
-                        color: '#6b7280',
-                        fontSize: '0.9rem',
-                        margin: 0
-                      }}>
-                        {category.count} courses
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    color: '#667eea',
-                    fontSize: '0.9rem',
-                    fontWeight: '500'
-                  }}>
-                    Explore Courses
-                    <ChevronRight style={{ width: '1rem', height: '1rem', marginLeft: '0.5rem' }} />
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Trending Topics */}
-      <section style={{
-        padding: '3rem 2rem',
-        backgroundColor: 'white'
-      }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '1.5rem'
-          }}>
-            <h3 style={{
-              fontSize: '1.5rem',
-              fontWeight: '600',
-              color: '#1f2937',
-              margin: 0
-            }}>
-              Trending Topics
-            </h3>
-            <div style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '1rem',
-              justifyContent: 'center'
-            }}>
-              {trendingTopics.map((topic, index) => (
-                <Link
-                  key={index}
-                  href={`/courses?search=${encodeURIComponent(topic)}`}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    padding: '0.75rem 1.5rem',
-                    backgroundColor: '#f8fafc',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '999px',
-                    color: '#374151',
-                    textDecoration: 'none',
-                    fontSize: '0.9rem',
-                    fontWeight: '500',
-                    transition: 'all 0.3s ease'
-                  }}
-                >
-                  <Zap style={{ width: '1rem', height: '1rem', marginRight: '0.5rem', color: '#667eea' }} />
-                  {topic}
-                </Link>
-              ))}
+      {/* Main Content: Filters & Grid */}
+      <section className="py-20 container mx-auto">
+        <div className="flex flex-col gap-8">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-border pb-6">
+            <div>
+              <h2 className="text-3xl font-bold tracking-tight">Browse Courses</h2>
+              <p className="text-muted-foreground mt-1">Showing {filteredCourses.length} results based on your preferences</p>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Filters and Course Grid */}
-      <section style={{
-        padding: '4rem 2rem',
-        backgroundColor: '#fafafa'
-      }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '2rem',
-            flexWrap: 'wrap',
-            gap: '1rem'
-          }}>
-            <h2 style={{
-              fontSize: '1.8rem',
-              fontWeight: '600',
-              color: '#1f2937',
-              margin: 0
-            }}>
-              All Courses
-            </h2>
-            <div style={{
-              display: 'flex',
-              gap: '1rem',
-              alignItems: 'center'
-            }}>
+          <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-10 items-start">
+            {/* Sidebar Filters */}
+            <aside className="lg:sticky lg:top-24 h-fit">
               <CourseFilters />
-            </div>
-          </div>
+            </aside>
 
-          {/* Course Grid */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: '2rem'
-          }}>
-            <Suspense fallback={
-              Array.from({ length: 8 }).map((_, i) => (
-                <PublicCourseCardSkeleton key={i} />
-              ))
-            }>
-              <CoursesGrid searchParams={params} />
-            </Suspense>
+            {/* Course Grid */}
+            <div className="flex-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <Suspense fallback={
+                  Array.from({ length: 6 }).map((_, i) => (
+                    <PublicCourseCardSkeleton key={i} />
+                  ))
+                }>
+                  <CoursesGrid courses={filteredCourses} />
+                </Suspense>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -405,60 +212,24 @@ export default async function PublicCoursesRoute({ searchParams }: Props) {
   );
 }
 
-async function CoursesGrid({ searchParams }: { searchParams: SearchParams }) {
-  const courses = await getAllCourses();
-  
-  // Filter courses based on search parameters
-  let filteredCourses = courses;
-  
-  if (searchParams.search) {
-    filteredCourses = filteredCourses.filter(course =>
-      course.title.toLowerCase().includes(searchParams.search!.toLowerCase()) ||
-      course.smallDescription?.toLowerCase().includes(searchParams.search!.toLowerCase())
-    );
-  }
-  
-  if (searchParams.category) {
-    filteredCourses = filteredCourses.filter(course =>
-      course.category?.toLowerCase() === searchParams.category!.toLowerCase()
-    );
-  }
-  
-  if (searchParams.level) {
-    filteredCourses = filteredCourses.filter(course =>
-      course.level?.toLowerCase() === searchParams.level!.toLowerCase()
-    );
-  }
-
-  if (filteredCourses.length === 0) {
+function CoursesGrid({ courses }: { courses: any[] }) {
+  if (courses.length === 0) {
     return (
-      <div style={{
-        gridColumn: '1 / -1',
-        textAlign: 'center',
-        padding: '4rem 2rem',
-        color: '#6b7280'
-      }}>
-        <Search style={{ width: '4rem', height: '4rem', margin: '0 auto 1rem auto', color: '#d1d5db' }} />
-        <h3 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.5rem', color: '#374151' }}>
+      <div className="col-span-full flex flex-col items-center justify-center py-20 text-center text-muted-foreground bg-card rounded-xl border border-dashed border-border">
+        <div className="bg-secondary/50 p-4 rounded-full mb-4">
+          <Search className="h-8 w-8 text-muted-foreground" />
+        </div>
+        <h3 className="text-xl font-semibold text-foreground mb-2">
           No courses found
         </h3>
-        <p style={{ marginBottom: '2rem' }}>
-          Try adjusting your search criteria or browse our popular categories.
+        <p className="max-w-md mx-auto mb-6">
+          We couldn't find any courses matching your criteria. Try adjusting your filters or search terms.
         </p>
         <Link
           href="/courses"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            padding: '0.75rem 1.5rem',
-            backgroundColor: '#667eea',
-            color: 'white',
-            textDecoration: 'none',
-            borderRadius: '0.5rem',
-            fontWeight: '500'
-          }}
+          className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary/90 transition-colors"
         >
-          Browse All Courses
+          Clear Filters
         </Link>
       </div>
     );
@@ -466,7 +237,7 @@ async function CoursesGrid({ searchParams }: { searchParams: SearchParams }) {
 
   return (
     <>
-      {filteredCourses.map((course) => (
+      {courses.map((course) => (
         <PublicCourseCard key={course.id} data={course} />
       ))}
     </>

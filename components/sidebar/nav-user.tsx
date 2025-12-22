@@ -36,6 +36,10 @@ export function NavUser() {
     return null;
   }
 
+  const role = session?.user.role;
+  const dashboardLink = role === "admin" ? "/admin" : role === "teacher" ? "/teacher" : "/dashboard";
+  const coursesLink = role === "admin" ? "/admin/courses" : role === "teacher" ? "/teacher/courses" : "/dashboard/courses";
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -66,7 +70,7 @@ export function NavUser() {
                     : session?.user.email.split("@")[0]}
                 </span>
                 <span className="text-muted-foreground truncate text-xs">
-                  jan@gmail.com
+                  {session?.user.email}
                 </span>
               </div>
               <IconDotsVertical className="ml-auto size-4" />
@@ -101,7 +105,7 @@ export function NavUser() {
                       : session?.user.email.split("@")[0]}
                   </span>
                   <span className="text-muted-foreground truncate text-xs">
-                    jan@gmail.com
+                    {session?.user.email}
                   </span>
                 </div>
               </div>
@@ -115,13 +119,13 @@ export function NavUser() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/admin">
+                <Link href={dashboardLink}>
                   <IconDashboard />
                   Dashboard
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/admin/courses">
+                <Link href={coursesLink}>
                   <Tv2 />
                   Courses
                 </Link>

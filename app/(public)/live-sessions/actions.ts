@@ -81,7 +81,7 @@ export async function bookLiveSession(
 
     // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
-      customer: user.stripeCustomerId || undefined,
+      customer: (user as any).stripeCustomerId || undefined,
       line_items: [
         {
           price_data: {
@@ -180,7 +180,7 @@ export async function getAvailableTimeSlots(
     for (let hour = 9; hour <= 18; hour++) {
       const timeSlot = new Date(selectedDate);
       timeSlot.setHours(hour, 0, 0, 0);
-      
+
       // Check if slot is available
       const isBooked = existingSessions.some(session => {
         const sessionEnd = new Date(session.scheduledAt.getTime() + session.duration * 60000);

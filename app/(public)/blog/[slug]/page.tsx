@@ -6,11 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { 
-  Calendar, 
-  Clock, 
-  Eye, 
-  User, 
+import {
+  Calendar,
+  Clock,
+  Eye,
+  User,
   ArrowLeft,
   Share2,
   Bookmark,
@@ -21,13 +21,14 @@ import { getBlogPostBySlug, getFeaturedBlogPosts } from "@/app/actions/blog";
 import { format } from "date-fns";
 
 interface BlogPostPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
-  const post = await getBlogPostBySlug(params.slug);
+  const { slug } = await params;
+  const post = await getBlogPostBySlug(slug);
 
   if (!post) {
     notFound();
@@ -55,10 +56,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         <header className="mb-8">
           {/* Category */}
           {post.category && (
-            <Badge 
-              variant="secondary" 
+            <Badge
+              variant="secondary"
               className="mb-4"
-              style={{ 
+              style={{
                 backgroundColor: post.category.color || "#e5e7eb",
                 color: "#374151"
               }}
@@ -148,7 +149,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         )}
 
         {/* Post Content */}
-        <div 
+        <div
           className="prose prose-lg max-w-none mb-8"
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
@@ -159,8 +160,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             <span className="text-sm font-medium text-muted-foreground mr-2">Tags:</span>
             {post.tags.map((tag: any) => (
               <Link key={tag.id} href={`/blog?tag=${tag.slug}`}>
-                <Badge 
-                  variant="outline" 
+                <Badge
+                  variant="outline"
                   className="hover:bg-muted cursor-pointer"
                   style={{ color: tag.color || "#6b7280" }}
                 >
@@ -236,10 +237,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                     )}
                     <CardHeader>
                       {relatedPost.category && (
-                        <Badge 
-                          variant="secondary" 
+                        <Badge
+                          variant="secondary"
                           className="w-fit mb-2"
-                          style={{ 
+                          style={{
                             backgroundColor: relatedPost.category.color || "#e5e7eb",
                             color: "#374151"
                           }}

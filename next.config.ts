@@ -7,10 +7,30 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        hostname: "KIDOKOOL-yt-video-subscribe.fly.storage.tigris.dev",
-        port: "",
         protocol: "https",
+        hostname: "utfs.io",
       },
+      {
+        protocol: "https",
+        hostname: "api.dicebear.com",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "avatar.vercel.sh"
+      },
+      {
+        protocol: "https",
+        hostname: "*.fly.storage.tigris.dev"
+      },
+      {
+        protocol: "https",
+        hostname: "randomuser.me",
+        pathname: "/**",
+      }
     ],
   },
 

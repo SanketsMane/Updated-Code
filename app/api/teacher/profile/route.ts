@@ -8,12 +8,12 @@ export async function GET() {
     const session = await auth.api.getSession({
       headers: await import('next/headers').then(h => h.headers())
     });
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    if (session.user.role !== "TEACHER") {
+    if (session.user.role !== "teacher" && session.user.role !== "admin") {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
@@ -49,12 +49,12 @@ export async function POST(req: NextRequest) {
     const session = await auth.api.getSession({
       headers: await import('next/headers').then(h => h.headers())
     });
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    if (session.user.role !== "TEACHER") {
+    if (session.user.role !== "teacher" && session.user.role !== "admin") {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
     });
 
     let profile;
-    
+
     if (existingProfile) {
       // Update existing profile
       profile = await prisma.teacherProfile.update({
@@ -105,11 +105,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ profile }, { status: 201 });
   } catch (error) {
     console.error("Error creating/updating teacher profile:", error);
-    
+
     if (error instanceof Error && "code" in error && error.code === "P2002") {
       return NextResponse.json({ error: "Profile already exists" }, { status: 409 });
     }
-    
+
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -119,12 +119,12 @@ export async function PUT(req: NextRequest) {
     const session = await auth.api.getSession({
       headers: await import('next/headers').then(h => h.headers())
     });
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    if (session.user.role !== "TEACHER") {
+    if (session.user.role !== "teacher" && session.user.role !== "admin") {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 

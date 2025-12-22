@@ -42,35 +42,22 @@ import { useToast } from "../../hooks/use-toast";
 import { format } from "date-fns";
 import {
   Video,
-  VideoOff,
   Calendar as CalendarIcon,
   Clock,
   Users,
-  Settings,
-  Play,
-  Square,
   Eye,
   Edit,
   Trash2,
   Copy,
-  Share2,
   Download,
-  Upload,
   Plus,
-  Filter,
   Search,
   MoreVertical,
-  Crown,
-  Shield,
   User,
-  Mic,
-  MicOff,
   ScreenShare,
   MessageCircle,
   PenTool,
-  Circle,
-  Wifi,
-  WifiOff
+  Circle
 } from "lucide-react";
 
 interface VideoRoom {
@@ -234,11 +221,11 @@ export default function VideoRoomManagement() {
       });
 
       if (!response.ok) throw new Error('Failed to create room');
-      
+
       const newRoom = await response.json();
       setRooms(prev => [newRoom, ...prev]);
       setShowCreateDialog(false);
-      
+
       // Reset form
       setCreateData({
         title: '',
@@ -291,7 +278,7 @@ export default function VideoRoomManagement() {
       });
 
       if (!response.ok) throw new Error('Failed to delete room');
-      
+
       setRooms(prev => prev.filter(room => room.id !== roomId));
       toast({
         title: "Room Deleted",
@@ -340,7 +327,7 @@ export default function VideoRoomManagement() {
           <h1 className="text-2xl font-bold">Video Rooms</h1>
           <p className="text-gray-600">Manage your video conferencing sessions</p>
         </div>
-        
+
         <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
           <DialogTrigger asChild>
             <Button>
@@ -355,14 +342,14 @@ export default function VideoRoomManagement() {
                 Set up a new video conferencing session for your course or meeting.
               </DialogDescription>
             </DialogHeader>
-            
+
             <Tabs defaultValue="basic" className="w-full">
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="basic">Basic Info</TabsTrigger>
                 <TabsTrigger value="settings">Settings</TabsTrigger>
                 <TabsTrigger value="advanced">Advanced</TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="basic" className="space-y-4">
                 <div>
                   <Label htmlFor="title">Room Title *</Label>
@@ -373,7 +360,7 @@ export default function VideoRoomManagement() {
                     placeholder="Enter room title"
                   />
                 </div>
-                
+
                 <div>
                   <Label htmlFor="description">Description</Label>
                   <Textarea
@@ -384,7 +371,7 @@ export default function VideoRoomManagement() {
                     rows={3}
                   />
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Scheduled Date & Time</Label>
@@ -408,7 +395,7 @@ export default function VideoRoomManagement() {
                       </PopoverContent>
                     </Popover>
                   </div>
-                  
+
                   <div>
                     <Label htmlFor="duration">Duration (minutes)</Label>
                     <Input
@@ -422,7 +409,7 @@ export default function VideoRoomManagement() {
                   </div>
                 </div>
               </TabsContent>
-              
+
               <TabsContent value="settings" className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex items-center justify-between">
@@ -433,7 +420,7 @@ export default function VideoRoomManagement() {
                       onCheckedChange={(checked) => setCreateData(prev => ({ ...prev, isRecordingEnabled: checked }))}
                     />
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <Label htmlFor="screenshare">Screen Sharing</Label>
                     <Switch
@@ -442,7 +429,7 @@ export default function VideoRoomManagement() {
                       onCheckedChange={(checked) => setCreateData(prev => ({ ...prev, isScreenSharingEnabled: checked }))}
                     />
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <Label htmlFor="whiteboard">Whiteboard</Label>
                     <Switch
@@ -451,7 +438,7 @@ export default function VideoRoomManagement() {
                       onCheckedChange={(checked) => setCreateData(prev => ({ ...prev, isWhiteboardEnabled: checked }))}
                     />
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <Label htmlFor="chat">Chat</Label>
                     <Switch
@@ -461,7 +448,7 @@ export default function VideoRoomManagement() {
                     />
                   </div>
                 </div>
-                
+
                 <div>
                   <Label htmlFor="quality">Video Quality</Label>
                   <Select
@@ -480,7 +467,7 @@ export default function VideoRoomManagement() {
                   </Select>
                 </div>
               </TabsContent>
-              
+
               <TabsContent value="advanced" className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex items-center justify-between">
@@ -491,7 +478,7 @@ export default function VideoRoomManagement() {
                       onCheckedChange={(checked) => setCreateData(prev => ({ ...prev, isPrivate: checked }))}
                     />
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <Label htmlFor="waitingroom">Waiting Room</Label>
                     <Switch
@@ -500,7 +487,7 @@ export default function VideoRoomManagement() {
                       onCheckedChange={(checked) => setCreateData(prev => ({ ...prev, waitingRoomEnabled: checked }))}
                     />
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <Label htmlFor="moderator">Require Moderator</Label>
                     <Switch
@@ -509,7 +496,7 @@ export default function VideoRoomManagement() {
                       onCheckedChange={(checked) => setCreateData(prev => ({ ...prev, requireModerator: checked }))}
                     />
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <Label htmlFor="autorecord">Auto Record</Label>
                     <Switch
@@ -519,7 +506,7 @@ export default function VideoRoomManagement() {
                     />
                   </div>
                 </div>
-                
+
                 <div>
                   <Label htmlFor="maxparticipants">Max Participants</Label>
                   <Input
@@ -528,16 +515,16 @@ export default function VideoRoomManagement() {
                     min="2"
                     max="100"
                     value={createData.maxParticipants || ''}
-                    onChange={(e) => setCreateData(prev => ({ 
-                      ...prev, 
-                      maxParticipants: e.target.value ? parseInt(e.target.value) : undefined 
+                    onChange={(e) => setCreateData(prev => ({
+                      ...prev,
+                      maxParticipants: e.target.value ? parseInt(e.target.value) : undefined
                     }))}
                     placeholder="No limit"
                   />
                 </div>
               </TabsContent>
             </Tabs>
-            
+
             <DialogFooter>
               <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
                 Cancel
@@ -565,7 +552,7 @@ export default function VideoRoomManagement() {
                 />
               </div>
             </div>
-            
+
             <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
               <SelectTrigger className="w-40">
                 <SelectValue />
@@ -594,7 +581,7 @@ export default function VideoRoomManagement() {
               <Video className="h-12 w-12 mx-auto text-gray-400 mb-4" />
               <h3 className="text-lg font-medium mb-2">No video rooms found</h3>
               <p className="text-gray-600">
-                {searchTerm || statusFilter !== 'ALL' 
+                {searchTerm || statusFilter !== 'ALL'
                   ? 'Try adjusting your search or filters'
                   : 'Create your first video room to get started'
                 }
@@ -620,29 +607,29 @@ export default function VideoRoomManagement() {
                         <Badge variant="secondary">Private</Badge>
                       )}
                     </div>
-                    
+
                     {/* Description */}
                     {room.description && (
                       <p className="text-gray-600 text-sm">{room.description}</p>
                     )}
-                    
+
                     {/* Room Info */}
                     <div className="flex items-center space-x-6 text-sm text-gray-500">
                       <div className="flex items-center space-x-1">
                         <User className="h-4 w-4" />
                         <span>{room.host.name}</span>
                       </div>
-                      
+
                       <div className="flex items-center space-x-1">
                         <Clock className="h-4 w-4" />
                         <span>{formatDuration(room.duration)}</span>
                       </div>
-                      
+
                       <div className="flex items-center space-x-1">
                         <Users className="h-4 w-4" />
                         <span>{room.participants.length}{room.maxParticipants ? `/${room.maxParticipants}` : ''}</span>
                       </div>
-                      
+
                       {room.scheduledFor && (
                         <div className="flex items-center space-x-1">
                           <CalendarIcon className="h-4 w-4" />
@@ -650,7 +637,7 @@ export default function VideoRoomManagement() {
                         </div>
                       )}
                     </div>
-                    
+
                     {/* Features */}
                     <div className="flex items-center space-x-3">
                       {room.isRecordingEnabled && (
@@ -678,7 +665,7 @@ export default function VideoRoomManagement() {
                         </div>
                       )}
                     </div>
-                    
+
                     {/* Active Participants */}
                     {room.status === 'ACTIVE' && room.participants.length > 0 && (
                       <div className="flex items-center space-x-2">
@@ -700,7 +687,7 @@ export default function VideoRoomManagement() {
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Actions */}
                   <div className="flex items-center space-x-2">
                     {room.status === 'WAITING' || room.status === 'ACTIVE' ? (
@@ -714,7 +701,7 @@ export default function VideoRoomManagement() {
                         View
                       </Button>
                     )}
-                    
+
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button variant="ghost" size="sm">
@@ -732,7 +719,7 @@ export default function VideoRoomManagement() {
                             <Copy className="h-4 w-4 mr-2" />
                             Copy Link
                           </Button>
-                          
+
                           <Button
                             variant="ghost"
                             size="sm"
@@ -741,7 +728,7 @@ export default function VideoRoomManagement() {
                             <Edit className="h-4 w-4 mr-2" />
                             Edit Room
                           </Button>
-                          
+
                           {room.recordings && room.recordings.length > 0 && (
                             <Button
                               variant="ghost"
@@ -752,7 +739,7 @@ export default function VideoRoomManagement() {
                               Recordings ({room.recordings.length})
                             </Button>
                           )}
-                          
+
                           <Button
                             variant="ghost"
                             size="sm"

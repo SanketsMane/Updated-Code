@@ -7,24 +7,26 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { TeacherProfileForm } from "@/components/teacher/teacher-profile-form";
-import { 
-  User, 
-  MapPin, 
-  Clock, 
-  DollarSign, 
-  Star, 
-  Users, 
-  BookOpen, 
-  Globe, 
-  Linkedin, 
-  Twitter, 
+import {
+  MapPin,
+  Clock,
+  DollarSign,
+  Star,
+  Users,
+  BookOpen,
+  Globe,
+  Linkedin,
+  Twitter,
   Youtube,
   Edit,
-  Plus,
-  TrendingUp
+  TrendingUp,
+  Award,
+  CheckCircle2,
+  GraduationCap
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import Link from "next/link";
 
 interface TeacherProfile {
   id: string;
@@ -41,8 +43,9 @@ interface TeacherProfile {
   qualifications?: string[];
   certifications?: string[];
   totalEarnings: number;
-  rating?: number;
+  avgRating: number | null;
   totalStudents: number;
+  totalCourses: number;
   isVerified: boolean;
   isApproved: boolean;
   createdAt: Date;
@@ -67,7 +70,7 @@ export default function TeacherProfilePage() {
     try {
       const response = await fetch("/api/teacher/profile");
       const data = await response.json();
-      
+
       if (response.ok) {
         setProfile(data.profile);
         setIsEditing(!data.profile); // Auto-open edit form if no profile exists
@@ -98,199 +101,250 @@ export default function TeacherProfilePage() {
       <div className="container mx-auto py-6 px-4">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold">Teacher Profile</h1>
-            <p className="text-muted-foreground">
-              {profile ? "Edit your teaching profile" : "Create your teaching profile to get started"}
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-900 to-orange-600 dark:from-white dark:to-orange-100 bg-clip-text text-transparent">Teacher Profile</h1>
+            <p className="text-muted-foreground mt-1">
+              {profile ? "Update your professional details" : "Create your teaching profile to get started"}
             </p>
           </div>
           {profile && (
             <Button variant="outline" onClick={() => setIsEditing(false)}>
-              Cancel
+              Cancel Editing
             </Button>
           )}
         </div>
-        <TeacherProfileForm 
-          existingProfile={profile || undefined} 
-          onSave={handleProfileSave}
-        />
+
+        <Card className="border-0 shadow-lg bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
+          <CardContent className="p-6">
+            <TeacherProfileForm
+              existingProfile={profile || undefined}
+              onSave={handleProfileSave}
+            />
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   const socialLinks = [
-    { icon: Globe, url: profile.website, label: "Website" },
-    { icon: Linkedin, url: profile.linkedin, label: "LinkedIn" },
-    { icon: Twitter, url: profile.twitter, label: "Twitter" },
-    { icon: Youtube, url: profile.youtube, label: "YouTube" },
+    { icon: Globe, url: profile.website, label: "Website", color: "text-blue-500" },
+    { icon: Linkedin, url: profile.linkedin, label: "LinkedIn", color: "text-blue-700" },
+    { icon: Twitter, url: profile.twitter, label: "Twitter", color: "text-sky-500" },
+    { icon: Youtube, url: profile.youtube, label: "YouTube", color: "text-red-600" },
   ].filter(link => link.url);
 
   return (
-    <div className="container mx-auto py-6 px-4 space-y-6">
+    <div className="container mx-auto py-2 px-1 space-y-8">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold">Teacher Profile</h1>
-          <p className="text-muted-foreground">Manage your teaching profile and settings</p>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-900 to-orange-600 dark:from-white dark:to-orange-100 bg-clip-text text-transparent">Your Profile</h1>
+          <p className="text-muted-foreground mt-1">Preview and manage your public teaching profile</p>
         </div>
-        <Button onClick={() => setIsEditing(true)}>
+        <Button onClick={() => setIsEditing(true)} className="shadow-md bg-orange-600 hover:bg-orange-700 text-white">
           <Edit className="h-4 w-4 mr-2" />
           Edit Profile
         </Button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card className="shadow-sm border-t-4 border-t-green-500 hover:scale-[1.02] transition-transform">
           <CardContent className="flex items-center p-6">
-            <div className="flex items-center space-x-2">
-              <TrendingUp className="h-4 w-4 text-green-600" />
-              <div>
-                <p className="text-2xl font-bold">${profile.totalEarnings.toLocaleString()}</p>
-                <p className="text-xs text-muted-foreground">Total Earnings</p>
-              </div>
+            <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-full mr-4">
+              <TrendingUp className="h-6 w-6 text-green-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">${profile.totalEarnings.toLocaleString()}</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Earnings</p>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-sm border-t-4 border-t-yellow-500 hover:scale-[1.02] transition-transform">
           <CardContent className="flex items-center p-6">
-            <div className="flex items-center space-x-2">
-              <Star className="h-4 w-4 text-yellow-600" />
-              <div>
-                <p className="text-2xl font-bold">
-                  {profile.avgRating ? profile.avgRating.toFixed(1) : "N/A"}
-                </p>
-                <p className="text-xs text-muted-foreground">Average Rating</p>
-              </div>
+            <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-full mr-4">
+              <Star className="h-6 w-6 text-yellow-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {profile.avgRating ? profile.avgRating.toFixed(1) : "N/A"}
+              </p>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Average Rating</p>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-sm border-t-4 border-t-blue-500 hover:scale-[1.02] transition-transform">
           <CardContent className="flex items-center p-6">
-            <div className="flex items-center space-x-2">
-              <Users className="h-4 w-4 text-blue-600" />
-              <div>
-                <p className="text-2xl font-bold">{profile.totalStudents}</p>
-                <p className="text-xs text-muted-foreground">Total Students</p>
-              </div>
+            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-full mr-4">
+              <Users className="h-6 w-6 text-blue-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{profile.totalStudents}</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Students</p>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-sm border-t-4 border-t-purple-500 hover:scale-[1.02] transition-transform">
           <CardContent className="flex items-center p-6">
-            <div className="flex items-center space-x-2">
-              <BookOpen className="h-4 w-4 text-purple-600" />
-              <div>
-                <p className="text-2xl font-bold">{profile.totalCourses}</p>
-                <p className="text-xs text-muted-foreground">Courses Created</p>
-              </div>
+            <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-full mr-4">
+              <BookOpen className="h-6 w-6 text-purple-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{profile.totalCourses}</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Courses Created</p>
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Profile Information */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Profile */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <div className="flex items-center space-x-4">
-              <Avatar className="h-16 w-16">
-                <AvatarImage src={profile.user?.image || ""} />
-                <AvatarFallback className="text-lg">
-                  {profile.user?.name?.charAt(0) || "T"}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <CardTitle className="text-2xl">{profile.user?.name}</CardTitle>
-                <CardDescription className="flex items-center space-x-4">
-                  <span>{profile.user?.email}</span>
+        <div className="lg:col-span-2 space-y-8">
+          <Card className="border-0 shadow-md overflow-hidden">
+            <div className="h-32 bg-gradient-to-r from-orange-500 to-red-600 relative"></div>
+            <div className="px-8 pb-8 relative">
+              <div className="flex flex-col md:flex-row items-start md:items-end -mt-12 mb-6 gap-6">
+                <div className="relative">
+                  <Avatar className="h-24 w-24 border-4 border-white dark:border-gray-800 shadow-lg">
+                    <AvatarImage src={profile.user?.image || ""} />
+                    <AvatarFallback className="text-2xl font-bold bg-orange-100 text-orange-700">
+                      {profile.user?.name?.charAt(0) || "T"}
+                    </AvatarFallback>
+                  </Avatar>
                   {profile.isVerified && (
-                    <Badge variant="secondary" className="text-xs">
-                      <Star className="h-3 w-3 mr-1" />
-                      Verified
-                    </Badge>
+                    <div className="absolute bottom-0 right-0 bg-white dark:bg-gray-800 p-1 rounded-full">
+                      <CheckCircle2 className="h-6 w-6 text-orange-500 fill-orange-100" />
+                    </div>
                   )}
-                </CardDescription>
+                </div>
+                <div className="flex-1 space-y-1">
+                  <h2 className="text-3xl font-bold text-gray-900 dark:text-white">{profile.user?.name}</h2>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    {profile.user?.email}
+                    {profile.isVerified && (
+                      <Badge variant="secondary" className="bg-orange-100 text-orange-700 hover:bg-orange-200 border-none">Verified Teacher</Badge>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                    <UserIcon className="h-5 w-5 text-gray-500" />
+                    About Me
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-lg">
+                    {profile.bio}
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Expertise</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {profile.expertise.map((area) => (
+                        <Badge key={area} className="bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border-none px-3 py-1">
+                          {area}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Languages</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {profile.languages.map((lang) => (
+                        <Badge key={lang} variant="outline" className="px-3 py-1 border-gray-300">
+                          {lang}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <h3 className="font-semibold mb-2">Bio</h3>
-              <p className="text-muted-foreground">{profile.bio}</p>
-            </div>
+          </Card>
 
-            <Separator />
-
-            <div>
-              <h3 className="font-semibold mb-2">Areas of Expertise</h3>
-              <div className="flex flex-wrap gap-2">
-                {profile.expertise.map((area) => (
-                  <Badge key={area} variant="outline">
-                    {area}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-2">Languages</h3>
-              <div className="flex flex-wrap gap-2">
-                {profile.languages.map((lang) => (
-                  <Badge key={lang} variant="secondary">
-                    {lang}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            {profile.qualifications && profile.qualifications.length > 0 && (
-              <div>
-                <h3 className="font-semibold mb-2">Qualifications</h3>
-                <ul className="list-disc list-inside space-y-1">
-                  {profile.qualifications.map((qual, index) => (
-                    <li key={index} className="text-muted-foreground">{qual}</li>
+          {(profile.qualifications?.length ?? 0) > 0 && (
+            <Card className="shadow-sm border-l-4 border-l-purple-500">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <GraduationCap className="h-5 w-5 text-purple-600" />
+                  Qualifications
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="grid gap-3">
+                  {profile.qualifications!.map((qual, index) => (
+                    <li key={index} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                      <div className="h-2 w-2 rounded-full bg-purple-400" />
+                      {qual}
+                    </li>
                   ))}
                 </ul>
-              </div>
-            )}
+              </CardContent>
+            </Card>
+          )}
 
-            {profile.certifications && profile.certifications.length > 0 && (
-              <div>
-                <h3 className="font-semibold mb-2">Certifications</h3>
-                <ul className="list-disc list-inside space-y-1">
-                  {profile.certifications.map((cert, index) => (
-                    <li key={index} className="text-muted-foreground">{cert}</li>
+          {(profile.certifications?.length ?? 0) > 0 && (
+            <Card className="shadow-sm border-l-4 border-l-orange-500">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Award className="h-5 w-5 text-orange-600" />
+                  Certifications
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="grid gap-3">
+                  {profile.certifications!.map((cert, index) => (
+                    <li key={index} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                      <div className="h-2 w-2 rounded-full bg-orange-400" />
+                      {cert}
+                    </li>
                   ))}
                 </ul>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          )}
+        </div>
 
         {/* Sidebar */}
-        <div className="space-y-4">
+        <div className="space-y-6">
           {/* Rate & Availability */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Teaching Details</CardTitle>
+          <Card className="shadow-md">
+            <CardHeader className="bg-gray-50 dark:bg-gray-900 border-b">
+              <CardTitle className="text-lg">Teaching Details</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="p-6 space-y-4">
               {profile.hourlyRate && (
-                <div className="flex items-center space-x-2">
-                  <DollarSign className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">
-                    <span className="font-semibold">${profile.hourlyRate}/hour</span> for 1-on-1 sessions
+                <div className="flex items-center justify-between p-3 bg-orange-50 dark:bg-orange-900/10 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-white dark:bg-orange-900/30 rounded-full text-orange-600">
+                      <DollarSign className="h-5 w-5" />
+                    </div>
+                    <span className="text-sm font-medium">Hourly Rate</span>
+                  </div>
+                  <span className="font-bold text-lg text-orange-700 dark:text-orange-300">
+                    ${profile.hourlyRate}
                   </span>
                 </div>
               )}
               {profile.timezone && (
-                <div className="flex items-center space-x-2">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{profile.timezone}</span>
+                <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-white dark:bg-gray-700 rounded-full text-gray-600">
+                      <Clock className="h-5 w-5" />
+                    </div>
+                    <span className="text-sm font-medium">Timezone</span>
+                  </div>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">
+                    {profile.timezone}
+                  </span>
                 </div>
               )}
             </CardContent>
@@ -298,22 +352,25 @@ export default function TeacherProfilePage() {
 
           {/* Social Links */}
           {socialLinks.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Connect</CardTitle>
+            <Card className="shadow-md">
+              <CardHeader className="bg-gray-50 dark:bg-gray-900 border-b">
+                <CardTitle className="text-lg">Connect</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
+              <CardContent className="p-4">
+                <div className="flex flex-col gap-2">
                   {socialLinks.map((link, index) => (
                     <a
                       key={index}
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center space-x-2 text-sm hover:text-primary transition-colors"
+                      className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
                     >
-                      <link.icon className="h-4 w-4" />
-                      <span>{link.label}</span>
+                      <div className="flex items-center gap-3">
+                        <link.icon className={`h-5 w-5 ${link.color}`} />
+                        <span className="font-medium">{link.label}</span>
+                      </div>
+                      <Globe className="h-4 w-4 text-gray-300 group-hover:text-blue-500 transition-colors" />
                     </a>
                   ))}
                 </div>
@@ -322,27 +379,30 @@ export default function TeacherProfilePage() {
           )}
 
           {/* Profile Completion */}
-          <Card>
+          <Card className="bg-gradient-to-br from-orange-400 to-red-600 text-white border-0 shadow-lg">
             <CardHeader>
-              <CardTitle>Profile Status</CardTitle>
+              <CardTitle className="text-white">Profile Status</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
+              <div className="space-y-4">
+                <div className="flex justify-between text-sm font-medium">
                   <span>Profile Completion</span>
-                  <span className="font-semibold">
-                    {Math.round(calculateProfileCompletion(profile))}%
-                  </span>
+                  <span>{Math.round(calculateProfileCompletion(profile))}%</span>
                 </div>
-                <div className="w-full bg-secondary rounded-full h-2">
-                  <div 
-                    className="bg-primary h-2 rounded-full transition-all"
+                <div className="w-full bg-white/20 rounded-full h-3 backdrop-blur-sm">
+                  <div
+                    className="bg-white h-3 rounded-full transition-all shadow-[0_0_10px_rgba(255,255,255,0.5)]"
                     style={{ width: `${calculateProfileCompletion(profile)}%` }}
                   />
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Complete your profile to attract more students
+                <p className="text-xs text-orange-100 leading-relaxed">
+                  Complete your profile to attract more students and boost your visibility.
                 </p>
+                {Math.round(calculateProfileCompletion(profile)) < 100 && (
+                  <Button variant="secondary" size="sm" className="w-full bg-white text-orange-600 hover:bg-orange-50" onClick={() => setIsEditing(true)}>
+                    Complete Profile
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -352,6 +412,24 @@ export default function TeacherProfilePage() {
   );
 }
 
+function UserIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+  )
+}
+
 function calculateProfileCompletion(profile: TeacherProfile): number {
   const fields = [
     profile.bio,
@@ -359,11 +437,11 @@ function calculateProfileCompletion(profile: TeacherProfile): number {
     profile.languages?.length > 0,
     profile.hourlyRate,
     profile.timezone,
-    profile.qualifications?.length > 0,
-    profile.certifications?.length > 0,
+    (profile.qualifications?.length ?? 0) > 0,
+    (profile.certifications?.length ?? 0) > 0,
     profile.website || profile.linkedin || profile.twitter || profile.youtube,
   ];
-  
+
   const completed = fields.filter(Boolean).length;
   return (completed / fields.length) * 100;
 }

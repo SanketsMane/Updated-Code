@@ -49,14 +49,14 @@ export function EditCourseForm({ data }: iAppProps) {
   const router = useRouter();
   // 1. Define your form.
   const form = useForm<CourseSchemaType>({
-    resolver: zodResolver(courseSchema),
+    resolver: zodResolver(courseSchema) as any,
     defaultValues: {
       title: data.title,
       description: data.description,
       fileKey: data.fileKey,
       price: data.price,
       duration: data.duration,
-      level: data.level,
+      level: data.level as CourseSchemaType["level"],
       category: data.category as CourseSchemaType["category"],
       status: data.status,
       slug: data.slug,

@@ -1,18 +1,18 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import Image from "next/image";
+// Duplicate Link removed
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { 
+import {
   Calendar, Clock, Eye, User, BookOpen, TrendingUp, Search, Filter,
-  Bookmark, Share2, Heart, MessageCircle, ArrowRight, PenTool,
-  Lightbulb, Code, Palette, BarChart3, Zap, Target, Award
+  ArrowRight, PenTool,
+  Code, Palette, BarChart3, Zap, Target
 } from "lucide-react";
-import { getBlogPosts, getBlogCategories, getFeaturedBlogPosts } from "@/app/actions/blog";
+import { getBlogPosts, getFeaturedBlogPosts } from "@/app/actions/blog";
 import { formatDistanceToNow, format } from "date-fns";
 
 interface BlogPageProps {
@@ -58,7 +58,7 @@ const trendingPosts = [
     excerpt: "Master the fundamental design principles that create exceptional user experiences",
     category: "Design",
     author: "Michael Chen",
-    readTime: "8 min read", 
+    readTime: "8 min read",
     publishedAt: "1 week ago",
     views: "8.9K",
     featured: false
@@ -175,7 +175,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
             margin: '0 auto 2.5rem auto',
             lineHeight: '1.6'
           }}>
-            Discover the latest trends, tutorials, and insights from industry experts. 
+            Discover the latest trends, tutorials, and insights from industry experts.
             Stay ahead with actionable knowledge and practical tips.
           </p>
 
@@ -191,10 +191,10 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
             border: '1px solid rgba(255,255,255,0.2)'
           }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <Search style={{ 
-                width: '1.2rem', 
-                height: '1.2rem', 
-                color: 'rgba(255,255,255,0.7)', 
+              <Search style={{
+                width: '1.2rem',
+                height: '1.2rem',
+                color: 'rgba(255,255,255,0.7)',
                 marginLeft: '1rem',
                 marginRight: '0.75rem'
               }} />
@@ -248,9 +248,9 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                   borderRadius: '1rem',
                   border: '1px solid #e2e8f0'
                 }}>
-                  <Icon style={{ 
-                    width: '2.5rem', 
-                    height: '2.5rem', 
+                  <Icon style={{
+                    width: '2.5rem',
+                    height: '2.5rem',
                     margin: '0 auto 1rem auto',
                     color: stat.color
                   }} />
@@ -337,7 +337,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                       POPULAR
                     </div>
                   )}
-                  
+
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -373,7 +373,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                       </p>
                     </div>
                   </div>
-                  
+
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -572,7 +572,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               }}>
                 Latest Articles
               </h2>
-              
+
               <Suspense fallback={<BlogPostsSkeleton />}>
                 <BlogPostsList searchParams={searchParams} />
               </Suspense>
@@ -595,7 +595,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               }}>
                 Recent Posts
               </h3>
-              
+
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {recentPosts.map((post, index) => (
                   <div key={index} style={{
@@ -702,7 +702,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
           }}>
             Get the latest articles, tutorials, and industry insights delivered to your inbox weekly.
           </p>
-          
+
           <div style={{
             display: 'flex',
             gap: '1rem',
@@ -737,7 +737,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               Subscribe
             </button>
           </div>
-          
+
           <p style={{
             fontSize: '0.85rem',
             color: '#9ca3af',

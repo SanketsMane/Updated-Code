@@ -4,65 +4,40 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import Logo from "@/public/logo.png";
-import { ThemeToggle } from "@/components/ui/themeToggle";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { authClient } from "@/lib/auth-client";
-import { buttonVariants } from "@/components/ui/button";
-import { Button } from "@/components/ui/button";
 import { UserDropdown } from "./UserDropdown";
-import { 
-  Menu, 
-  X, 
-  BookOpen, 
-  Users, 
-  GraduationCap, 
-  BarChart3,
-  ChevronDown 
-} from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
+import { Search, Menu as MenuIcon, X } from "lucide-react";
+import Menu, { IMenu } from "@/components/ui/navbar";
 
-const navigationItems = [
-  { 
-    name: "Home", 
-    href: "/",
-    icon: null
+const navigationItems: IMenu[] = [
+  {
+    id: 1,
+    title: "Home",
+    url: "/",
   },
-  { 
-    name: "Courses", 
-    href: "/courses",
-    icon: BookOpen,
-    dropdown: [
-      { name: "All Courses", href: "/courses" },
-      { name: "Programming", href: "/courses?category=Programming" },
-      { name: "Business", href: "/courses?category=Business" },
-      { name: "Design", href: "/courses?category=Design" },
-      { name: "Health & Fitness", href: "/courses?category=Health" },
+  {
+    id: 2,
+    title: "Courses",
+    url: "/courses",
+    dropdown: true,
+    items: [
+      { id: 21, title: "All Courses", url: "/courses" },
+      { id: 22, title: "Programming", url: "/courses?category=Programming" },
+      { id: 23, title: "Business", url: "/courses?category=Business" },
+      { id: 24, title: "Design", url: "/courses?category=Design" },
+      { id: 25, title: "Health & Fitness", url: "/courses?category=Health" },
     ]
   },
-  { 
-    name: "Live Sessions", 
-    href: "/live-sessions",
-    icon: GraduationCap
+  {
+    id: 3,
+    title: "Live Sessions",
+    url: "/live-sessions",
   },
-  { 
-    name: "Blog", 
-    href: "/blog",
-    icon: BookOpen
-  },
-  { 
-    name: "Instructors", 
-    href: "/marketplace",
-    icon: Users
-  },
-  { 
-    name: "Dashboard", 
-    href: "/dashboard",
-    icon: BarChart3
+  {
+    id: 4,
+    title: "Mentors",
+    url: "/marketplace",
   },
 ];
 
@@ -71,203 +46,108 @@ export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white/95 dark:bg-gray-900/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60 shadow-sm">
-      <div className="max-w-7xl mx-auto flex h-14 lg:h-16 items-center px-3 sm:px-4 md:px-6 lg:px-8">
+    <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border shadow-sm">
+      <div className="max-w-7xl mx-auto flex h-16 items-center px-4 md:px-8 gap-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2 mr-4 lg:mr-8">
-          <div className="relative">
-            <Image src={Logo} alt="KIDOKOOL Logo" className="size-8 lg:size-10" />
-          </div>
-          <div className="flex flex-col">
-            <span className="font-bold text-base lg:text-xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              KIDOKOOL
-            </span>
-            <div className="text-xs text-muted-foreground -mt-1 hidden sm:block">Learning Platform</div>
-          </div>
+        <Link href="/" className="flex items-center gap-2 mr-4 shrink-0">
+          <Image src={Logo} alt="KIDOKOOL" className="w-8 h-8 md:w-10 md:h-10" />
+          <span className="font-bold text-xl text-foreground hidden sm:block">
+            KIDOKOOL
+          </span>
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex md:flex-1 md:items-center md:justify-between">
-          <div className="flex items-center space-x-0.5 lg:space-x-1">
-            {navigationItems.map((item) => {
-              const IconComponent = item.icon;
-              
-              if (item.dropdown) {
-                return (
-                  <DropdownMenu key={item.name}>
-                    <DropdownMenuTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        className="flex items-center space-x-1 text-xs lg:text-sm font-medium hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950 px-2 lg:px-3"
-                      >
-                        {IconComponent && <IconComponent className="h-4 w-4" />}
-                        <span>{item.name}</span>
-                        <ChevronDown className="h-3 w-3" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-48">
-                      {item.dropdown.map((dropdownItem) => (
-                        <DropdownMenuItem key={dropdownItem.name} asChild>
-                          <Link href={dropdownItem.href} className="cursor-pointer">
-                            {dropdownItem.name}
-                          </Link>
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                );
-              }
-
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="flex items-center space-x-1 px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium transition-colors hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950 rounded-md"
-                >
-                  {IconComponent && <IconComponent className="h-4 w-4" />}
-                  <span>{item.name}</span>
-                </Link>
-              );
-            })}
+        {/* Categories / Desktop Nav */}
+        <div className="hidden md:flex flex-1 items-center gap-6">
+          {/* Simple functional search bar placeholder - Udemy Style */}
+          <div className="flex-1 max-w-xl relative">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                suppressHydrationWarning
+                placeholder="Search for anything"
+                className="w-full pl-10 pr-4 py-2.5 rounded-full border border-gray-300 bg-gray-50 text-sm focus:outline-none focus:border-primary focus:bg-white transition-all placeholder:text-gray-500 text-gray-800"
+              />
+            </div>
           </div>
 
-          <div className="flex items-center space-x-1 lg:space-x-3">
+          {/* Integrated New Menu Component */}
+          <div className="flex items-center text-sm font-medium text-foreground">
+            <Menu list={navigationItems} />
+          </div>
+        </div>
+
+        {/* Right Actions */}
+        <div className="flex items-center gap-3 md:gap-4 shrink-0">
+          {/* Mobile Search Trigger (Visible only on small screens) */}
+          <button suppressHydrationWarning className="md:hidden text-gray-600 hover:text-primary">
+            <Search className="h-5 w-5" />
+          </button>
+
+          <div className="hidden sm:block">
             <ThemeToggle />
-
-            {isPending ? (
-              <div className="flex space-x-2">
-                <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-9 w-16 rounded"></div>
-                <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-9 w-20 rounded"></div>
-              </div>
-            ) : session ? (
-              <div className="flex items-center space-x-1 lg:space-x-3">
-                <div className="hidden xl:flex items-center space-x-1 text-xs lg:text-sm">
-                  <span className="text-muted-foreground">Welcome,</span>
-                  <span className="font-medium truncate max-w-20">{
-                    session?.user.name && session.user.name.length > 0
-                      ? session.user.name.split(' ')[0]
-                      : session?.user.email.split("@")[0]
-                  }</span>
-                </div>
-                <UserDropdown
-                  email={session.user.email}
-                  image={
-                    session?.user.image ??
-                    `https://avatar.vercel.sh/${session?.user.email}`
-                  }
-                  name={
-                    session?.user.name && session.user.name.length > 0
-                      ? session.user.name
-                      : session?.user.email.split("@")[0]
-                  }
-                />
-              </div>
-            ) : (
-              <div className="flex items-center space-x-3">
-                <Link
-                  href="/login"
-                  className={buttonVariants({ 
-                    variant: "ghost",
-                    className: "font-medium hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950"
-                  })}
-                >
-                  Login
-                </Link>
-                <Link 
-                  href="/register" 
-                  className={buttonVariants({
-                    className: "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-200"
-                  })}
-                >
-                  Get Started Free
-                </Link>
-              </div>
-            )}
           </div>
-        </nav>
 
-        {/* Mobile Menu Button */}
-        <div className="md:hidden flex items-center space-x-1">
-          {session && (
+          {session ? (
             <UserDropdown
               email={session.user.email}
-              image={
-                session?.user.image ??
-                `https://avatar.vercel.sh/${session?.user.email}`
-              }
-              name={
-                session?.user.name && session.user.name.length > 0
-                  ? session.user.name
-                  : session?.user.email.split("@")[0]
-              }
+              name={session.user.name || session.user.email.split('@')[0]}
+              image={session.user.image || `https://avatar.vercel.sh/${session.user.email}`}
+              role={session.user.role || undefined}
             />
+          ) : (
+            <div className="flex items-center gap-3">
+              <Link
+                href="/login"
+                className="hidden sm:inline-flex items-center justify-center px-4 py-2 text-sm font-bold text-foreground border border-input hover:bg-accent hover:text-accent-foreground rounded transition-all"
+              >
+                Log in
+              </Link>
+              <Link
+                href="/register"
+                className="inline-flex items-center justify-center px-4 py-2 text-sm font-bold text-primary-foreground bg-primary hover:bg-primary/90 rounded transition-all shadow-none"
+              >
+                Sign up
+              </Link>
+            </div>
           )}
-          <ThemeToggle />
-          <Button
-            variant="ghost"
-            size="icon"
+
+          {/* Mobile Menu Toggle */}
+          <button
+            suppressHydrationWarning
+            className="md:hidden p-1 text-gray-700 hover:bg-gray-100 rounded"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="h-8 w-8"
           >
-            {isMobileMenuOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
-          </Button>
+            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
+          </button>
         </div>
       </div>
 
-      {/* Mobile Navigation */}
+      {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden border-t bg-white dark:bg-gray-900 shadow-lg">
-          <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 space-y-2">
-            {navigationItems.map((item) => {
-              const IconComponent = item.icon;
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center space-x-3 px-3 py-3 text-sm font-medium transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
-                >
-                  {IconComponent && <IconComponent className="h-5 w-5 text-blue-600" />}
-                  <span>{item.name}</span>
+        <div className="md:hidden border-t border-border bg-background p-4 absolute top-16 left-0 right-0 shadow-lg">
+          <nav className="flex flex-col space-y-4">
+            {navigationItems.map(item => (
+              <Link
+                key={item.id}
+                href={item.url}
+                className="flex items-center justify-between text-foreground font-medium py-2 border-b border-border last:border-0"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {item.title}
+              </Link>
+            ))}
+            {!session && (
+              <div className="flex flex-col gap-3 mt-4 pt-4 border-t border-gray-100">
+                <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="text-center py-2.5 font-bold text-foreground border border-input rounded hover:bg-accent">
+                  Log in
                 </Link>
-              );
-            })}
-            
-            <div className="pt-4 border-t">
-              {session ? (
-                <div className="space-y-2">
-                  <div className="px-3 py-2 text-sm text-muted-foreground">
-                    Welcome, {
-                      session?.user.name && session.user.name.length > 0
-                        ? session.user.name.split(' ')[0]
-                        : session?.user.email.split("@")[0]
-                    }
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <Link
-                    href="/login"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="block w-full text-center px-4 py-2 text-sm font-medium text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors"
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    href="/register"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="block w-full text-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-md hover:from-blue-700 hover:to-indigo-700 transition-all"
-                  >
-                    Get Started Free
-                  </Link>
-                </div>
-              )}
-            </div>
-          </div>
+                <Link href="/register" onClick={() => setIsMobileMenuOpen(false)} className="text-center py-2.5 font-bold text-primary-foreground bg-primary rounded hover:bg-primary/90">
+                  Sign up
+                </Link>
+              </div>
+            )}
+          </nav>
         </div>
       )}
     </header>

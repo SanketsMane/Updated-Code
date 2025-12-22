@@ -21,7 +21,7 @@ const updateWhiteboardSchema = z.object({
 
 // GET /api/whiteboard/[id] - Get specific whiteboard
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -66,7 +66,7 @@ export async function GET(
     const isParticipant = whiteboard.participants.some(p => p.userId === session.user.id);
     const isOwner = whiteboard.createdById === session.user.id;
     const isPublic = whiteboard.isPublic;
-    const isAdminOrTeacher = ['ADMIN', 'TEACHER'].includes(session.user.role);
+    const isAdminOrTeacher = ['ADMIN', 'TEACHER'].includes(session.user.role || '');
 
     if (!isParticipant && !isOwner && !isPublic && !isAdminOrTeacher) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
@@ -77,7 +77,7 @@ export async function GET(
   } catch (error) {
     console.error('Error fetching whiteboard:', error);
     return NextResponse.json(
-      { error: "Internal server error" }, 
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
@@ -100,7 +100,7 @@ export async function PUT(
 
     const whiteboard = await prisma.whiteboard.findUnique({
       where: { id },
-      select: { 
+      select: {
         createdById: true,
         participants: { where: { userId: session.user.id } }
       }
@@ -112,8 +112,8 @@ export async function PUT(
 
     // Check permissions
     const isOwner = whiteboard.createdById === session.user.id;
-    const isAdminOrTeacher = ['ADMIN', 'TEACHER'].includes(session.user.role);
-    
+    const isAdminOrTeacher = ['ADMIN', 'TEACHER'].includes(session.user.role || '');
+
     if (!isOwner && !isAdminOrTeacher) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
@@ -142,7 +142,7 @@ export async function PUT(
 
   } catch (error) {
     console.error('Error updating whiteboard:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Validation error", details: error.errors },
@@ -151,7 +151,7 @@ export async function PUT(
     }
 
     return NextResponse.json(
-      { error: "Internal server error" }, 
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
@@ -159,7 +159,7 @@ export async function PUT(
 
 // DELETE /api/whiteboard/[id] - Delete whiteboard
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -184,7 +184,7 @@ export async function DELETE(
     // Only owner or admin can delete
     const isOwner = whiteboard.createdById === session.user.id;
     const isAdmin = session.user.role === 'ADMIN';
-    
+
     if (!isOwner && !isAdmin) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
@@ -198,7 +198,7 @@ export async function DELETE(
   } catch (error) {
     console.error('Error deleting whiteboard:', error);
     return NextResponse.json(
-      { error: "Internal server error" }, 
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

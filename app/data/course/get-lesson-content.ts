@@ -31,6 +31,8 @@ export async function getLessonContent(lessonId: string) {
           courseId: true,
           Course: {
             select: {
+              id: true,
+              title: true,
               slug: true,
             },
           },

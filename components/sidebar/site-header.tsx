@@ -1,6 +1,6 @@
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { ThemeToggle } from "../ui/themeToggle";
+import { ThemeToggle } from "../ui/theme-toggle";
 import { MessageNotification } from "../messaging/MessageNotification";
 import { NotificationBell } from "../notifications/NotificationBell";
 

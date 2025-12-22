@@ -39,7 +39,7 @@ export async function GET(
     // Check access to whiteboard
     const whiteboard = await prisma.whiteboard.findUnique({
       where: { id },
-      select: { 
+      select: {
         createdById: true,
         isPublic: true,
         participants: { where: { userId: session.user.id } }
@@ -53,7 +53,7 @@ export async function GET(
     const isOwner = whiteboard.createdById === session.user.id;
     const isParticipant = whiteboard.participants.length > 0;
     const isPublic = whiteboard.isPublic;
-    const isAdminOrTeacher = ['ADMIN', 'TEACHER'].includes(session.user.role);
+    const isAdminOrTeacher = ['ADMIN', 'TEACHER'].includes(session.user.role || '');
 
     if (!isOwner && !isParticipant && !isPublic && !isAdminOrTeacher) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
@@ -67,7 +67,6 @@ export async function GET(
         }
       },
       orderBy: [
-        { zIndex: 'asc' },
         { createdAt: 'asc' }
       ]
     });
@@ -77,7 +76,7 @@ export async function GET(
   } catch (error) {
     console.error('Error fetching elements:', error);
     return NextResponse.json(
-      { error: "Internal server error" }, 
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
@@ -108,7 +107,7 @@ export async function POST(
       },
       include: {
         whiteboard: {
-          select: { 
+          select: {
             createdById: true,
             allowDrawing: true,
             allowText: true,
@@ -126,7 +125,7 @@ export async function POST(
 
     const whiteboard = participant.whiteboard;
     const isOwner = whiteboard.createdById === session.user.id;
-    const canEdit = participant.role === 'Owner' || participant.role === 'Editor';
+    const canEdit = participant.role === 'Owner' || participant.role === 'Collaborator';
 
     if (!canEdit && !isOwner) {
       return NextResponse.json({ error: "No edit permissions" }, { status: 403 });
@@ -152,12 +151,42 @@ export async function POST(
       return NextResponse.json({ error: "Annotations not allowed" }, { status: 403 });
     }
 
-    const element = await prisma.whiteboardElement.create({
+    const elementData = {
+      type: {
+        'PEN': 'Pen',
+        'SHAPE': 'Shape',
+        'TEXT': 'Text',
+        'STICKY_NOTE': 'Sticky',
+        'IMAGE': 'Image',
+        'LINE': 'Line',
+        'ARROW': 'Arrow'
+      }[validatedData.type] as any, // Cast to any to satisfy Prisma enum type if strictly typed
       data: {
-        ...validatedData,
-        whiteboardId: id,
-        createdById: session.user.id
+        ...validatedData.data,
+        rotation: validatedData.rotation,
+        zIndex: validatedData.zIndex,
+        style: {
+          strokeColor: validatedData.strokeColor,
+          fillColor: validatedData.fillColor,
+          strokeWidth: validatedData.strokeWidth,
+          opacity: validatedData.opacity
+        }
       },
+      x: validatedData.x,
+      y: validatedData.y,
+      width: validatedData.width,
+      height: validatedData.height,
+      strokeColor: validatedData.strokeColor || "#000000",
+      fillColor: validatedData.fillColor,
+      strokeWidth: validatedData.strokeWidth,
+      opacity: validatedData.opacity,
+      whiteboardId: id,
+      createdById: session.user.id,
+      elementId: crypto.randomUUID()
+    };
+
+    const element = await prisma.whiteboardElement.create({
+      data: elementData,
       include: {
         createdBy: {
           select: { id: true, name: true, email: true }
@@ -169,7 +198,7 @@ export async function POST(
 
   } catch (error) {
     console.error('Error creating element:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Validation error", details: error.errors },
@@ -178,7 +207,7 @@ export async function POST(
     }
 
     return NextResponse.json(
-      { error: "Internal server error" }, 
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
@@ -225,7 +254,7 @@ export async function DELETE(
   } catch (error) {
     console.error('Error clearing elements:', error);
     return NextResponse.json(
-      { error: "Internal server error" }, 
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

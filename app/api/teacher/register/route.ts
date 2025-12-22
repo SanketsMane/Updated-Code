@@ -7,57 +7,76 @@ import { sendEmail } from "@/lib/email";
 const teacherRegistrationSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
   bio: z.string().min(50, "Bio must be at least 50 characters"),
   expertiseAreas: z.array(z.string()).min(1, "At least one expertise area is required"),
   languages: z.array(z.string()).optional().default([]),
-  hourlyRate: z.string().transform(val => parseInt(val)).refine(val => val >= 5 && val <= 100, "Hourly rate must be between $5-100"),
+  hourlyRate: z.string().transform(val => parseInt(val)).refine(val => val >= 100 && val <= 50000, "Hourly rate must be between ₹100-50000"),
   experience: z.string().transform(val => parseInt(val)).refine(val => val >= 0, "Experience must be 0 or more years"),
 });
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    
+
     // Validate input data
     const validatedData = teacherRegistrationSchema.parse(body);
-    
+
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email: validatedData.email }
     });
 
+    let userId = "";
+
     if (existingUser) {
-      return NextResponse.json(
-        { error: "An account with this email already exists" },
-        { status: 400 }
-      );
+      // If user exists, we will upgrade them
+      userId = existingUser.id;
+    } else {
+      // Create user account via better-auth
+      const user = await auth.api.signUpEmail({
+        body: {
+          email: validatedData.email,
+          password: validatedData.password,
+          name: validatedData.name,
+        },
+        asResponse: false
+      });
+
+      if (!user) {
+        return NextResponse.json(
+          { error: "Failed to create user account" },
+          { status: 500 }
+        );
+      }
+      userId = user.user.id;
     }
 
-    // Create user account
-    const user = await prisma.user.create({
-      data: {
-        id: `teacher_${Date.now()}`,
-        email: validatedData.email,
-        name: validatedData.name,
-        role: "teacher",
-        emailVerified: false, // Will be verified via email
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }
+    // Check if teacher profile already exists for this user to avoid duplicates
+    const existingProfile = await prisma.teacherProfile.findUnique({
+      where: { userId: userId }
     });
 
-    // Create teacher profile
-    const teacherProfile = await prisma.teacherProfile.create({
-      data: {
-        userId: user.id,
-        bio: validatedData.bio,
-        expertise: validatedData.expertiseAreas,
-        languages: validatedData.languages,
-        hourlyRate: validatedData.hourlyRate * 100, // Convert to cents
-        isVerified: false, // Requires admin approval
-        isApproved: false, // Requires admin approval
-        timezone: "UTC", // Default, can be updated later
-      }
+    if (!existingProfile) {
+      // Create teacher profile
+      await prisma.teacherProfile.create({
+        data: {
+          userId: userId,
+          bio: validatedData.bio,
+          expertise: validatedData.expertiseAreas,
+          languages: validatedData.languages,
+          hourlyRate: validatedData.hourlyRate * 100, // Convert to cents
+          isVerified: false, // Requires admin approval
+          isApproved: false, // Requires admin approval
+          timezone: "UTC", // Default, can be updated later
+        }
+      });
+    }
+
+    // Manually set role to teacher
+    await prisma.user.update({
+      where: { id: userId },
+      data: { role: 'teacher' }
     });
 
     // Send welcome email with verification instructions
@@ -154,12 +173,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       message: "Teacher application submitted successfully",
-      userId: user.id,
+      userId: userId,
     }, { status: 201 });
 
   } catch (error) {
     console.error("Teacher registration error:", error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Invalid form data", details: error.errors },

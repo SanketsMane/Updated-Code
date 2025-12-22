@@ -55,8 +55,37 @@ export function Uploader({ onChange, value, fileTypeAccepted }: iAppProps) {
       }));
 
       try {
-        //1. Get presigned URL
+        // PROXY UPLOAD FOR IMAGES (Bypasses CORS)
+        if (fileTypeAccepted === "image") {
+          const formData = new FormData();
+          formData.append("file", file);
 
+          const response = await fetch("/api/upload/proxy", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Upload failed: ${response.status} ${response.statusText} - ${errorText}`);
+          }
+
+          const { key } = await response.json();
+
+          setFileState((prev) => ({
+            ...prev,
+            progress: 100,
+            uploading: false,
+            key: key,
+          }));
+
+          onChange?.(key);
+          toast.success("File uploaded successfully");
+          return;
+        }
+
+        // PRESIGNED URL UPLOAD FOR VIDEOS (Direct to S3)
+        //1. Get presigned URL
         const presignedResponse = await fetch("/api/s3/upload", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -64,12 +93,28 @@ export function Uploader({ onChange, value, fileTypeAccepted }: iAppProps) {
             fileName: file.name,
             contentType: file.type,
             size: file.size,
-            isImage: fileTypeAccepted === "image" ? true : false,
+            isImage: false, // Explicitly false since images are handled above and this path is for videos
           }),
+          redirect: "manual",
         });
 
+        if (presignedResponse.type === "opaqueredirect" || presignedResponse.status === 307 || presignedResponse.status === 302) {
+          toast.error("Authentication session expired. Please refresh the page.");
+          setFileState((prev) => ({ ...prev, uploading: false, error: true }));
+          return;
+        }
+
         if (!presignedResponse.ok) {
-          toast.error("Failed to get presigned URL");
+          const errorText = await presignedResponse.text();
+          let errorMessage = "Failed to get presigned URL";
+          try {
+            const errorJson = JSON.parse(errorText);
+            errorMessage = errorJson.error || errorMessage;
+          } catch {
+            errorMessage = errorText || errorMessage;
+          }
+          toast.error(errorMessage);
+
           setFileState((prev) => ({
             ...prev,
             uploading: false,
@@ -79,6 +124,7 @@ export function Uploader({ onChange, value, fileTypeAccepted }: iAppProps) {
 
           return;
         }
+
 
         const { presignedUrl, key } = await presignedResponse.json();
 
@@ -110,7 +156,7 @@ export function Uploader({ onChange, value, fileTypeAccepted }: iAppProps) {
 
               resolve();
             } else {
-              reject(new Error("Upload failed..."));
+              reject(new Error(`Upload failed: ${xhr.status} ${xhr.statusText}`));
             }
           };
 
@@ -122,8 +168,9 @@ export function Uploader({ onChange, value, fileTypeAccepted }: iAppProps) {
           xhr.setRequestHeader("Content-Type", file.type);
           xhr.send(file);
         });
-      } catch {
-        toast.error("Something went wrong");
+      } catch (error: any) {
+        console.error("Upload error details:", error);
+        toast.error(error.message || "Something went wrong during upload");
 
         setFileState((prev) => ({
           ...prev,

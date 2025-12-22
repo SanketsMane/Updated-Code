@@ -26,42 +26,42 @@ export async function getUserAnalytics(userId?: string) {
     prisma.enrollment.count({
       where: { userId: targetUserId }
     }),
-    
+
     // Completed courses - for now, simplified to count active enrollments
     // TODO: Implement proper completion logic based on lesson progress
     prisma.enrollment.count({
-      where: { 
+      where: {
         userId: targetUserId,
         status: "Active"
       }
     }),
-    
+
     // Total lessons completed
     prisma.lessonProgress.count({
-      where: { 
+      where: {
         userId: targetUserId,
         completed: true
       }
     }),
-    
+
     // Total sessions booked
     prisma.liveSession.count({
       where: { studentId: targetUserId }
     }),
-    
+
     // Completed sessions
     prisma.liveSession.count({
-      where: { 
+      where: {
         studentId: targetUserId,
         status: "Completed"
       }
     }),
-    
+
     // Messages sent
     prisma.message.count({
       where: { senderId: targetUserId }
     }),
-    
+
     // Blog posts authored
     prisma.blogPost.count({
       where: { authorId: targetUserId }
@@ -70,10 +70,10 @@ export async function getUserAnalytics(userId?: string) {
 
   // Get recent activity
   const recentActivity = await getRecentActivity(targetUserId);
-  
+
   // Get learning progress
   const learningProgress = await getLearningProgress(targetUserId);
-  
+
   // Get engagement metrics
   const engagementMetrics = await getEngagementMetrics(targetUserId);
 
@@ -124,7 +124,7 @@ export async function getTeacherAnalytics() {
     prisma.course.count({
       where: { userId: session.user.id }
     }),
-    
+
     // Total enrollments across all courses
     prisma.enrollment.count({
       where: {
@@ -133,7 +133,7 @@ export async function getTeacherAnalytics() {
         }
       }
     }),
-    
+
     // Total earnings (simplified calculation)
     prisma.enrollment.aggregate({
       where: {
@@ -145,7 +145,7 @@ export async function getTeacherAnalytics() {
         amount: true
       }
     }),
-    
+
     // Sessions completed
     prisma.liveSession.count({
       where: {
@@ -153,7 +153,7 @@ export async function getTeacherAnalytics() {
         status: "Completed"
       }
     }),
-    
+
     // Average rating
     prisma.review.aggregate({
       where: {
@@ -165,7 +165,7 @@ export async function getTeacherAnalytics() {
         rating: true
       }
     }),
-    
+
     // Unique students
     prisma.enrollment.findMany({
       where: {
@@ -178,7 +178,7 @@ export async function getTeacherAnalytics() {
       },
       distinct: ["userId"]
     }),
-    
+
     // Blog posts
     prisma.blogPost.count({
       where: { authorId: session.user.id }
@@ -187,7 +187,7 @@ export async function getTeacherAnalytics() {
 
   // Get revenue over time
   const revenueData = await getRevenueOverTime(session.user.id);
-  
+
   // Get course performance
   const coursePerformance = await getCoursePerformance(session.user.id);
 
@@ -235,7 +235,7 @@ export async function getPlatformAnalytics() {
     prisma.course.count(),
     prisma.enrollment.count(),
     prisma.enrollment.aggregate({
-      _sum: { pricePaid: true }
+      _sum: { amount: true }
     }),
     prisma.liveSession.count(),
     prisma.blogPost.count(),
@@ -268,7 +268,7 @@ export async function getPlatformAnalytics() {
 
   // Get user growth over time
   const userGrowthData = await getUserGrowthData();
-  
+
   // Get revenue over time
   const revenueOverTime = await getPlatformRevenueData();
 
@@ -277,7 +277,7 @@ export async function getPlatformAnalytics() {
       totalUsers,
       totalCourses,
       totalEnrollments,
-      totalRevenue: totalRevenue._sum.pricePaid || 0,
+      totalRevenue: totalRevenue._sum.amount || 0,
       totalSessions,
       totalBlogPosts,
       activeUsers,
@@ -305,10 +305,10 @@ async function getRecentActivity(userId: string) {
         Lesson: {
           select: {
             title: true,
-            Chapter: { 
-              select: { 
+            Chapter: {
+              select: {
                 Course: { select: { title: true } }
-              } 
+              }
             }
           }
         }
@@ -319,10 +319,10 @@ async function getRecentActivity(userId: string) {
     prisma.liveSession.findMany({
       where: { studentId: userId },
       include: {
-        teacher: { 
-          select: { 
+        teacher: {
+          select: {
             user: { select: { name: true } }
-          } 
+          }
         }
       },
       orderBy: { createdAt: "desc" },
@@ -362,7 +362,7 @@ async function getLearningProgress(userId: string) {
     const completedLessons = allLessons.filter(
       lesson => lesson.lessonProgress[0]?.completed
     ).length;
-    
+
     return {
       courseId: enrollment.Course.id,
       courseTitle: enrollment.Course.title,
@@ -377,7 +377,7 @@ async function getLearningProgress(userId: string) {
 
 async function getEngagementMetrics(userId: string) {
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-  
+
   const [
     lessonsCompletedLast30Days,
     sessionsLast30Days,
@@ -415,7 +415,7 @@ async function getRevenueOverTime(teacherId: string) {
   // This would typically be more sophisticated with proper date grouping
   const enrollments = await prisma.enrollment.findMany({
     where: {
-      course: { userId: teacherId }
+      Course: { userId: teacherId }
     },
     orderBy: { createdAt: "asc" },
     select: {
@@ -426,7 +426,7 @@ async function getRevenueOverTime(teacherId: string) {
 
   // Group by month
   const monthlyRevenue: { [key: string]: number } = {};
-  
+
   enrollments.forEach(enrollment => {
     const month = new Date(enrollment.createdAt).toISOString().slice(0, 7);
     monthlyRevenue[month] = (monthlyRevenue[month] || 0) + (enrollment.amount || 0);
@@ -442,6 +442,9 @@ async function getCoursePerformance(teacherId: string) {
   const courses = await prisma.course.findMany({
     where: { userId: teacherId },
     include: {
+      enrollment: {
+        select: { amount: true }
+      },
       _count: {
         select: {
           enrollment: true,
@@ -459,10 +462,10 @@ async function getCoursePerformance(teacherId: string) {
     title: course.title,
     enrollments: course._count.enrollment,
     reviews: course._count.reviews,
-    averageRating: course.reviews.length > 0 
+    averageRating: course.reviews.length > 0
       ? course.reviews.reduce((sum, review) => sum + review.rating, 0) / course.reviews.length
       : 0,
-    revenue: course.enrollment?.reduce((sum: number, enrollment: any) => sum + (enrollment.pricePaid || 0), 0) || 0,
+    revenue: course.enrollment?.reduce((sum: number, enrollment: any) => sum + (enrollment.amount || 0), 0) || 0,
   }));
 }
 
@@ -479,7 +482,7 @@ async function getUserGrowthData() {
   });
 
   const monthlyUsers: { [key: string]: number } = {};
-  
+
   users.forEach(user => {
     const month = new Date(user.createdAt).toISOString().slice(0, 7);
     monthlyUsers[month] = (monthlyUsers[month] || 0) + 1;
@@ -500,16 +503,16 @@ async function getPlatformRevenueData() {
     },
     orderBy: { createdAt: "asc" },
     select: {
-      price_paid: true,
+      amount: true,
       createdAt: true
     }
   });
 
   const monthlyRevenue: { [key: string]: number } = {};
-  
+
   enrollments.forEach(enrollment => {
     const month = new Date(enrollment.createdAt).toISOString().slice(0, 7);
-    monthlyRevenue[month] = (monthlyRevenue[month] || 0) + (enrollment.price_paid || 0);
+    monthlyRevenue[month] = (monthlyRevenue[month] || 0) + (enrollment.amount || 0);
   });
 
   return Object.entries(monthlyRevenue).map(([month, revenue]) => ({

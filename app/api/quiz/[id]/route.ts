@@ -39,9 +39,10 @@ const updateQuizSchema = z.object({
 // GET /api/quiz/[id] - Get specific quiz
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await auth.api.getSession({
       headers: await headers()
     });
@@ -51,7 +52,7 @@ export async function GET(
     }
 
     const quiz = await prisma.quiz.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         questions: {
           orderBy: { position: 'asc' }
@@ -108,7 +109,7 @@ export async function GET(
   } catch (error) {
     console.error('Error fetching quiz:', error);
     return NextResponse.json(
-      { error: "Internal server error" }, 
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
@@ -117,7 +118,7 @@ export async function GET(
 // PUT /api/quiz/[id] - Update quiz
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth.api.getSession({
@@ -133,8 +134,10 @@ export async function PUT(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    const { id } = await params;
+
     const quiz = await prisma.quiz.findUnique({
-      where: { id: params.id }
+      where: { id }
     });
 
     if (!quiz) {
@@ -155,7 +158,7 @@ export async function PUT(
     const updatedQuiz = await prisma.$transaction(async (tx) => {
       // Update quiz data
       const quiz = await tx.quiz.update({
-        where: { id: params.id },
+        where: { id },
         data: {
           ...quizData,
           availableFrom: validatedData.availableFrom ? new Date(validatedData.availableFrom) : undefined,
@@ -167,13 +170,13 @@ export async function PUT(
       if (questions) {
         // Delete existing questions
         await tx.quizQuestion.deleteMany({
-          where: { quizId: params.id }
+          where: { quizId: id }
         });
 
         // Create new questions
         await tx.quizQuestion.createMany({
           data: questions.map(q => ({
-            quizId: params.id,
+            quizId: id,
             type: q.type,
             question: q.question,
             explanation: q.explanation,
@@ -189,7 +192,7 @@ export async function PUT(
 
       // Return updated quiz with questions
       return tx.quiz.findUnique({
-        where: { id: params.id },
+        where: { id },
         include: {
           questions: {
             orderBy: { position: 'asc' }
@@ -202,7 +205,7 @@ export async function PUT(
 
   } catch (error) {
     console.error('Error updating quiz:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Validation error", details: error.errors },
@@ -211,7 +214,7 @@ export async function PUT(
     }
 
     return NextResponse.json(
-      { error: "Internal server error" }, 
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
@@ -220,7 +223,7 @@ export async function PUT(
 // DELETE /api/quiz/[id] - Delete quiz
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth.api.getSession({
@@ -236,8 +239,10 @@ export async function DELETE(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    const { id } = await params;
+
     const quiz = await prisma.quiz.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         _count: {
           select: {
@@ -259,13 +264,13 @@ export async function DELETE(
     // Prevent deletion if there are attempts
     if (quiz._count.attempts > 0) {
       return NextResponse.json(
-        { error: "Cannot delete quiz with existing attempts" }, 
+        { error: "Cannot delete quiz with existing attempts" },
         { status: 400 }
       );
     }
 
     await prisma.quiz.delete({
-      where: { id: params.id }
+      where: { id }
     });
 
     return NextResponse.json({ message: "Quiz deleted successfully" });
@@ -273,7 +278,7 @@ export async function DELETE(
   } catch (error) {
     console.error('Error deleting quiz:', error);
     return NextResponse.json(
-      { error: "Internal server error" }, 
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

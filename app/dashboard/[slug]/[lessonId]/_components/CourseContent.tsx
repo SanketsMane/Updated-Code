@@ -10,6 +10,7 @@ import { useTransition } from "react";
 import { markLessonComplete } from "../actions";
 import { toast } from "sonner";
 import { useConfetti } from "@/hooks/use-confetti";
+import { ReviewDialog } from "@/components/reviews/ReviewDialog";
 
 interface iAppProps {
   data: LessonContentType;
@@ -97,6 +98,10 @@ export function CourseContent({ data }: iAppProps) {
             Mark as Complete
           </Button>
         )}
+
+        <div className="ml-4 inline-block">
+          <ReviewDialog courseId={data.Chapter.Course.id} courseTitle={data.Chapter.Course.title} />
+        </div>
       </div>
 
       <div className="space-y-3 pt-3">

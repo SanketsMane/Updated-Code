@@ -40,7 +40,7 @@ async function securityMiddleware(request: NextRequest) {
   if (!rateLimitOk) {
     return new NextResponse(
       JSON.stringify({ error: 'Too many requests' }),
-      { 
+      {
         status: 429,
         headers: { 'Content-Type': 'application/json' }
       }
@@ -64,12 +64,12 @@ export default async function middleware(request: NextRequest) {
 
   // Handle protected routes that require authentication
   if (
-    request.nextUrl.pathname.startsWith("/admin") || 
-    request.nextUrl.pathname.startsWith("/teacher") || 
+    request.nextUrl.pathname.startsWith("/admin") ||
+    request.nextUrl.pathname.startsWith("/teacher") ||
     request.nextUrl.pathname.startsWith("/dashboard")
   ) {
     const sessionCookie = getSessionCookie(request);
-    
+
     if (!sessionCookie) {
       return NextResponse.redirect(new URL("/login", request.url));
     }

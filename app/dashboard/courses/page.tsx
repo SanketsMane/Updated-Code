@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { BookOpen, Clock, BarChart3, PlayCircle } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { CertificateButton } from "./_components/CertificateButton";
 
 export default async function DashboardCoursesPage() {
   const enrolledCourses = await getEnrolledCourses();
@@ -45,13 +46,13 @@ export default async function DashboardCoursesPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {enrolledCourses.map((enrollment) => {
           const course = enrollment.Course;
-          
+
           // Calculate progress
           const totalLessons = course.chapter.reduce(
             (acc, chapter) => acc + chapter.lessons.length,
             0
           );
-          
+
           const completedLessons = course.chapter.reduce(
             (acc, chapter) =>
               acc +
@@ -60,9 +61,9 @@ export default async function DashboardCoursesPage() {
               ).length,
             0
           );
-          
-          const progressPercentage = totalLessons > 0 
-            ? Math.round((completedLessons / totalLessons) * 100) 
+
+          const progressPercentage = totalLessons > 0
+            ? Math.round((completedLessons / totalLessons) * 100)
             : 0;
 
           // Get first incomplete lesson
@@ -92,7 +93,7 @@ export default async function DashboardCoursesPage() {
                   />
                 </div>
               </CardHeader>
-              
+
               <CardContent className="p-6">
                 <div className="space-y-4">
                   <div>
@@ -126,7 +127,9 @@ export default async function DashboardCoursesPage() {
               </CardContent>
 
               <CardFooter className="p-6 pt-0 gap-2">
-                {nextLessonId ? (
+                {progressPercentage === 100 ? (
+                  <CertificateButton courseId={course.id} />
+                ) : nextLessonId ? (
                   <Button asChild className="flex-1">
                     <Link href={`/dashboard/${course.slug}/${nextLessonId}`}>
                       <PlayCircle className="mr-2 h-4 w-4" />

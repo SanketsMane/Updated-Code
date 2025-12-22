@@ -19,53 +19,69 @@ export async function getTeacherAnalytics(userId: string): Promise<TeacherAnalyt
   const teacherCourses = await prisma.course.findMany({
     where: {
       userId: userId,
-      status: "Published",
     },
-    select: {
-      id: true,
-      createdAt: true,
-      enrollment: {
-        select: {
-          id: true,
-          createdAt: true,
-          status: true,
-        },
-      },
-    },
+    include: {
+      enrollment: true,
+      chapter: {
+        include: {
+          lessons: true
+        }
+      }
+    }
   });
 
   const courseIds = teacherCourses.map(course => course.id);
 
   // Calculate metrics
   const totalCourses = teacherCourses.length;
-  const uniqueStudentsGroup = await prisma.enrollment.groupBy({
+  const totalStudents = await prisma.enrollment.count({
     where: {
       courseId: {
         in: courseIds,
       },
     },
-    by: ['userId'],
   });
-  
-  const totalStudents = uniqueStudentsGroup.length;
 
-  // Calculate engagement rate (based on completion percentage)
-  const enrollments = await prisma.enrollment.findMany({
+  // Calculate Revenue
+  const totalRevenue = teacherCourses.reduce((acc, course) => {
+    return acc + course.enrollment.reduce((sum, enrollment) => sum + (enrollment.amount || 0), 0);
+  }, 0);
+
+  // Calculate Engagement Rate (Average Completion %)
+  // First, get total lessons per course
+  const courseLessonCounts = new Map<string, number>();
+  teacherCourses.forEach(c => {
+    const lessonCount = c.chapter.reduce((sum, chapter) => sum + chapter.lessons.length, 0);
+    courseLessonCounts.set(c.id, lessonCount);
+  });
+
+  // Get all lesson progress for these courses
+  const progress = await prisma.lessonProgress.findMany({
     where: {
-      courseId: {
-        in: courseIds,
+      Lesson: {
+        Chapter: {
+          courseId: {
+            in: courseIds
+          }
+        }
       },
-    },
-    select: {
-      amount: true,
-    },
+      completed: true
+    }
   });
 
-  const averageCompletion = enrollments.length > 0
-    ? enrollments.reduce((sum, enrollment) => sum + (enrollment.amount || 0), 0) / enrollments.length
+  // This is a simplified "Global Engagement" metric: Total Completed Lessons / Total Possible Lessons (Students * CourseLessons)
+  // A more accurate one would be average per student, but this is a good aggregate proxy.
+  let totalPossibleLessons = 0;
+  teacherCourses.forEach(course => {
+    const lessonsInCourse = courseLessonCounts.get(course.id) || 0;
+    const studentsInCourse = course.enrollment.length;
+    totalPossibleLessons += (lessonsInCourse * studentsInCourse);
+  });
+
+  const engagementRate = totalPossibleLessons > 0
+    ? (progress.length / totalPossibleLessons) * 100
     : 0;
 
-  const engagementRate = Math.min(averageCompletion, 100); // Cap at 100%
 
   // Calculate growth metrics (comparing last 30 days to previous 30 days)
   const thirtyDaysAgo = new Date();
@@ -74,7 +90,8 @@ export async function getTeacherAnalytics(userId: string): Promise<TeacherAnalyt
   const sixtyDaysAgo = new Date();
   sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
 
-  const [recentEnrollments, previousEnrollments, recentCourses, previousCourses] = await Promise.all([
+  // ... (Growth logic remains similar for counts, adding revenue growth)
+  const [recentEnrollments, previousEnrollments, recentCourses, previousCourses, recentRevenue, previousRevenue] = await Promise.all([
     prisma.enrollment.count({
       where: {
         courseId: { in: courseIds },
@@ -84,7 +101,7 @@ export async function getTeacherAnalytics(userId: string): Promise<TeacherAnalyt
     prisma.enrollment.count({
       where: {
         courseId: { in: courseIds },
-        createdAt: { 
+        createdAt: {
           gte: sixtyDaysAgo,
           lt: thirtyDaysAgo,
         },
@@ -101,30 +118,53 @@ export async function getTeacherAnalytics(userId: string): Promise<TeacherAnalyt
       where: {
         userId: userId,
         status: "Published",
-        createdAt: { 
+        createdAt: {
           gte: sixtyDaysAgo,
           lt: thirtyDaysAgo,
         },
       },
+    }),
+    prisma.enrollment.aggregate({
+      _sum: { amount: true },
+      where: {
+        courseId: { in: courseIds },
+        createdAt: { gte: thirtyDaysAgo },
+      }
+    }),
+    prisma.enrollment.aggregate({
+      _sum: { amount: true },
+      where: {
+        courseId: { in: courseIds },
+        createdAt: {
+          gte: sixtyDaysAgo,
+          lt: thirtyDaysAgo,
+        },
+      }
     }),
   ]);
 
-  const studentGrowth = previousEnrollments > 0 
-    ? ((recentEnrollments - previousEnrollments) / previousEnrollments) * 100 
+  const studentGrowth = previousEnrollments > 0
+    ? ((recentEnrollments - previousEnrollments) / previousEnrollments) * 100
     : 0;
 
-  const courseGrowth = previousCourses > 0 
-    ? ((recentCourses - previousCourses) / previousCourses) * 100 
+  const courseGrowth = previousCourses > 0
+    ? ((recentCourses - previousCourses) / previousCourses) * 100
+    : 0;
+
+  const recentRev = recentRevenue._sum.amount || 0;
+  const prevRev = previousRevenue._sum.amount || 0;
+  const revenueGrowth = prevRev > 0
+    ? ((recentRev - prevRev) / prevRev) * 100
     : 0;
 
   return {
     totalStudents,
     totalCourses,
-    totalRevenue: 0, // TODO: Implement when payment system is active
+    totalRevenue,
     engagementRate,
     studentGrowth,
     courseGrowth,
-    revenueGrowth: 0, // TODO: Implement when payment system is active
-    engagementGrowth: 0, // TODO: Calculate historical engagement
+    revenueGrowth,
+    engagementGrowth: 0, // Complex to calculate historically without snapshots
   };
 }

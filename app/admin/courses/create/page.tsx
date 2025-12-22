@@ -53,7 +53,7 @@ export default function CourseCreationPage() {
 
   // 1. Define your form.
   const form = useForm<CourseSchemaType>({
-    resolver: zodResolver(courseSchema),
+    resolver: zodResolver(courseSchema) as any,
     defaultValues: {
       title: "",
       description: "",
@@ -118,9 +118,9 @@ export default function CourseCreationPage() {
                 name="price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Title</FormLabel>
+                    <FormLabel>Link to video</FormLabel>
                     <FormControl>
-                      <Input placeholder="Title" {...field} />
+                      <Input placeholder="Link to video" {...field} value={field.value as any} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -135,7 +135,7 @@ export default function CourseCreationPage() {
                     <FormItem className="w-full">
                       <FormLabel>Slug</FormLabel>
                       <FormControl>
-                        <Input placeholder="Slug" {...field} />
+                        <Input type="number" {...field} value={field.value as any} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -199,7 +199,7 @@ export default function CourseCreationPage() {
                       <Uploader
                         fileTypeAccepted="image"
                         onChange={field.onChange}
-                        value={field.value}
+                        value={field.value as string}
                       />
                     </FormControl>
                     <FormMessage />
@@ -216,7 +216,7 @@ export default function CourseCreationPage() {
                       <FormLabel>Category</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        defaultValue={field.value as string}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
@@ -245,7 +245,7 @@ export default function CourseCreationPage() {
                       <FormLabel>Level</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        defaultValue={field.value as string}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
@@ -277,6 +277,7 @@ export default function CourseCreationPage() {
                           placeholder="Duration"
                           type="number"
                           {...field}
+                          value={field.value as any}
                         />
                       </FormControl>
                       <FormMessage />
@@ -291,7 +292,7 @@ export default function CourseCreationPage() {
                     <FormItem className="w-full">
                       <FormLabel>Price ($)</FormLabel>
                       <FormControl>
-                        <Input placeholder="Price" type="number" {...field} />
+                        <Input placeholder="Duration" type="number" {...field} value={field.value as any} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -307,7 +308,7 @@ export default function CourseCreationPage() {
                     <FormLabel>Status</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      defaultValue={field.value as string}
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">

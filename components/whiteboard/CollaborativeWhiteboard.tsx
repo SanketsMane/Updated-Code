@@ -49,7 +49,6 @@ import {
   ZoomIn,
   ZoomOut,
   Wifi,
-  WifiOff,
   Move,
   Palette,
   Settings,
@@ -71,7 +70,6 @@ import {
   Grid3X3,
   Layers,
   Copy,
-  Clipboard,
   XCircle,
   X
 } from "lucide-react";
@@ -137,25 +135,25 @@ export function CollaborativeWhiteboard({
   const [elements, setElements] = useState<WhiteboardElement[]>([]);
   const [selectedElements, setSelectedElements] = useState<Set<string>>(new Set());
   const [participants, setParticipants] = useState<WhiteboardParticipant[]>([]);
-  
+
   // Drawing state
   const [strokeColor, setStrokeColor] = useState('#000000');
   const [fillColor, setFillColor] = useState('#transparent');
   const [strokeWidth, setStrokeWidth] = useState(2);
   const [opacity, setOpacity] = useState(1);
-  
+
   // Canvas state
   const [zoom, setZoom] = useState(1);
   const [panX, setPanX] = useState(0);
   const [panY, setPanY] = useState(0);
   const [showGrid, setShowGrid] = useState(false);
   const [backgroundColor, setBackgroundColor] = useState('#ffffff');
-  
+
   // UI state
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showParticipantsPanel, setShowParticipantsPanel] = useState(false);
-  
+
   // History for undo/redo
   const [history, setHistory] = useState<WhiteboardElement[][]>([[]]);
   const [historyIndex, setHistoryIndex] = useState(0);
@@ -253,7 +251,7 @@ export function CollaborativeWhiteboard({
 
   const drawElement = (ctx: CanvasRenderingContext2D, element: WhiteboardElement) => {
     ctx.save();
-    
+
     ctx.strokeStyle = element.strokeColor;
     ctx.fillStyle = element.fillColor || 'transparent';
     ctx.lineWidth = element.strokeWidth;
@@ -297,17 +295,17 @@ export function CollaborativeWhiteboard({
 
     ctx.beginPath();
     ctx.moveTo(points[0].x, points[0].y);
-    
+
     for (let i = 1; i < points.length; i++) {
       ctx.lineTo(points[i].x, points[i].y);
     }
-    
+
     ctx.stroke();
   };
 
   const drawLine = (ctx: CanvasRenderingContext2D, element: WhiteboardElement) => {
     const { startX, startY, endX, endY } = element.data;
-    
+
     ctx.beginPath();
     ctx.moveTo(startX, startY);
     ctx.lineTo(endX, endY);
@@ -316,11 +314,11 @@ export function CollaborativeWhiteboard({
 
   const drawRectangle = (ctx: CanvasRenderingContext2D, element: WhiteboardElement) => {
     const { x, y, width: w, height: h } = element;
-    
+
     if (element.fillColor && element.fillColor !== 'transparent') {
       ctx.fillRect(x, y, w || 0, h || 0);
     }
-    
+
     ctx.strokeRect(x, y, w || 0, h || 0);
   };
 
@@ -329,14 +327,14 @@ export function CollaborativeWhiteboard({
     const centerX = x + (w || 0) / 2;
     const centerY = y + (h || 0) / 2;
     const radius = Math.min((w || 0), (h || 0)) / 2;
-    
+
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-    
+
     if (element.fillColor && element.fillColor !== 'transparent') {
       ctx.fill();
     }
-    
+
     ctx.stroke();
   };
 
@@ -344,13 +342,13 @@ export function CollaborativeWhiteboard({
     const { startX, startY, endX, endY } = element.data;
     const headLength = 15;
     const angle = Math.atan2(endY - startY, endX - startX);
-    
+
     // Draw line
     ctx.beginPath();
     ctx.moveTo(startX, startY);
     ctx.lineTo(endX, endY);
     ctx.stroke();
-    
+
     // Draw arrowhead
     ctx.beginPath();
     ctx.moveTo(endX, endY);
@@ -368,7 +366,7 @@ export function CollaborativeWhiteboard({
 
   const drawText = (ctx: CanvasRenderingContext2D, element: WhiteboardElement) => {
     const { text, fontSize = 16, fontFamily = 'Arial' } = element.data;
-    
+
     ctx.font = `${fontSize}px ${fontFamily}`;
     ctx.fillStyle = element.strokeColor;
     ctx.fillText(text, element.x, element.y);
@@ -377,15 +375,15 @@ export function CollaborativeWhiteboard({
   const drawStickyNote = (ctx: CanvasRenderingContext2D, element: WhiteboardElement) => {
     const { x, y, width: w = 150, height: h = 100 } = element;
     const { text = '', color = '#fff59d' } = element.data;
-    
+
     // Draw sticky note background
     ctx.fillStyle = color;
     ctx.fillRect(x, y, w, h);
-    
+
     // Draw border
     ctx.strokeStyle = '#f57f17';
     ctx.strokeRect(x, y, w, h);
-    
+
     // Draw text
     ctx.fillStyle = '#333';
     ctx.font = '14px Arial';
@@ -393,11 +391,11 @@ export function CollaborativeWhiteboard({
     let line = '';
     let lineHeight = 20;
     let currentY = y + 25;
-    
+
     for (let i = 0; i < words.length; i++) {
       const testLine = line + words[i] + ' ';
       const metrics = ctx.measureText(testLine);
-      
+
       if (metrics.width > w - 10 && i > 0) {
         ctx.fillText(line, x + 5, currentY);
         line = words[i] + ' ';
@@ -406,7 +404,7 @@ export function CollaborativeWhiteboard({
         line = testLine;
       }
     }
-    
+
     ctx.fillText(line, x + 5, currentY);
   };
 
@@ -414,7 +412,7 @@ export function CollaborativeWhiteboard({
     ctx.strokeStyle = '#007bff';
     ctx.lineWidth = 2;
     ctx.setLineDash([5, 5]);
-    
+
     const padding = 5;
     ctx.strokeRect(
       element.x - padding,
@@ -422,7 +420,7 @@ export function CollaborativeWhiteboard({
       (element.width || 0) + padding * 2,
       (element.height || 0) + padding * 2
     );
-    
+
     ctx.setLineDash([]);
   };
 
@@ -436,12 +434,12 @@ export function CollaborativeWhiteboard({
 
   const drawCursor = (ctx: CanvasRenderingContext2D, participant: WhiteboardParticipant) => {
     const { cursorX = 0, cursorY = 0, cursorColor, userName } = participant;
-    
+
     ctx.save();
     ctx.fillStyle = cursorColor;
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 2;
-    
+
     // Draw cursor pointer
     ctx.beginPath();
     ctx.moveTo(cursorX, cursorY);
@@ -451,7 +449,7 @@ export function CollaborativeWhiteboard({
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
-    
+
     // Draw user name
     if (userName) {
       ctx.fillStyle = cursorColor;
@@ -460,7 +458,7 @@ export function CollaborativeWhiteboard({
       ctx.font = '12px Arial';
       ctx.fillText(userName, cursorX + 25, cursorY + 14);
     }
-    
+
     ctx.restore();
   };
 
@@ -679,7 +677,7 @@ export function CollaborativeWhiteboard({
 
   const handleSelection = (x: number, y: number) => {
     // Find element at coordinates
-    const selectedElement = elements.find(element => 
+    const selectedElement = elements.find(element =>
       isPointInElement(x, y, element)
     );
 
@@ -699,10 +697,10 @@ export function CollaborativeWhiteboard({
     switch (element.type) {
       case 'Rectangle':
       case 'Sticky':
-        return x >= element.x && 
-               x <= element.x + (element.width || 0) && 
-               y >= element.y && 
-               y <= element.y + (element.height || 0);
+        return x >= element.x &&
+          x <= element.x + (element.width || 0) &&
+          y >= element.y &&
+          y <= element.y + (element.height || 0);
       case 'Circle':
         const centerX = element.x + (element.width || 0) / 2;
         const centerY = element.y + (element.height || 0) / 2;
@@ -710,7 +708,7 @@ export function CollaborativeWhiteboard({
         const distance = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
         return distance <= radius;
       case 'Pen':
-        return element.data.points?.some((point: any) => 
+        return element.data.points?.some((point: any) =>
           Math.abs(x - point.x) < 5 && Math.abs(y - point.y) < 5
         );
       default:
@@ -941,8 +939,8 @@ export function CollaborativeWhiteboard({
           <Popover open={showColorPicker} onOpenChange={setShowColorPicker}>
             <PopoverTrigger asChild>
               <Button variant="ghost" size="sm" className="w-12 h-8 p-1">
-                <div 
-                  className="w-full h-full rounded border-2 border-gray-300" 
+                <div
+                  className="w-full h-full rounded border-2 border-gray-300"
                   style={{ backgroundColor: strokeColor }}
                 />
               </Button>
@@ -955,9 +953,8 @@ export function CollaborativeWhiteboard({
                     {colorPalette.map(color => (
                       <button
                         key={color}
-                        className={`w-8 h-8 rounded border-2 ${
-                          strokeColor === color ? 'border-blue-500' : 'border-gray-300'
-                        }`}
+                        className={`w-8 h-8 rounded border-2 ${strokeColor === color ? 'border-blue-500' : 'border-gray-300'
+                          }`}
                         style={{ backgroundColor: color }}
                         onClick={() => setStrokeColor(color)}
                       />
@@ -970,14 +967,13 @@ export function CollaborativeWhiteboard({
                     className="mt-2 h-8"
                   />
                 </div>
-                
+
                 <div>
                   <Label className="text-sm font-medium">Fill Color</Label>
                   <div className="grid grid-cols-5 gap-2 mt-2">
                     <button
-                      className={`w-8 h-8 rounded border-2 ${
-                        fillColor === 'transparent' ? 'border-blue-500' : 'border-gray-300'
-                      } bg-white relative`}
+                      className={`w-8 h-8 rounded border-2 ${fillColor === 'transparent' ? 'border-blue-500' : 'border-gray-300'
+                        } bg-white relative`}
                       onClick={() => setFillColor('transparent')}
                     >
                       <div className="absolute inset-1 bg-red-500 transform rotate-45 origin-center w-0.5 h-6"></div>
@@ -985,9 +981,8 @@ export function CollaborativeWhiteboard({
                     {colorPalette.slice(1).map(color => (
                       <button
                         key={color}
-                        className={`w-8 h-8 rounded border-2 ${
-                          fillColor === color ? 'border-blue-500' : 'border-gray-300'
-                        }`}
+                        className={`w-8 h-8 rounded border-2 ${fillColor === color ? 'border-blue-500' : 'border-gray-300'
+                          }`}
                         style={{ backgroundColor: color }}
                         onClick={() => setFillColor(color)}
                       />
@@ -1183,12 +1178,12 @@ export function CollaborativeWhiteboard({
 
       {/* Main Canvas Area */}
       <div className="flex-1 relative overflow-hidden bg-gray-100">
-        <div 
+        <div
           ref={containerRef}
           className="w-full h-full cursor-crosshair"
-          style={{ 
-            cursor: currentTool === 'Select' ? 'default' : 
-                   currentTool === 'Pan' ? 'move' : 'crosshair' 
+          style={{
+            cursor: currentTool === 'Select' ? 'default' :
+              currentTool === 'Pan' ? 'move' : 'crosshair'
           }}
         >
           <canvas
@@ -1218,32 +1213,31 @@ export function CollaborativeWhiteboard({
                 <XCircle className="h-4 w-4" />
               </Button>
             </div>
-            
+
             <div className="space-y-2">
               {participants.map(participant => (
-                <div 
+                <div
                   key={participant.id}
                   className="flex items-center gap-2 p-2 rounded-md bg-gray-50"
                 >
-                  <div 
+                  <div
                     className="w-3 h-3 rounded-full"
                     style={{ backgroundColor: participant.cursorColor }}
                   />
                   <span className="flex-1 text-sm">{participant.userName}</span>
-                  <Badge 
+                  <Badge
                     variant={participant.isOnline ? "default" : "secondary"}
                     className="text-xs"
                   >
                     {participant.role}
                   </Badge>
-                  <div 
-                    className={`w-2 h-2 rounded-full ${
-                      participant.isOnline ? 'bg-green-500' : 'bg-gray-400'
-                    }`}
+                  <div
+                    className={`w-2 h-2 rounded-full ${participant.isOnline ? 'bg-green-500' : 'bg-gray-400'
+                      }`}
                   />
                 </div>
               ))}
-              
+
               {participants.length === 0 && (
                 <p className="text-sm text-muted-foreground text-center py-4">
                   No other participants

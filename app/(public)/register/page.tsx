@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -5,16 +7,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { 
-  BookOpen, 
-  Users, 
-  Award, 
+import {
+  BookOpen,
+  Users,
+  Award,
   TrendingUp,
   Mail,
   Lock,
   User,
-  ArrowRight
+  ArrowRight,
+  Loader2
 } from "lucide-react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
 
 const stats = [
   { icon: BookOpen, label: "Courses", value: "1000+" },
@@ -25,7 +32,7 @@ const stats = [
 
 const features = [
   "Access to all premium courses",
-  "Learn from industry experts", 
+  "Learn from industry experts",
   "Get certificates upon completion",
   "Join vibrant learning community",
   "Mobile and desktop access",
@@ -33,34 +40,73 @@ const features = [
 ];
 
 export default function RegisterPage() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: ""
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      await authClient.signUp.email({
+        email: formData.email,
+        password: formData.password,
+        name: `${formData.firstName} ${formData.lastName}`,
+        image: undefined,
+        callbackURL: "/dashboard",
+      }, {
+        onSuccess: () => {
+          toast.success("Account created successfully!");
+          router.push("/dashboard");
+        },
+        onError: (ctx) => {
+          toast.error(ctx.error.message || "Something went wrong");
+          setIsLoading(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error("An unexpected error occurred");
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-4 py-16">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
+      <div className="container mx-auto px-4 py-8 md:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Side - Registration Form */}
-          <div className="order-2 lg:order-1">
+          <div className="order-1">
             <Card className="shadow-2xl border-0 overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-8">
+              <CardHeader className="bg-gradient-to-r from-orange-600 to-red-600 text-white p-6 md:p-8">
                 <div className="text-center space-y-2">
                   <CardTitle className="text-3xl font-bold">Join KIDOKOOL</CardTitle>
-                  <p className="text-blue-100">Start your learning journey today</p>
+                  <p className="text-orange-100">Start your learning journey today</p>
                 </div>
               </CardHeader>
-              
-              <CardContent className="p-8 space-y-6">
+
+              <CardContent className="p-6 md:p-8 space-y-6">
                 {/* Registration Type Selection */}
                 <div className="space-y-4">
                   <div className="text-center">
                     <p className="text-sm text-gray-600 mb-4">Choose your account type:</p>
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="p-4 border-2 border-blue-200 bg-blue-50 rounded-lg">
-                        <h3 className="font-medium text-gray-900">Student</h3>
-                        <p className="text-xs text-gray-600 mt-1">Learn from expert teachers</p>
-                      </div>
+                      <Link href="/register" className="cursor-pointer">
+                        <div className="p-4 border-2 border-orange-200 bg-orange-50 dark:bg-orange-900/20 dark:border-orange-700/50 rounded-lg h-full">
+                          <h3 className="font-medium text-gray-900 dark:text-orange-100">Student</h3>
+                          <p className="text-xs text-gray-600 dark:text-orange-200 mt-1">Learn from expert teachers</p>
+                        </div>
+                      </Link>
                       <Link href="/register/teacher">
-                        <div className="p-4 border-2 border-gray-200 hover:border-emerald-200 hover:bg-emerald-50 rounded-lg cursor-pointer transition-colors">
-                          <h3 className="font-medium text-gray-900">Teacher</h3>
-                          <p className="text-xs text-gray-600 mt-1">Share knowledge & earn</p>
+                        <div className="p-4 border-2 border-gray-200 dark:border-gray-700 hover:border-orange-200 dark:hover:border-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded-lg cursor-pointer transition-colors h-full">
+                          <h3 className="font-medium text-gray-900 dark:text-gray-100">Teacher</h3>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Share knowledge & earn</p>
                         </div>
                       </Link>
                     </div>
@@ -71,27 +117,21 @@ export default function RegisterPage() {
 
                 {/* Social Login Buttons */}
                 <div className="space-y-3">
-                  <Button 
-                    variant="outline" 
-                    className="w-full h-12 text-sm font-medium border-2 hover:bg-blue-50 dark:hover:bg-blue-950"
+                  <Button
+                    variant="outline"
+                    type="button"
+                    className="w-full h-12 text-sm font-medium border-2 hover:bg-orange-50 dark:hover:bg-orange-950"
+                    onClick={() => {
+                      toast.info("Social login not configured yet");
+                    }}
                   >
                     <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
-                      <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                      <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                      <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                      <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                      <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                      <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                      <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                      <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                     </svg>
                     Continue with Google
-                  </Button>
-                  
-                  <Button 
-                    variant="outline" 
-                    className="w-full h-12 text-sm font-medium border-2 hover:bg-gray-50 dark:hover:bg-gray-800"
-                  >
-                    <svg className="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                    </svg>
-                    Continue with Facebook
                   </Button>
                 </div>
 
@@ -105,7 +145,7 @@ export default function RegisterPage() {
                 </div>
 
                 {/* Registration Form */}
-                <form className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="firstName">First Name</Label>
@@ -114,8 +154,10 @@ export default function RegisterPage() {
                         <Input
                           id="firstName"
                           placeholder="John"
-                          className="pl-10 h-12"
+                          className="pl-10 h-12 border-orange-100 focus-visible:ring-orange-500"
                           required
+                          value={formData.firstName}
+                          onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                         />
                       </div>
                     </div>
@@ -126,13 +168,15 @@ export default function RegisterPage() {
                         <Input
                           id="lastName"
                           placeholder="Doe"
-                          className="pl-10 h-12"
+                          className="pl-10 h-12 border-orange-100 focus-visible:ring-orange-500"
                           required
+                          value={formData.lastName}
+                          onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                         />
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="email">Email Address</Label>
                     <div className="relative">
@@ -141,12 +185,14 @@ export default function RegisterPage() {
                         id="email"
                         type="email"
                         placeholder="john@example.com"
-                        className="pl-10 h-12"
+                        className="pl-10 h-12 border-orange-100 focus-visible:ring-orange-500"
                         required
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       />
                     </div>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="password">Password</Label>
                     <div className="relative">
@@ -155,35 +201,47 @@ export default function RegisterPage() {
                         id="password"
                         type="password"
                         placeholder="••••••••"
-                        className="pl-10 h-12"
+                        className="pl-10 h-12 border-orange-100 focus-visible:ring-orange-500"
                         required
+                        value={formData.password}
+                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                       />
                     </div>
                   </div>
 
-                  <Button 
-                    type="submit" 
-                    className="w-full h-12 text-sm font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-300"
+                  <Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full h-12 text-sm font-semibold bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 shadow-lg hover:shadow-xl transition-all duration-300 text-white"
                   >
-                    Create Account
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating Account...
+                      </>
+                    ) : (
+                      <>
+                        Create Account
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </>
+                    )}
                   </Button>
                 </form>
 
                 <p className="text-center text-sm text-muted-foreground">
                   Already have an account?{" "}
-                  <Link href="/login" className="text-blue-600 hover:text-blue-700 font-medium">
+                  <Link href="/login" className="text-orange-600 hover:text-orange-700 font-medium">
                     Sign in here
                   </Link>
                 </p>
 
                 <p className="text-xs text-muted-foreground text-center leading-relaxed">
                   By creating an account, you agree to our{" "}
-                  <Link href="/terms" className="text-blue-600 hover:text-blue-700">
+                  <Link href="/terms" className="text-orange-600 hover:text-orange-700">
                     Terms of Service
                   </Link>{" "}
                   and{" "}
-                  <Link href="/privacy" className="text-blue-600 hover:text-blue-700">
+                  <Link href="/privacy" className="text-orange-600 hover:text-orange-700">
                     Privacy Policy
                   </Link>
                 </p>
@@ -192,17 +250,17 @@ export default function RegisterPage() {
           </div>
 
           {/* Right Side - Benefits */}
-          <div className="order-1 lg:order-2 space-y-8">
+          <div className="order-2 space-y-8">
             <div className="text-center lg:text-left">
-              <Badge variant="outline" className="mb-4">
+              <Badge variant="outline" className="mb-4 border-orange-200 text-orange-700 bg-orange-50">
                 Join 50,000+ Learners
               </Badge>
               <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-                Transform Your Career with 
-                <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"> Expert Learning</span>
+                Transform Your Career with
+                <span className="bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent"> Expert Learning</span>
               </h1>
               <p className="text-xl text-muted-foreground leading-relaxed">
-                Access premium courses, learn from industry experts, and advance your skills 
+                Access premium courses, learn from industry experts, and advance your skills
                 with our comprehensive online learning platform.
               </p>
             </div>
@@ -212,8 +270,8 @@ export default function RegisterPage() {
               {stats.map((stat, index) => {
                 const IconComponent = stat.icon;
                 return (
-                  <Card key={index} className="p-6 text-center border-2 border-dashed border-gray-200 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-700 transition-colors">
-                    <IconComponent className="h-8 w-8 mx-auto mb-3 text-blue-600" />
+                  <Card key={index} className="p-6 text-center border-2 border-dashed border-gray-200 dark:border-gray-700 hover:border-orange-200 dark:hover:border-orange-700 transition-colors bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm group">
+                    <IconComponent className="h-8 w-8 mx-auto mb-3 text-orange-600 group-hover:scale-110 transition-transform" />
                     <div className="text-2xl font-bold mb-1">{stat.value}</div>
                     <div className="text-sm text-muted-foreground">{stat.label}</div>
                   </Card>
@@ -222,17 +280,17 @@ export default function RegisterPage() {
             </div>
 
             {/* Features List */}
-            <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-0">
-              <h3 className="text-xl font-semibold mb-4">What you'll get:</h3>
+            <Card className="p-6 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/20 dark:to-red-950/20 border-0">
+              <h3 className="text-xl font-semibold mb-4 text-orange-900 dark:text-orange-100">What you'll get:</h3>
               <div className="space-y-3">
                 {features.map((feature, index) => (
                   <div key={index} className="flex items-center gap-3">
-                    <div className="rounded-full p-1 bg-green-100 dark:bg-green-900/30">
-                      <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="rounded-full p-1 bg-orange-100 dark:bg-orange-900/30">
+                      <svg className="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
-                    <span className="text-sm font-medium">{feature}</span>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{feature}</span>
                   </div>
                 ))}
               </div>

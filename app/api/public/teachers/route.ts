@@ -26,10 +26,10 @@ export async function GET() {
       },
       orderBy: [
         {
-          rating: \"desc\",
+          rating: "desc",
         },
         {
-          totalStudents: \"desc\",
+          totalStudents: "desc",
         },
       ],
       take: 50, // Limit to top 50 teachers for performance
@@ -61,7 +61,7 @@ function calculateProfileCompletion(teacher: any): number {
     teacher.certifications?.length > 0,
     teacher.website || teacher.linkedin || teacher.twitter || teacher.youtube,
   ];
-  
+
   const completed = fields.filter(Boolean).length;
   return Math.round((completed / fields.length) * 100);
 }

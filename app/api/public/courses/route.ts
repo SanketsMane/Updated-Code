@@ -6,11 +6,11 @@ export async function GET() {
     // Get featured and popular courses
     const featuredCourses = await prisma.course.findMany({
       where: {
-        status: "PUBLISHED",
+        status: "Published",
         OR: [
           { isFeatured: true },
-          { totalEnrollments: { gte: 10 } }, // Popular courses
-          { avgRating: { gte: 4.5 } }, // Highly rated courses
+          { totalStudents: { gte: 10 } }, // Popular courses
+          { averageRating: { gte: 4 } }, // Rated courses
         ],
       },
       include: {
@@ -19,26 +19,26 @@ export async function GET() {
             id: true,
             name: true,
             image: true,
-          },
-        },
-        teacherProfile: {
-          select: {
-            avgRating: true,
-            totalStudents: true,
-            isVerified: true,
+            teacherProfile: {
+              select: {
+                rating: true,
+                totalStudents: true,
+                isVerified: true,
+              },
+            },
           },
         },
         _count: {
           select: {
-            enrollments: true,
+            enrollment: true,
             reviews: true,
           },
         },
       },
       orderBy: [
         { isFeatured: "desc" },
-        { avgRating: "desc" },
-        { totalEnrollments: "desc" },
+        { averageRating: "desc" },
+        { totalStudents: "desc" },
         { createdAt: "desc" },
       ],
       take: 20, // Limit for homepage display
@@ -48,7 +48,7 @@ export async function GET() {
     const categories = await prisma.course.groupBy({
       by: ["category"],
       where: {
-        status: "PUBLISHED",
+        status: "Published",
       },
       _count: {
         id: true,
@@ -63,7 +63,7 @@ export async function GET() {
     // Get some statistics for the homepage
     const stats = await prisma.course.aggregate({
       where: {
-        status: "PUBLISHED",
+        status: "Published",
       },
       _count: {
         id: true,

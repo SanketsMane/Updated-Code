@@ -3,11 +3,11 @@ import { markNotificationAsRead } from "@/app/actions/notifications";
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const notificationId = params.id;
-    await markNotificationAsRead(notificationId);
+    const { id } = await params;
+    await markNotificationAsRead(id);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error marking notification as read:", error);

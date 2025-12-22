@@ -10,11 +10,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Users, Award, DollarSign, Globe, ArrowLeft, CheckCircle } from "lucide-react";
+import { Loader2, Users, Award, IndianRupee, Globe, ArrowLeft, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 
 const benefits = [
-  "Earn up to $50/hour teaching students",
+  "Earn up to ₹4000/hour teaching students",
   "Flexible schedule - teach when you want",
   "Global reach - students worldwide",
   "Professional tools and support",
@@ -33,6 +33,8 @@ export default function TeacherRegisterPage() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    password: "",
+    passwordConfirmation: "",
     bio: "",
     expertiseAreas: [] as string[],
     languages: [] as string[],
@@ -78,30 +80,35 @@ export default function TeacherRegisterPage() {
         body: JSON.stringify(formData),
       });
 
+      const result = await response.json();
+
       if (!response.ok) {
-        throw new Error("Registration failed");
+        if (result.details && Array.isArray(result.details)) {
+          // Construct a detailed error message from Zod errors
+          const errorDetails = result.details.map((err: any) => err.message).join(", ");
+          throw new Error(errorDetails);
+        }
+        throw new Error(result.error || "Registration failed");
       }
 
-      const result = await response.json();
-      
       toast.success("Registration successful! Please check your email to verify your account.");
       router.push("/login?message=teacher-registered");
-      
+
     } catch (error) {
       console.error("Registration error:", error);
-      toast.error("Registration failed. Please try again.");
+      toast.error(error instanceof Error ? error.message : "Registration failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="text-center mb-8">
-            <Link 
+            <Link
               href="/"
               className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4"
             >
@@ -122,14 +129,14 @@ export default function TeacherRegisterPage() {
               <Card className="sticky top-8">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Award className="h-5 w-5 text-emerald-600" />
+                    <Award className="h-5 w-5 text-orange-600" />
                     Why Teach With Us?
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {benefits.map((benefit, index) => (
                     <div key={index} className="flex items-start gap-2">
-                      <CheckCircle className="h-4 w-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <CheckCircle className="h-4 w-4 text-orange-600 mt-0.5 flex-shrink-0" />
                       <span className="text-sm text-gray-700 dark:text-gray-300">{benefit}</span>
                     </div>
                   ))}
@@ -143,8 +150,8 @@ export default function TeacherRegisterPage() {
                         <span>50K+ Students</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <DollarSign className="h-4 w-4" />
-                        <span>$2M+ Earned</span>
+                        <IndianRupee className="h-4 w-4" />
+                        <span>₹20Cr+ Earned</span>
                       </div>
                     </div>
                   </div>
@@ -155,17 +162,17 @@ export default function TeacherRegisterPage() {
             {/* Registration Form */}
             <div className="lg:col-span-2">
               <Card className="shadow-xl border-0">
-                <CardHeader className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
+                <CardHeader className="bg-gradient-to-r from-orange-600 to-red-600 text-white">
                   <CardTitle className="text-2xl">Teacher Registration</CardTitle>
-                  <p className="text-emerald-100">Fill out the form below to start your teaching journey</p>
+                  <p className="text-orange-100">Fill out the form below to start your teaching journey</p>
                 </CardHeader>
-                
+
                 <CardContent className="p-6">
                   <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Basic Information */}
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold">Basic Information</h3>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <Label htmlFor="name">Full Name *</Label>
@@ -178,7 +185,7 @@ export default function TeacherRegisterPage() {
                             placeholder="Your full name"
                           />
                         </div>
-                        
+
                         <div>
                           <Label htmlFor="email">Email Address *</Label>
                           <Input
@@ -188,6 +195,30 @@ export default function TeacherRegisterPage() {
                             value={formData.email}
                             onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                             placeholder="your@email.com"
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="password">Password *</Label>
+                          <Input
+                            id="password"
+                            type="password"
+                            required
+                            value={formData.password}
+                            onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                            placeholder="••••••••"
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="passwordConfirmation">Confirm Password *</Label>
+                          <Input
+                            id="passwordConfirmation"
+                            type="password"
+                            required
+                            value={formData.passwordConfirmation}
+                            onChange={(e) => setFormData(prev => ({ ...prev, passwordConfirmation: e.target.value }))}
+                            placeholder="••••••••"
                           />
                         </div>
                       </div>
@@ -211,13 +242,13 @@ export default function TeacherRegisterPage() {
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold">Expertise Areas *</h3>
                       <p className="text-sm text-gray-600">Select the subjects you can teach (minimum 1)</p>
-                      
+
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                         {expertise.map((area) => (
                           <Badge
                             key={area}
                             variant={formData.expertiseAreas.includes(area) ? "default" : "outline"}
-                            className="cursor-pointer justify-center py-2 hover:bg-emerald-100"
+                            className={`cursor-pointer justify-center py-2 ${formData.expertiseAreas.includes(area) ? "bg-orange-600 hover:bg-orange-700" : "hover:bg-orange-100"}`}
                             onClick={() => handleExpertiseToggle(area)}
                           >
                             {area}
@@ -231,23 +262,23 @@ export default function TeacherRegisterPage() {
                     {/* Teaching Details */}
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold">Teaching Details</h3>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="hourlyRate">Hourly Rate (USD) *</Label>
+                          <Label htmlFor="hourlyRate">Hourly Rate (INR, ₹) *</Label>
                           <Input
                             id="hourlyRate"
                             type="number"
-                            min="5"
-                            max="100"
+                            min="100"
+                            max="50000"
                             required
                             value={formData.hourlyRate}
                             onChange={(e) => setFormData(prev => ({ ...prev, hourlyRate: e.target.value }))}
-                            placeholder="25"
+                            placeholder="1000"
                           />
-                          <p className="text-xs text-gray-500 mt-1">Recommended: $15-50/hour</p>
+                          <p className="text-xs text-gray-500 mt-1">Recommended: ₹500-5000/hour</p>
                         </div>
-                        
+
                         <div>
                           <Label htmlFor="experience">Years of Experience *</Label>
                           <Input
@@ -293,7 +324,7 @@ export default function TeacherRegisterPage() {
                       <Button
                         type="submit"
                         disabled={isLoading || formData.expertiseAreas.length === 0}
-                        className="w-full bg-emerald-600 hover:bg-emerald-700"
+                        className="w-full bg-orange-600 hover:bg-orange-700"
                         size="lg"
                       >
                         {isLoading ? (
@@ -314,7 +345,7 @@ export default function TeacherRegisterPage() {
                       <div className="text-center">
                         <span className="text-sm text-gray-600">
                           Already have an account?{" "}
-                          <Link href="/login" className="text-emerald-600 hover:text-emerald-700 font-medium">
+                          <Link href="/login" className="text-orange-600 hover:text-orange-700 font-medium">
                             Sign in here
                           </Link>
                         </span>
@@ -325,8 +356,8 @@ export default function TeacherRegisterPage() {
               </Card>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+        </div >
+      </div >
+    </div >
   );
 }

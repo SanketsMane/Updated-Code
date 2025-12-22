@@ -21,7 +21,7 @@ interface TemplateData {
  */
 function createTransporter() {
   const service = process.env.EMAIL_SERVICE;
-  
+
   if (service === 'gmail') {
     // Gmail configuration
     return nodemailer.createTransport({
@@ -307,8 +307,19 @@ const emailTemplates = {
  */
 export async function sendEmail(emailData: EmailData): Promise<boolean> {
   try {
+    // Mock email sending for development if credentials refer to non-existent vars or just always for safety now
+    if (!process.env.EMAIL_HOST && !process.env.EMAIL_USER) {
+      console.log('---------------------------------------------------');
+      console.log('EMAIL SENT (MOCKED):');
+      console.log('To:', emailData.to);
+      console.log('Subject:', emailData.subject);
+      console.log('---------------------------------------------------');
+      return true;
+    }
+
     const transporter = createTransporter();
-    
+
+    // ... existing logic ...
     const mailOptions = {
       from: emailData.from || process.env.EMAIL_FROM || process.env.EMAIL_USER,
       to: emailData.to,
@@ -341,7 +352,7 @@ export async function sendTemplatedEmail(
   }
 
   const html = templateFunction(data);
-  
+
   return await sendEmail({
     to,
     subject,

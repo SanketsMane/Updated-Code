@@ -6,7 +6,8 @@ import { v4 as uuidv4 } from "uuid";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { S3 } from "@/lib/S3Client";
 import { protectGeneral } from "@/lib/security";
-import { requireAdmin } from "@/app/data/admin/require-admin";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 const fileUploadSchema = z.object({
   fileName: z.string().min(1, { message: "Filename is required" }),
@@ -16,14 +17,20 @@ const fileUploadSchema = z.object({
 });
 
 export async function POST(request: Request) {
-  const session = await requireAdmin();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session || (session.user.role !== "admin" && session.user.role !== "teacher")) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     // Apply rate limiting for file uploads (5 per minute)
     const securityCheck = await protectGeneral(request, session?.user.id as string, {
       maxRequests: 5,
       windowMs: 60000
     });
-    
+
     if (!securityCheck.success) {
       return NextResponse.json({ error: securityCheck.error }, { status: securityCheck.status });
     }
@@ -60,7 +67,8 @@ export async function POST(request: Request) {
     };
 
     return NextResponse.json(response);
-  } catch {
+  } catch (error) {
+    console.error("S3 Upload Error:", error);
     return NextResponse.json(
       { error: "Failed to generate presigned URL" },
       { status: 500 }

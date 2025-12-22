@@ -26,6 +26,8 @@ interface TeacherProfile extends TeacherProfileFormData {
   totalCourses: number;
   createdAt: Date;
   updatedAt: Date;
+  isVerified: boolean;
+  isApproved: boolean;
   user?: {
     name: string | null;
     email: string;
@@ -142,7 +144,7 @@ export function TeacherProfileForm({ existingProfile, onSave }: TeacherProfileFo
       }
 
       toast.success(existingProfile ? "Profile updated successfully!" : "Profile created successfully!");
-      
+
       if (onSave && result.profile) {
         onSave(result.profile);
       }

@@ -1,111 +1,156 @@
 import { requireTeacher } from "../../data/auth/require-roles";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { IconChartBar, IconUsers, IconTrendingUp, IconBook } from "@tabler/icons-react";
+import { BarChart, Users, TrendingUp, Book, MonitorPlay, DollarSign, Activity } from "lucide-react";
 import { getTeacherAnalytics } from "@/app/data/teacher/get-teacher-analytics";
 import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export default async function TeacherAnalyticsPage() {
   await requireTeacher();
-  
-  const session = await auth.api.getSession({ headers: undefined });
+
+  const session = await auth.api.getSession({ headers: await headers() });
   const analytics = await getTeacherAnalytics(session!.user!.id);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 p-1">
       <div>
-        <h1 className="text-2xl font-bold">Analytics</h1>
-        <p className="text-muted-foreground">
-          Track your course performance and student engagement
+        <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-orange-900 to-orange-600 dark:from-white dark:to-orange-100 bg-clip-text text-transparent">
+          Analytics Overview
+        </h1>
+        <p className="text-muted-foreground mt-1">
+          Deep insights into your teaching performance and student growth.
         </p>
       </div>
 
       {/* Analytics Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-            <IconUsers className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Students</CardTitle>
+            <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-full">
+              <Users className="h-4 w-4 text-blue-600" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${analytics.totalRevenue.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              {analytics.revenueGrowth >= 0 ? '+' : ''}{analytics.revenueGrowth.toFixed(1)}% from last month
+            <div className="text-2xl font-bold">{analytics.totalStudents}</div>
+            <p className="text-xs text-muted-foreground mt-1 flex items-center">
+              {analytics.studentGrowth >= 0 ?
+                <TrendingUp className="h-3 w-3 text-green-500 mr-1" /> :
+                <TrendingUp className="h-3 w-3 text-red-500 mr-1 rotate-180" />
+              }
+              <span className={analytics.studentGrowth >= 0 ? "text-green-600" : "text-red-600"}>
+                {Math.abs(analytics.studentGrowth).toFixed(1)}%
+              </span>
+              <span className="ml-1">from last month</span>
             </p>
           </CardContent>
         </Card>
-        
-        <Card>
+
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Course Completion</CardTitle>
-            <IconTrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Active Courses</CardTitle>
+            <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-full">
+              <Book className="h-4 w-4 text-purple-600" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">84%</div>
-            <p className="text-xs text-muted-foreground">
-              +5% from last month
+            <div className="text-2xl font-bold">{analytics.totalCourses}</div>
+            <p className="text-xs text-muted-foreground mt-1 flex items-center">
+              {analytics.courseGrowth >= 0 ?
+                <TrendingUp className="h-3 w-3 text-green-500 mr-1" /> :
+                <TrendingUp className="h-3 w-3 text-red-500 mr-1 rotate-180" />
+              }
+              <span className={analytics.courseGrowth >= 0 ? "text-green-600" : "text-red-600"}>
+                {Math.abs(analytics.courseGrowth).toFixed(1)}%
+              </span>
+              <span className="ml-1">new this month</span>
             </p>
           </CardContent>
         </Card>
-        
-        <Card>
+
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Courses</CardTitle>
-            <IconBook className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">
-              +2 new this month
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Engagement Rate</CardTitle>
-            <IconChartBar className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Engagement Rate</CardTitle>
+            <div className="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-full">
+              <Activity className="h-4 w-4 text-orange-600" />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{analytics.engagementRate.toFixed(1)}%</div>
-            <p className="text-xs text-muted-foreground">
-              {analytics.engagementGrowth >= 0 ? '+' : ''}{analytics.engagementGrowth.toFixed(1)}% from last month
+            <p className="text-xs text-muted-foreground mt-1 flex items-center">
+              {analytics.engagementGrowth >= 0 ?
+                <TrendingUp className="h-3 w-3 text-green-500 mr-1" /> :
+                <TrendingUp className="h-3 w-3 text-red-500 mr-1 rotate-180" />
+              }
+              <span className={analytics.engagementGrowth >= 0 ? "text-green-600" : "text-red-600"}>
+                {Math.abs(analytics.engagementGrowth).toFixed(1)}%
+              </span>
+              <span className="ml-1">vs last month</span>
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Revenue</CardTitle>
+            <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-full">
+              <DollarSign className="h-4 w-4 text-green-600" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">${analytics.totalRevenue.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground mt-1 flex items-center">
+              {analytics.revenueGrowth >= 0 ?
+                <TrendingUp className="h-3 w-3 text-green-500 mr-1" /> :
+                <TrendingUp className="h-3 w-3 text-red-500 mr-1 rotate-180" />
+              }
+              <span className={analytics.revenueGrowth >= 0 ? "text-green-600" : "text-red-600"}>
+                {Math.abs(analytics.revenueGrowth).toFixed(1)}%
+              </span>
+              <span className="ml-1">from last month</span>
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Placeholder for charts */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
+      {/* Charts Section */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card className="col-span-1 border-dashed bg-gray-50/50 dark:bg-gray-900/50">
           <CardHeader>
             <CardTitle>Course Performance</CardTitle>
             <CardDescription>
-              Student progress across your courses
+              Weekly student progress visualization
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-center h-48 text-muted-foreground">
-              <div className="text-center">
-                <IconChartBar className="mx-auto h-12 w-12 mb-4" />
-                <p>Charts and analytics coming soon...</p>
+            <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
+              <div className="p-4 bg-white dark:bg-gray-800 rounded-full shadow-sm mb-4">
+                <BarChart className="h-8 w-8 text-blue-500" />
               </div>
+              <p className="font-medium">Data Collection in Progress</p>
+              <p className="text-sm mt-1 max-w-xs text-center">
+                Once enough student data is collected, detailed performance charts will appear here.
+              </p>
             </div>
           </CardContent>
         </Card>
-        
-        <Card>
+
+        <Card className="col-span-1 border-dashed bg-gray-50/50 dark:bg-gray-900/50">
           <CardHeader>
             <CardTitle>Student Engagement</CardTitle>
             <CardDescription>
-              Activity and participation metrics
+              Daily activity and participation analysis
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-center h-48 text-muted-foreground">
-              <div className="text-center">
-                <IconUsers className="mx-auto h-12 w-12 mb-4" />
-                <p>Engagement metrics coming soon...</p>
+            <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
+              <div className="p-4 bg-white dark:bg-gray-800 rounded-full shadow-sm mb-4">
+                <Activity className="h-8 w-8 text-orange-500" />
               </div>
+              <p className="font-medium">Gathering Activity Metrics</p>
+              <p className="text-sm mt-1 max-w-xs text-center">
+                Engagement trends and activity heatmaps will be generated automatically.
+              </p>
             </div>
           </CardContent>
         </Card>

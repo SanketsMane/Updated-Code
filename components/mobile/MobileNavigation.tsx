@@ -7,13 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { 
-  Menu, 
-  X, 
-  Home, 
-  BookOpen, 
-  Video, 
-  Users, 
+import {
+  Menu,
+  X,
+  Home,
+  BookOpen,
+  Video,
+  Users,
   BarChart3,
   MessageSquare,
   Bell,
@@ -23,7 +23,7 @@ import {
   ChevronDown
 } from "lucide-react";
 import Logo from "@/public/logo.png";
-import { ThemeToggle } from "@/components/ui/themeToggle";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { MessageNotification } from "@/components/messaging/MessageNotification";
 import { authClient } from "@/lib/auth-client";
@@ -70,7 +70,7 @@ export function MobileNavbar() {
               <MessageNotification />
             </>
           )}
-          
+
           {/* Mobile Menu */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
@@ -78,7 +78,7 @@ export function MobileNavbar() {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            
+
             <SheetContent side="right" className="w-80">
               <SheetHeader>
                 <SheetTitle className="flex items-center gap-2">
@@ -142,7 +142,7 @@ export function MobileNavbar() {
                 {session && (
                   <>
                     <Separator />
-                    
+
                     {/* Dashboard Quick Links */}
                     <div className="space-y-1">
                       <h4 className="text-sm font-medium text-muted-foreground px-3">Quick Access</h4>

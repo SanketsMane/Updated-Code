@@ -15,7 +15,7 @@ export async function createMeetingRoom(sessionId: string) {
     where: { id: sessionId },
     include: {
       teacher: {
-        include: { teacherProfile: true }
+        include: { user: true }
       },
       student: true,
     },
@@ -26,7 +26,7 @@ export async function createMeetingRoom(sessionId: string) {
   }
 
   // Check if user is either the teacher or student
-  const isTeacher = liveSession.teacherId === session.user.id;
+  const isTeacher = liveSession.teacher.userId === session.user.id;
   const isStudent = liveSession.studentId === session.user.id;
 
   if (!isTeacher && !isStudent) {
@@ -40,7 +40,7 @@ export async function createMeetingRoom(sessionId: string) {
     sessionId: sessionId,
     teacherId: liveSession.teacherId,
     studentId: liveSession.studentId,
-    scheduledStart: liveSession.scheduledTime,
+    scheduledStart: liveSession.scheduledAt,
     provider: "agora", // Default provider
     status: "scheduled",
   };
@@ -69,7 +69,7 @@ export async function getMeetingRoom(sessionId: string) {
     where: { id: sessionId },
     include: {
       teacher: {
-        include: { teacherProfile: true }
+        include: { user: true }
       },
       student: true,
     },
@@ -80,7 +80,7 @@ export async function getMeetingRoom(sessionId: string) {
   }
 
   // Check if user is either the teacher or student
-  const isTeacher = liveSession.teacherId === session.user.id;
+  const isTeacher = liveSession.teacher.userId === session.user.id;
   const isStudent = liveSession.studentId === session.user.id;
 
   if (!isTeacher && !isStudent) {
@@ -92,10 +92,10 @@ export async function getMeetingRoom(sessionId: string) {
     roomId: `room_${sessionId}`,
     isTeacher,
     isStudent,
-    teacherName: liveSession.teacher.name,
-    studentName: liveSession.student.name,
-    sessionTitle: liveSession.topic || "Live Session",
-    scheduledTime: liveSession.scheduledTime,
+    teacherName: liveSession.teacher.user.name,
+    studentName: liveSession.student?.name || "Student",
+    sessionTitle: liveSession.title || "Live Session",
+    scheduledTime: liveSession.scheduledAt,
     duration: liveSession.duration,
     status: liveSession.status,
   };
@@ -110,6 +110,7 @@ export async function updateSessionStatus(sessionId: string, status: "InProgress
 
   const liveSession = await prisma.liveSession.findUnique({
     where: { id: sessionId },
+    include: { teacher: true },
   });
 
   if (!liveSession) {
@@ -117,7 +118,7 @@ export async function updateSessionStatus(sessionId: string, status: "InProgress
   }
 
   // Check if user is either the teacher or student
-  const isTeacher = liveSession.teacherId === session.user.id;
+  const isTeacher = liveSession.teacher.userId === session.user.id;
   const isStudent = liveSession.studentId === session.user.id;
 
   if (!isTeacher && !isStudent) {
@@ -141,9 +142,9 @@ export async function updateSessionStatus(sessionId: string, status: "InProgress
 export async function generateAgoraToken(channelName: string, userId: string) {
   // This is a simplified version. In production, you'd have a separate service
   // that generates tokens using your Agora App ID and App Certificate
-  
+
   const token = `agora_token_${channelName}_${userId}_${Date.now()}`;
-  
+
   return {
     token,
     channelName,

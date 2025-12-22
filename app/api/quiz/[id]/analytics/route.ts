@@ -6,7 +6,7 @@ import { prisma } from "@/lib/db";
 // GET /api/quiz/[id]/analytics - Get quiz analytics
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth.api.getSession({
@@ -17,8 +17,10 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
+
     const quiz = await prisma.quiz.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         questions: {
           orderBy: { position: 'asc' }
@@ -43,14 +45,14 @@ export async function GET(
     if (session.user.role === 'STUDENT') {
       // Students can only see their own analytics
       const userAttempts = quiz.attempts.filter(a => a.userId === session.user.id);
-      
+
       if (userAttempts.length === 0) {
         return NextResponse.json({ error: "No attempts found" }, { status: 404 });
       }
 
       // Return student-specific analytics
-      const bestAttempt = userAttempts.reduce((best, current) => 
-        (current.score || 0) > (best.score || 0) ? current : best
+      const bestAttempt = userAttempts.reduce((best, current) =>
+        (current.totalPoints || 0) > (best.totalPoints || 0) ? current : best
       );
 
       return NextResponse.json({
@@ -62,17 +64,17 @@ export async function GET(
         },
         studentAnalytics: {
           totalAttempts: userAttempts.length,
-          bestScore: bestAttempt.score || 0,
-          bestScorePercentage: Math.round(((bestAttempt.score || 0) / (bestAttempt.totalPoints || 1)) * 100),
-          averageScore: Math.round(userAttempts.reduce((sum, a) => sum + (a.score || 0), 0) / userAttempts.length),
-          passed: (bestAttempt.score || 0) / (bestAttempt.totalPoints || 1) * 100 >= quiz.passingScore,
+          bestScore: bestAttempt.totalPoints || 0,
+          bestScorePercentage: Math.round(((bestAttempt.totalPoints || 0) / (bestAttempt.maxPoints || 1)) * 100),
+          averageScore: Math.round(userAttempts.reduce((sum, a) => sum + (a.totalPoints || 0), 0) / userAttempts.length),
+          passed: (bestAttempt.totalPoints || 0) / (bestAttempt.maxPoints || 1) * 100 >= quiz.passingScore,
           attempts: userAttempts.map(attempt => ({
             id: attempt.id,
-            score: attempt.score,
-            scorePercentage: Math.round(((attempt.score || 0) / (attempt.totalPoints || 1)) * 100),
+            score: attempt.totalPoints,
+            scorePercentage: Math.round(((attempt.totalPoints || 0) / (attempt.maxPoints || 1)) * 100),
             submittedAt: attempt.submittedAt,
             timeSpent: attempt.timeSpent,
-            passed: (attempt.score || 0) / (attempt.totalPoints || 1) * 100 >= quiz.passingScore
+            passed: (attempt.totalPoints || 0) / (attempt.maxPoints || 1) * 100 >= quiz.passingScore
           }))
         }
       });
@@ -81,7 +83,7 @@ export async function GET(
     // Teacher/Admin analytics
     const submittedAttempts = quiz.attempts;
     const totalAttempts = submittedAttempts.length;
-    
+
     if (totalAttempts === 0) {
       return NextResponse.json({
         quiz: {
@@ -108,8 +110,8 @@ export async function GET(
     }
 
     // Calculate overall stats
-    const scores = submittedAttempts.map(a => a.score || 0);
-    const percentages = submittedAttempts.map(a => ((a.score || 0) / (a.totalPoints || 1)) * 100);
+    const scores = submittedAttempts.map(a => a.totalPoints || 0);
+    const percentages = submittedAttempts.map(a => ((a.totalPoints || 0) / (a.maxPoints || 1)) * 100);
     const averageScore = scores.reduce((sum, score) => sum + score, 0) / totalAttempts;
     const averagePercentage = percentages.reduce((sum, pct) => sum + pct, 0) / totalAttempts;
     const passCount = percentages.filter(pct => pct >= quiz.passingScore).length;
@@ -117,14 +119,14 @@ export async function GET(
 
     // Question analytics
     const questionAnalytics = quiz.questions.map(question => {
-      const questionResponses = submittedAttempts.flatMap(attempt => 
+      const questionResponses = submittedAttempts.flatMap(attempt =>
         attempt.responses.filter(r => r.questionId === question.id)
       );
 
       const correctCount = questionResponses.filter(r => r.isCorrect).length;
       const totalResponses = questionResponses.length;
-      const averagePoints = questionResponses.reduce((sum, r) => sum + (r.pointsEarned || 0), 0) / Math.max(totalResponses, 1);
-      const averageTime = questionResponses.reduce((sum, r) => sum + (r.timeSpent || 0), 0) / Math.max(totalResponses, 1);
+      const averagePoints = questionResponses.reduce((sum, r) => sum + (r.pointsAwarded || 0), 0) / Math.max(totalResponses, 1);
+      const averageTime = questionResponses.reduce((sum, r) => sum + (r.timeTaken || 0), 0) / Math.max(totalResponses, 1);
 
       return {
         questionId: question.id,
@@ -164,7 +166,7 @@ export async function GET(
         correctCount,
         totalResponses,
         accuracyRate: totalResponses > 0 ? (correctCount / totalResponses) * 100 : 0,
-        averageTime: difficultyResponses.reduce((sum, r) => sum + (r.timeSpent || 0), 0) / Math.max(totalResponses, 1)
+        averageTime: difficultyResponses.reduce((sum, r) => sum + (r.timeTaken || 0), 0) / Math.max(totalResponses, 1)
       };
     });
 
@@ -193,21 +195,21 @@ export async function GET(
         return students;
       }, {} as Record<string, any>)
       .map((student: any) => {
-        const bestAttempt = student.attempts.reduce((best: any, current: any) => 
-          (current.score || 0) > (best.score || 0) ? current : best
+        const bestAttempt = student.attempts.reduce((best: any, current: any) =>
+          (current.totalPoints || 0) > (best.totalPoints || 0) ? current : best
         );
-        
+
         return {
           user: student.user,
           totalAttempts: student.attempts.length,
-          bestScore: bestAttempt.score || 0,
-          bestScorePercentage: Math.round(((bestAttempt.score || 0) / (bestAttempt.totalPoints || 1)) * 100),
-          averageScore: Math.round(student.attempts.reduce((sum: number, a: any) => sum + (a.score || 0), 0) / student.attempts.length),
-          passed: (bestAttempt.score || 0) / (bestAttempt.totalPoints || 1) * 100 >= quiz.passingScore,
+          bestScore: bestAttempt.totalPoints || 0,
+          bestScorePercentage: Math.round(((bestAttempt.totalPoints || 0) / (bestAttempt.maxPoints || 1)) * 100),
+          averageScore: Math.round(student.attempts.reduce((sum: number, a: any) => sum + (a.totalPoints || 0), 0) / student.attempts.length),
+          passed: (bestAttempt.totalPoints || 0) / (bestAttempt.maxPoints || 1) * 100 >= quiz.passingScore,
           lastAttemptDate: new Date(Math.max(...student.attempts.map((a: any) => new Date(a.submittedAt).getTime())))
         };
       })
-      .sort((a, b) => b.bestScore - a.bestScore);
+      .sort((a: any, b: any) => b.bestScore - a.bestScore);
 
     return NextResponse.json({
       quiz: {
@@ -235,7 +237,7 @@ export async function GET(
   } catch (error) {
     console.error('Error fetching quiz analytics:', error);
     return NextResponse.json(
-      { error: "Internal server error" }, 
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
@@ -249,7 +251,7 @@ function getCommonWrongAnswers(question: any, wrongResponses: any[]): any[] {
     return counts;
   }, {} as Record<string, number>);
 
-  return Object.entries(answerCounts)
+  return (Object.entries(answerCounts) as [string, number][])
     .sort(([, a], [, b]) => b - a)
     .slice(0, 5)
     .map(([answer, count]) => ({

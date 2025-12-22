@@ -4,12 +4,18 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 export default async function LoginPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
 
-  if (session) {
-    return redirect("/");
+    if (session) {
+      return redirect("/");
+    }
+  } catch (error) {
+    console.error("Failed to get session in login page:", error);
+    // Continue content rendering even if session check fails, likely safe to show login form
   }
+
   return <LoginForm />;
 }

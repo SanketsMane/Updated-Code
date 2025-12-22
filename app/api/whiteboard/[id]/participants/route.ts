@@ -6,12 +6,12 @@ import { z } from "zod";
 
 const addParticipantSchema = z.object({
   userId: z.string().min(1, "User ID is required"),
-  role: z.enum(['Owner', 'Editor', 'Viewer']).default('Viewer'),
+  role: z.enum(['Owner', 'Collaborator', 'Viewer']).default('Viewer'),
   cursorColor: z.string().optional()
 });
 
 const updateParticipantSchema = z.object({
-  role: z.enum(['Owner', 'Editor', 'Viewer']).optional(),
+  role: z.enum(['Owner', 'Collaborator', 'Viewer']).optional(),
   cursorColor: z.string().optional(),
   isOnline: z.boolean().optional()
 });
@@ -34,7 +34,7 @@ export async function GET(
     // Check access to whiteboard
     const whiteboard = await prisma.whiteboard.findUnique({
       where: { id },
-      select: { 
+      select: {
         createdById: true,
         isPublic: true,
         participants: { where: { userId: session.user.id } }
@@ -48,7 +48,7 @@ export async function GET(
     const isOwner = whiteboard.createdById === session.user.id;
     const isParticipant = whiteboard.participants.length > 0;
     const isPublic = whiteboard.isPublic;
-    const isAdminOrTeacher = ['ADMIN', 'TEACHER'].includes(session.user.role);
+    const isAdminOrTeacher = ['ADMIN', 'TEACHER'].includes(session.user.role || '');
 
     if (!isOwner && !isParticipant && !isPublic && !isAdminOrTeacher) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
@@ -69,7 +69,7 @@ export async function GET(
   } catch (error) {
     console.error('Error fetching participants:', error);
     return NextResponse.json(
-      { error: "Internal server error" }, 
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
@@ -93,7 +93,7 @@ export async function POST(
     // Check permissions
     const whiteboard = await prisma.whiteboard.findUnique({
       where: { id },
-      select: { 
+      select: {
         createdById: true,
         maxParticipants: true,
         _count: { select: { participants: true } }
@@ -105,8 +105,8 @@ export async function POST(
     }
 
     const isOwner = whiteboard.createdById === session.user.id;
-    const isAdminOrTeacher = ['ADMIN', 'TEACHER'].includes(session.user.role);
-    
+    const isAdminOrTeacher = ['ADMIN', 'TEACHER'].includes(session.user.role || '');
+
     if (!isOwner && !isAdminOrTeacher) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
@@ -144,7 +144,7 @@ export async function POST(
     }
 
     // Generate random cursor color if not provided
-    const cursorColor = validatedData.cursorColor || `#${Math.floor(Math.random()*16777215).toString(16)}`;
+    const cursorColor = validatedData.cursorColor || `#${Math.floor(Math.random() * 16777215).toString(16)}`;
 
     const participant = await prisma.whiteboardParticipant.create({
       data: {
@@ -165,7 +165,7 @@ export async function POST(
 
   } catch (error) {
     console.error('Error adding participant:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Validation error", details: error.errors },
@@ -174,7 +174,7 @@ export async function POST(
     }
 
     return NextResponse.json(
-      { error: "Internal server error" }, 
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

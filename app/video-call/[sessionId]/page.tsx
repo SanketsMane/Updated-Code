@@ -3,20 +3,21 @@ import VideoCall from "@/components/video/VideoCall";
 import { getMeetingRoom } from "@/app/actions/video-call";
 
 interface VideoCallPageProps {
-  params: {
+  params: Promise<{
     sessionId: string;
-  };
+  }>;
 }
 
 export default async function VideoCallPage({ params }: VideoCallPageProps) {
   try {
+    const { sessionId } = await params;
     // Verify the session exists and user has access
-    await getMeetingRoom(params.sessionId);
-    
+    await getMeetingRoom(sessionId);
+
     return (
       <div className="h-screen w-screen bg-gray-900">
-        <VideoCall 
-          sessionId={params.sessionId}
+        <VideoCall
+          sessionId={sessionId}
           onCallEnd={() => {
             // Redirect back to sessions after call ends
             window.location.href = "/dashboard/sessions";

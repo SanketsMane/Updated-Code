@@ -1,3 +1,5 @@
+"use client";
+
 import { PublicCourseType } from "@/app/data/course/get-all-courses";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -14,87 +16,77 @@ interface iAppProps {
 
 export function PublicCourseCard({ data }: iAppProps) {
   const thumbnailUrl = useConstructUrl(data.fileKey);
-  
+
   return (
-    <Card className="group relative py-0 gap-0 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] overflow-hidden border-0 shadow-lg">
-      <div className="relative overflow-hidden">
-        <Badge className="absolute top-3 right-3 z-10 bg-white/90 text-black hover:bg-white">
+    <Card className="group relative flex flex-col h-full bg-card border-border hover:shadow-lg transition-all duration-300 hover:border-primary/50 overflow-hidden">
+      {/* Thumbnail Section */}
+      <div className="relative aspect-video w-full overflow-hidden bg-muted">
+        <Image
+          src={thumbnailUrl}
+          alt={data.title}
+          fill
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+        {/* Level Badge in top left */}
+        <Badge
+          variant="secondary"
+          className="absolute top-3 left-3 bg-background/80 backdrop-blur-sm text-foreground hover:bg-background font-medium"
+        >
           {data.level}
         </Badge>
-        
-        <div className="absolute top-3 left-3 z-10">
-          <Badge variant="secondary" className="bg-green-500 text-white hover:bg-green-600">
-            Featured
-          </Badge>
-        </div>
 
-        <Image
-          width={600}
-          height={400}
-          className="w-full aspect-video object-cover group-hover:scale-110 transition-transform duration-300"
-          src={thumbnailUrl}
-          alt={`Course thumbnail for ${data.title}`}
-        />
-        
-        {/* Play overlay */}
-        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-          <div className="bg-white/90 rounded-full p-3 transform scale-75 group-hover:scale-100 transition-transform duration-300">
-            <Play className="h-6 w-6 text-blue-600 ml-1" />
+        {/* Play Overlay */}
+        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+          <div className="bg-background/90 text-primary rounded-full p-3 shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+            <Play className="w-6 h-6 fill-current ml-1" />
           </div>
         </div>
       </div>
 
-      <CardContent className="p-6">
-        {/* Category tag */}
-        <div className="flex items-center gap-2 mb-3">
-          <School className="h-4 w-4 text-blue-600" />
-          <span className="text-sm text-blue-600 font-medium">{data.category}</span>
+      <CardContent className="flex flex-col flex-1 p-5 gap-3">
+        {/* Category & Rating Row */}
+        <div className="flex items-center justify-between text-xs font-medium">
+          <div className="text-primary flex items-center gap-1.5">
+            <School className="w-3.5 h-3.5" />
+            {data.category}
+          </div>
+          <div className="flex items-center gap-1 text-amber-500">
+            <Star className="w-3.5 h-3.5 fill-current" />
+            <span>4.8</span>
+            <span className="text-muted-foreground ml-0.5">(240)</span>
+          </div>
         </div>
 
+        {/* Title */}
         <Link
-          className="font-bold text-lg line-clamp-2 hover:text-blue-600 transition-colors leading-tight"
           href={`/courses/${data.slug}`}
+          className="font-bold text-lg leading-snug group-hover:text-primary transition-colors line-clamp-2"
         >
           {data.title}
         </Link>
-        
-        <p className="line-clamp-2 text-sm text-muted-foreground leading-relaxed mt-2 mb-4">
-          {data.smallDescription}
-        </p>
 
-        {/* Course stats */}
-        <div className="flex items-center gap-4 mb-4">
-          <div className="flex items-center gap-1">
-            <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-            <span className="text-sm font-medium">4.8</span>
-            <span className="text-sm text-muted-foreground">(234)</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Users className="h-4 w-4 text-gray-500" />
-            <span className="text-sm text-muted-foreground">1,234 students</span>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <TimerIcon className="h-4 w-4 text-gray-500" />
-            <span className="text-sm text-muted-foreground">{data.duration}h total</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <DollarSign className="h-5 w-5 text-green-600" />
-            <span className="text-xl font-bold text-green-600">${data.price}</span>
-          </div>
+        {/* Instructor/Students */}
+        <div className="flex items-center gap-2 text-sm text-muted-foreground mt-auto pt-2">
+          <Users className="w-4 h-4" />
+          <span>1.2k students</span>
+          <span className="mx-1">•</span>
+          <TimerIcon className="w-4 h-4" />
+          <span>{data.duration}h</span>
         </div>
       </CardContent>
 
-      <CardFooter className="p-6 pt-0">
+      <CardFooter className="p-5 pt-0 flex items-center justify-between border-t border-border/50 mt-auto bg-secondary/20">
+        <div className="flex flex-col">
+          <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Price</span>
+          <span className="text-xl font-bold text-primary">${data.price}</span>
+        </div>
+
         <Link
           href={`/courses/${data.slug}`}
-          className={buttonVariants({ 
-            className: "w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-300" 
-          })}
+          className="text-sm font-semibold text-foreground hover:text-primary transition-colors flex items-center gap-1 group/btn"
         >
-          Enroll Now
+          View Details
+          <Play className="w-3 h-3 group-hover/btn:translate-x-0.5 transition-transform" />
         </Link>
       </CardFooter>
     </Card>

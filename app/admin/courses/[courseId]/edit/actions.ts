@@ -25,7 +25,7 @@ export async function editCourse(
       where: { id: courseId },
       select: { userId: true }
     });
-    
+
     if (!course || course.userId !== session.user.id) {
       return {
         status: "error",
@@ -36,7 +36,7 @@ export async function editCourse(
 
   try {
     // Apply security protection for admin actions
-    const securityCheck = await protectAdminAction(user.user.id);
+    const securityCheck = await protectAdminAction(session.user.id);
     if (!securityCheck.success) {
       return {
         status: "error",
@@ -56,7 +56,7 @@ export async function editCourse(
     await prisma.course.update({
       where: {
         id: courseId,
-        userId: user.user.id,
+        userId: session.user.id,
       },
       data: {
         ...result.data,

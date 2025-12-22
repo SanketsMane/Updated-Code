@@ -85,7 +85,25 @@ const data = {
   ],
 };
 
+import { authClient } from "@/lib/auth-client";
+import { IconSchool } from "@tabler/icons-react";
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data: session } = authClient.useSession();
+  const role = session?.user?.role;
+
+  // Create a copy of the secondary nav items
+  const secondaryNav = [...data.navSecondary];
+
+  // Add Teacher link based on role
+  // If teacher -> Go to Teacher Dashboard
+  // If student -> Go to Teacher Registration
+  secondaryNav.unshift({
+    title: role === "teacher" ? "Instructor Dashboard" : "Teach on Kidokool",
+    url: role === "teacher" ? "/teacher" : "/register/teacher",
+    icon: IconSchool,
+  });
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -105,7 +123,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavSecondary items={secondaryNav} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
