@@ -23,6 +23,7 @@ import { CategoriesGrid } from "@/components/marketing/CategoriesGrid";
 import { PopularLanguages } from "@/components/marketing/PopularLanguages";
 import { FeaturedCourses } from "@/components/marketing/FeaturedCourses";
 import { StatsBar } from "@/components/marketing/StatsBar";
+import { VibeCard } from "@/components/marketing/vibe-card";
 
 const features = [
   {
@@ -137,6 +138,9 @@ export default async function Home() {
 
       {/* --- STATS BAR (Interactive) --- */}
       <StatsBar />
+
+      {/* --- VIBE CARD SECTION --- */}
+      <VibeCard />
 
       {/* --- NEW SECTIONS --- */}
       <FeaturesGrid />
