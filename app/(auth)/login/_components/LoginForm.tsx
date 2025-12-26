@@ -82,17 +82,17 @@ export function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 py-8 md:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
           {/* Left Side - Login Form */}
           <div className="order-1">
             <Card className="shadow-2xl border-0 overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-orange-600 to-red-600 text-white p-6 md:p-8">
+              <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 md:p-8">
                 <div className="text-center space-y-2">
                   <CardTitle className="text-3xl font-bold">Welcome Back!</CardTitle>
-                  <CardDescription className="text-orange-100 text-base">
+                  <CardDescription className="text-blue-100 text-base">
                     {userType === "student"
                       ? "Login to continue your learning journey"
                       : "Login to manage your courses and students"}
@@ -106,7 +106,7 @@ export function LoginForm() {
                   <button
                     onClick={() => setUserType("student")}
                     className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${userType === "student"
-                      ? "bg-white dark:bg-gray-700 text-orange-600 shadow-sm"
+                      ? "bg-white dark:bg-gray-700 text-blue-600 shadow-sm"
                       : "text-gray-500 hover:text-gray-700 dark:text-gray-400"
                       }`}
                   >
@@ -116,7 +116,7 @@ export function LoginForm() {
                   <button
                     onClick={() => setUserType("teacher")}
                     className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${userType === "teacher"
-                      ? "bg-white dark:bg-gray-700 text-orange-600 shadow-sm"
+                      ? "bg-white dark:bg-gray-700 text-blue-600 shadow-sm"
                       : "text-gray-500 hover:text-gray-700 dark:text-gray-400"
                       }`}
                   >
@@ -131,7 +131,7 @@ export function LoginForm() {
                   type="button"
                   disabled={githubPending}
                   onClick={signInWithGithub}
-                  className="w-full h-12 text-sm font-medium border-2 hover:bg-orange-50 dark:hover:bg-orange-950 transition-colors"
+                  className="w-full h-12 text-sm font-medium border-2 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors"
                 >
                   {githubPending ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -160,7 +160,7 @@ export function LoginForm() {
                         id="email"
                         type="email"
                         placeholder="you@example.com"
-                        className="pl-10 h-12 border-orange-100 focus-visible:ring-orange-500"
+                        className="pl-10 h-12 border-blue-100 focus-visible:ring-blue-500"
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -176,7 +176,7 @@ export function LoginForm() {
                   <Button
                     onClick={signInWithEmail}
                     disabled={emailPending || !email}
-                    className="w-full h-12 text-sm font-semibold shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white"
+                    className="w-full h-12 text-sm font-semibold shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
                   >
                     {emailPending ? (
                       <>
@@ -198,7 +198,7 @@ export function LoginForm() {
                     Don't have an account?{" "}
                     <Link
                       href={userType === 'student' ? "/register" : "/register/teacher"}
-                      className="font-medium hover:underline text-orange-600"
+                      className="font-medium hover:underline text-blue-600"
                     >
                       {userType === 'student' ? "Register as Student" : "Register as Teacher"}
                     </Link>
@@ -211,12 +211,12 @@ export function LoginForm() {
           {/* Right Side - Marketing */}
           <div className="order-2 space-y-8">
             <div className="text-center lg:text-left">
-              <Badge variant="outline" className="mb-4 border-orange-200 text-orange-700 bg-orange-50">
+              <Badge variant="outline" className="mb-4 border-blue-200 text-blue-700 bg-blue-50">
                 Trusted by 50,000+ Learners
               </Badge>
               <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-gray-900 dark:text-white">
                 Master New Skills with
-                <span className="block mt-2 bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                <span className="block mt-2 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                   Expert Mentors
                 </span>
               </h1>
@@ -231,8 +231,8 @@ export function LoginForm() {
               {stats.map((stat, index) => {
                 const IconComponent = stat.icon;
                 return (
-                  <Card key={index} className="p-6 text-center border-2 border-dashed border-gray-200 dark:border-gray-700 hover:border-orange-200 dark:hover:border-orange-700 transition-colors bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm group">
-                    <IconComponent className="h-8 w-8 mx-auto mb-3 text-orange-600 group-hover:scale-110 transition-transform" />
+                  <Card key={index} className="p-6 text-center border-2 border-dashed border-gray-200 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-700 transition-colors bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm group">
+                    <IconComponent className="h-8 w-8 mx-auto mb-3 text-blue-600 group-hover:scale-110 transition-transform" />
                     <div className="text-2xl font-bold mb-1">{stat.value}</div>
                     <div className="text-sm text-muted-foreground">{stat.label}</div>
                   </Card>
@@ -243,13 +243,13 @@ export function LoginForm() {
             {/* Features List */}
             <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <CheckCircle className="h-5 w-5 text-orange-500" />
+                <CheckCircle className="h-5 w-5 text-blue-500" />
                 Why join KIDOKOOL?
               </h3>
               <div className="grid gap-3">
                 {features.map((feature, index) => (
                   <div key={index} className="flex items-center gap-3">
-                    <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
                     <span className="text-sm text-gray-600 dark:text-gray-300 font-medium">{feature}</span>
                   </div>
                 ))}

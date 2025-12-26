@@ -103,7 +103,7 @@ export default function TeacherRegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
@@ -129,14 +129,14 @@ export default function TeacherRegisterPage() {
               <Card className="sticky top-8">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Award className="h-5 w-5 text-orange-600" />
+                    <Award className="h-5 w-5 text-blue-600" />
                     Why Teach With Us?
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {benefits.map((benefit, index) => (
                     <div key={index} className="flex items-start gap-2">
-                      <CheckCircle className="h-4 w-4 text-orange-600 mt-0.5 flex-shrink-0" />
+                      <CheckCircle className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
                       <span className="text-sm text-gray-700 dark:text-gray-300">{benefit}</span>
                     </div>
                   ))}
@@ -162,9 +162,9 @@ export default function TeacherRegisterPage() {
             {/* Registration Form */}
             <div className="lg:col-span-2">
               <Card className="shadow-xl border-0">
-                <CardHeader className="bg-gradient-to-r from-orange-600 to-red-600 text-white">
+                <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
                   <CardTitle className="text-2xl">Teacher Registration</CardTitle>
-                  <p className="text-orange-100">Fill out the form below to start your teaching journey</p>
+                  <p className="text-blue-100">Fill out the form below to start your teaching journey</p>
                 </CardHeader>
 
                 <CardContent className="p-6">
@@ -248,7 +248,7 @@ export default function TeacherRegisterPage() {
                           <Badge
                             key={area}
                             variant={formData.expertiseAreas.includes(area) ? "default" : "outline"}
-                            className={`cursor-pointer justify-center py-2 ${formData.expertiseAreas.includes(area) ? "bg-orange-600 hover:bg-orange-700" : "hover:bg-orange-100"}`}
+                            className={`cursor-pointer justify-center py-2 ${formData.expertiseAreas.includes(area) ? "bg-blue-600 hover:bg-blue-700" : "hover:bg-blue-100"}`}
                             onClick={() => handleExpertiseToggle(area)}
                           >
                             {area}
@@ -324,7 +324,7 @@ export default function TeacherRegisterPage() {
                       <Button
                         type="submit"
                         disabled={isLoading || formData.expertiseAreas.length === 0}
-                        className="w-full bg-orange-600 hover:bg-orange-700"
+                        className="w-full bg-blue-600 hover:bg-blue-700"
                         size="lg"
                       >
                         {isLoading ? (
@@ -345,7 +345,7 @@ export default function TeacherRegisterPage() {
                       <div className="text-center">
                         <span className="text-sm text-gray-600">
                           Already have an account?{" "}
-                          <Link href="/login" className="text-orange-600 hover:text-orange-700 font-medium">
+                          <Link href="/login" className="text-blue-600 hover:text-blue-700 font-medium">
                             Sign in here
                           </Link>
                         </span>

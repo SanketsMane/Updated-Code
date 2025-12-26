@@ -102,7 +102,7 @@ export default function MobileDashboard({
       case "quiz_passed":
         return <Target className="h-4 w-4 text-purple-500" />;
       case "assignment_submitted":
-        return <BookOpen className="h-4 w-4 text-orange-500" />;
+        return <BookOpen className="h-4 w-4 text-blue-500" />;
       default:
         return <BookOpen className="h-4 w-4" />;
     }
@@ -113,7 +113,7 @@ export default function MobileDashboard({
       case "live_session":
         return <Video className="h-4 w-4 text-red-500" />;
       case "assignment_due":
-        return <AlertCircle className="h-4 w-4 text-orange-500" />;
+        return <AlertCircle className="h-4 w-4 text-blue-500" />;
       case "exam":
         return <Target className="h-4 w-4 text-purple-500" />;
       case "webinar":
@@ -144,7 +144,7 @@ export default function MobileDashboard({
 
         {/* Streak & Weekly Goal */}
         <div className="grid grid-cols-2 gap-4">
-          <Card className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
+          <Card className="bg-gradient-to-r from-blue-500 to-blue-700 text-white">
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
                 <Flame className="h-5 w-5" />
@@ -203,7 +203,7 @@ export default function MobileDashboard({
 
         <Card>
           <CardContent className="p-4 text-center">
-            <Clock className="h-6 w-6 mx-auto mb-2 text-orange-500" />
+            <Clock className="h-6 w-6 mx-auto mb-2 text-blue-500" />
             <p className="text-2xl font-bold">{stats.totalHours}</p>
             <p className="text-xs text-muted-foreground">Hours Learned</p>
           </CardContent>

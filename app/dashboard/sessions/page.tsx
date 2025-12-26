@@ -265,7 +265,7 @@ function SessionCard({ session }: { session: any }) {
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <Video className="h-4 w-4 text-orange-600" />
+            <Video className="h-4 w-4 text-blue-600" />
             <div>
               <div className="font-medium">Online</div>
               <div className="text-muted-foreground">Format</div>

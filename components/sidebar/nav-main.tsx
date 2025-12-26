@@ -49,12 +49,13 @@ export function NavMain({
                 <Link
                   href={item.url}
                   className={cn(
-                    pathname === item.url && "bg-accent text-accent-foreground"
+                    "flex items-center gap-3 px-3 py-2 rounded-lg font-medium transition-colors hover:bg-muted dark:hover:bg-white/5",
+                    pathname === item.url && "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
                   )}
                 >
                   {item.icon && (
                     <item.icon
-                      className={cn(pathname === item.url && "text-primary")}
+                      className={cn("h-4 w-4", pathname === item.url && "text-white")}
                     />
                   )}
                   <span>{item.title}</span>

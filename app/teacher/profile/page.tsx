@@ -101,7 +101,7 @@ export default function TeacherProfilePage() {
       <div className="container mx-auto py-6 px-4">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-900 to-orange-600 dark:from-white dark:to-orange-100 bg-clip-text text-transparent">Teacher Profile</h1>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-900 to-blue-600 dark:from-white dark:to-blue-100 bg-clip-text text-transparent">Teacher Profile</h1>
             <p className="text-muted-foreground mt-1">
               {profile ? "Update your professional details" : "Create your teaching profile to get started"}
             </p>
@@ -137,10 +137,10 @@ export default function TeacherProfilePage() {
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-900 to-orange-600 dark:from-white dark:to-orange-100 bg-clip-text text-transparent">Your Profile</h1>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-900 to-blue-600 dark:from-white dark:to-blue-100 bg-clip-text text-transparent">Your Profile</h1>
           <p className="text-muted-foreground mt-1">Preview and manage your public teaching profile</p>
         </div>
-        <Button onClick={() => setIsEditing(true)} className="shadow-md bg-orange-600 hover:bg-orange-700 text-white">
+        <Button onClick={() => setIsEditing(true)} className="shadow-md bg-blue-600 hover:bg-blue-700 text-white">
           <Edit className="h-4 w-4 mr-2" />
           Edit Profile
         </Button>
@@ -204,19 +204,19 @@ export default function TeacherProfilePage() {
         {/* Main Profile */}
         <div className="lg:col-span-2 space-y-8">
           <Card className="border-0 shadow-md overflow-hidden">
-            <div className="h-32 bg-gradient-to-r from-orange-500 to-red-600 relative"></div>
+            <div className="h-32 bg-gradient-to-r from-blue-500 to-blue-700 relative"></div>
             <div className="px-8 pb-8 relative">
               <div className="flex flex-col md:flex-row items-start md:items-end -mt-12 mb-6 gap-6">
                 <div className="relative">
                   <Avatar className="h-24 w-24 border-4 border-white dark:border-gray-800 shadow-lg">
                     <AvatarImage src={profile.user?.image || ""} />
-                    <AvatarFallback className="text-2xl font-bold bg-orange-100 text-orange-700">
+                    <AvatarFallback className="text-2xl font-bold bg-blue-100 text-blue-700">
                       {profile.user?.name?.charAt(0) || "T"}
                     </AvatarFallback>
                   </Avatar>
                   {profile.isVerified && (
                     <div className="absolute bottom-0 right-0 bg-white dark:bg-gray-800 p-1 rounded-full">
-                      <CheckCircle2 className="h-6 w-6 text-orange-500 fill-orange-100" />
+                      <CheckCircle2 className="h-6 w-6 text-blue-500 fill-blue-100" />
                     </div>
                   )}
                 </div>
@@ -225,7 +225,7 @@ export default function TeacherProfilePage() {
                   <div className="flex items-center gap-2 text-muted-foreground">
                     {profile.user?.email}
                     {profile.isVerified && (
-                      <Badge variant="secondary" className="bg-orange-100 text-orange-700 hover:bg-orange-200 border-none">Verified Teacher</Badge>
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-none">Verified Teacher</Badge>
                     )}
                   </div>
                 </div>
@@ -292,10 +292,10 @@ export default function TeacherProfilePage() {
           )}
 
           {(profile.certifications?.length ?? 0) > 0 && (
-            <Card className="shadow-sm border-l-4 border-l-orange-500">
+            <Card className="shadow-sm border-l-4 border-l-blue-500">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Award className="h-5 w-5 text-orange-600" />
+                  <Award className="h-5 w-5 text-blue-600" />
                   Certifications
                 </CardTitle>
               </CardHeader>
@@ -303,7 +303,7 @@ export default function TeacherProfilePage() {
                 <ul className="grid gap-3">
                   {profile.certifications!.map((cert, index) => (
                     <li key={index} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                      <div className="h-2 w-2 rounded-full bg-orange-400" />
+                      <div className="h-2 w-2 rounded-full bg-blue-400" />
                       {cert}
                     </li>
                   ))}
@@ -322,14 +322,14 @@ export default function TeacherProfilePage() {
             </CardHeader>
             <CardContent className="p-6 space-y-4">
               {profile.hourlyRate && (
-                <div className="flex items-center justify-between p-3 bg-orange-50 dark:bg-orange-900/10 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/10 rounded-lg">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white dark:bg-orange-900/30 rounded-full text-orange-600">
+                    <div className="p-2 bg-white dark:bg-blue-900/30 rounded-full text-blue-600">
                       <DollarSign className="h-5 w-5" />
                     </div>
                     <span className="text-sm font-medium">Hourly Rate</span>
                   </div>
-                  <span className="font-bold text-lg text-orange-700 dark:text-orange-300">
+                  <span className="font-bold text-lg text-blue-700 dark:text-blue-300">
                     ${profile.hourlyRate}
                   </span>
                 </div>
@@ -379,7 +379,7 @@ export default function TeacherProfilePage() {
           )}
 
           {/* Profile Completion */}
-          <Card className="bg-gradient-to-br from-orange-400 to-red-600 text-white border-0 shadow-lg">
+          <Card className="bg-gradient-to-br from-blue-400 to-red-600 text-white border-0 shadow-lg">
             <CardHeader>
               <CardTitle className="text-white">Profile Status</CardTitle>
             </CardHeader>
@@ -395,11 +395,11 @@ export default function TeacherProfilePage() {
                     style={{ width: `${calculateProfileCompletion(profile)}%` }}
                   />
                 </div>
-                <p className="text-xs text-orange-100 leading-relaxed">
+                <p className="text-xs text-blue-100 leading-relaxed">
                   Complete your profile to attract more students and boost your visibility.
                 </p>
                 {Math.round(calculateProfileCompletion(profile)) < 100 && (
-                  <Button variant="secondary" size="sm" className="w-full bg-white text-orange-600 hover:bg-orange-50" onClick={() => setIsEditing(true)}>
+                  <Button variant="secondary" size="sm" className="w-full bg-white text-blue-600 hover:bg-blue-50" onClick={() => setIsEditing(true)}>
                     Complete Profile
                   </Button>
                 )}

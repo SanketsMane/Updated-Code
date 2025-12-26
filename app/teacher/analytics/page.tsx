@@ -14,7 +14,7 @@ export default async function TeacherAnalyticsPage() {
   return (
     <div className="space-y-8 p-1">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-orange-900 to-orange-600 dark:from-white dark:to-orange-100 bg-clip-text text-transparent">
+        <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-blue-900 to-blue-600 dark:from-white dark:to-blue-100 bg-clip-text text-transparent">
           Analytics Overview
         </h1>
         <p className="text-muted-foreground mt-1">
@@ -71,8 +71,8 @@ export default async function TeacherAnalyticsPage() {
         <Card className="shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Engagement Rate</CardTitle>
-            <div className="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-full">
-              <Activity className="h-4 w-4 text-orange-600" />
+            <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-full">
+              <Activity className="h-4 w-4 text-blue-600" />
             </div>
           </CardHeader>
           <CardContent>
@@ -145,7 +145,7 @@ export default async function TeacherAnalyticsPage() {
           <CardContent>
             <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
               <div className="p-4 bg-white dark:bg-gray-800 rounded-full shadow-sm mb-4">
-                <Activity className="h-8 w-8 text-orange-500" />
+                <Activity className="h-8 w-8 text-blue-500" />
               </div>
               <p className="font-medium">Gathering Activity Metrics</p>
               <p className="text-sm mt-1 max-w-xs text-center">

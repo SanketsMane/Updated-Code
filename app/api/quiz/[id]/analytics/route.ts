@@ -284,7 +284,7 @@ function getTimeDistribution(times: number[]): any[] {
 function getScoreDistribution(percentages: number[]): any[] {
   const ranges = [
     { min: 0, max: 50, label: '0-49%', color: 'red' },
-    { min: 50, max: 60, label: '50-59%', color: 'orange' },
+    { min: 50, max: 60, label: '50-59%', color: 'blue' },
     { min: 60, max: 70, label: '60-69%', color: 'yellow' },
     { min: 70, max: 80, label: '70-79%', color: 'blue' },
     { min: 80, max: 90, label: '80-89%', color: 'green' },

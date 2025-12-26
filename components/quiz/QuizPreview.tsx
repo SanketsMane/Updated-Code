@@ -58,7 +58,7 @@ export function QuizPreview({ quiz }: QuizPreviewProps) {
     switch (difficulty) {
       case 'Easy': return 'bg-green-100 text-green-800 border-green-200';
       case 'Medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'Hard': return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'Hard': return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'Expert': return 'bg-red-100 text-red-800 border-red-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
@@ -83,7 +83,7 @@ export function QuizPreview({ quiz }: QuizPreviewProps) {
 
     const renderMultipleChoice = () => {
       const options = question.questionData?.options || [];
-      
+
       return (
         <div className="space-y-3">
           {options.map((option: any, optionIndex: number) => (
@@ -97,7 +97,7 @@ export function QuizPreview({ quiz }: QuizPreviewProps) {
                 onChange={(e) => handleAnswerChange(question.id, e.target.value)}
                 className="h-4 w-4 text-blue-600"
               />
-              <Label 
+              <Label
                 htmlFor={`q${index}-option${optionIndex}`}
                 className="flex items-center gap-3 cursor-pointer flex-1 p-3 rounded-lg border hover:bg-gray-50"
               >
@@ -125,7 +125,7 @@ export function QuizPreview({ quiz }: QuizPreviewProps) {
               onChange={(e) => handleAnswerChange(question.id, e.target.value)}
               className="h-4 w-4 text-blue-600"
             />
-            <Label 
+            <Label
               htmlFor={`q${index}-true`}
               className="flex items-center gap-3 cursor-pointer flex-1 p-3 rounded-lg border hover:bg-gray-50"
             >
@@ -133,7 +133,7 @@ export function QuizPreview({ quiz }: QuizPreviewProps) {
               <span>True</span>
             </Label>
           </div>
-          
+
           <div className="flex items-center space-x-3">
             <input
               type="radio"
@@ -144,7 +144,7 @@ export function QuizPreview({ quiz }: QuizPreviewProps) {
               onChange={(e) => handleAnswerChange(question.id, e.target.value)}
               className="h-4 w-4 text-blue-600"
             />
-            <Label 
+            <Label
               htmlFor={`q${index}-false`}
               className="flex items-center gap-3 cursor-pointer flex-1 p-3 rounded-lg border hover:bg-gray-50"
             >
@@ -178,7 +178,7 @@ export function QuizPreview({ quiz }: QuizPreviewProps) {
     const renderLongAnswer = () => {
       const maxWords = question.questionData?.maxWords;
       const wordCount = questionAnswer ? questionAnswer.split(/\s+/).filter((word: string) => word.length > 0).length : 0;
-      
+
       return (
         <div className="space-y-2">
           <Textarea
@@ -203,10 +203,10 @@ export function QuizPreview({ quiz }: QuizPreviewProps) {
     const renderFillInTheBlank = () => {
       const text = question.questionData?.text || '';
       const blanks = question.questionData?.blanks || [];
-      
+
       // Split text by blanks and render with input fields
       const parts = text.split('___');
-      
+
       return (
         <div className="space-y-4">
           <div className="text-base leading-relaxed">
@@ -228,7 +228,7 @@ export function QuizPreview({ quiz }: QuizPreviewProps) {
               </span>
             ))}
           </div>
-          
+
           {blanks.some((blank: any) => blank.caseSensitive) && (
             <p className="text-sm text-muted-foreground flex items-center gap-1">
               <AlertCircle className="h-3 w-3" />
@@ -264,21 +264,21 @@ export function QuizPreview({ quiz }: QuizPreviewProps) {
                   </Badge>
                 )}
               </div>
-              
+
               <CardTitle className="text-lg leading-relaxed">
                 {question.question}
               </CardTitle>
             </div>
           </div>
         </CardHeader>
-        
+
         <CardContent className="space-y-4">
           {question.type === 'MultipleChoice' && renderMultipleChoice()}
           {question.type === 'TrueFalse' && renderTrueFalse()}
           {question.type === 'ShortAnswer' && renderShortAnswer()}
           {question.type === 'LongAnswer' && renderLongAnswer()}
           {question.type === 'FillInTheBlank' && renderFillInTheBlank()}
-          
+
           {question.explanation && (
             <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="flex items-start gap-2">
@@ -315,7 +315,7 @@ export function QuizPreview({ quiz }: QuizPreviewProps) {
           <Brain className="h-6 w-6 text-blue-600" />
           <h1 className="text-2xl font-bold">{quiz.title}</h1>
         </div>
-        
+
         {quiz.description && (
           <p className="text-muted-foreground max-w-2xl mx-auto">
             {quiz.description}
@@ -336,7 +336,7 @@ export function QuizPreview({ quiz }: QuizPreviewProps) {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4 text-center">
             <div className="flex items-center justify-center gap-2">
@@ -348,11 +348,11 @@ export function QuizPreview({ quiz }: QuizPreviewProps) {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4 text-center">
             <div className="flex items-center justify-center gap-2">
-              <Clock className="h-4 w-4 text-orange-600" />
+              <Clock className="h-4 w-4 text-blue-600" />
               <div>
                 <p className="text-lg font-semibold">
                   {quiz.timeLimit ? `${quiz.timeLimit}m` : "∞"}
@@ -362,7 +362,7 @@ export function QuizPreview({ quiz }: QuizPreviewProps) {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4 text-center">
             <div className="flex items-center justify-center gap-2">
@@ -402,8 +402,8 @@ export function QuizPreview({ quiz }: QuizPreviewProps) {
               {getAnsweredCount()} of {quiz.questions.length} answered
             </span>
           </div>
-          <Progress 
-            value={(getAnsweredCount() / quiz.questions.length) * 100} 
+          <Progress
+            value={(getAnsweredCount() / quiz.questions.length) * 100}
             className="h-2"
           />
         </CardContent>
@@ -411,9 +411,9 @@ export function QuizPreview({ quiz }: QuizPreviewProps) {
 
       {/* Timer (if time limited) */}
       {timeRemaining !== null && (
-        <Card className="border-orange-200 bg-orange-50">
+        <Card className="border-blue-200 bg-blue-50">
           <CardContent className="p-4">
-            <div className="flex items-center justify-center gap-2 text-orange-800">
+            <div className="flex items-center justify-center gap-2 text-blue-800">
               <Timer className="h-5 w-5" />
               <span className="text-lg font-mono font-semibold">
                 {formatTime(timeRemaining)}
@@ -437,7 +437,7 @@ export function QuizPreview({ quiz }: QuizPreviewProps) {
               <CheckCircle className="h-6 w-6" />
               <h3 className="text-lg font-semibold">Ready to Submit?</h3>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-green-700">
               <div className="flex items-center justify-center gap-2">
                 <HelpCircle className="h-4 w-4" />
@@ -452,11 +452,11 @@ export function QuizPreview({ quiz }: QuizPreviewProps) {
                 <span>{quiz.passingScore}% to pass</span>
               </div>
             </div>
-            
+
             <Button size="lg" className="bg-green-600 hover:bg-green-700" disabled>
               Submit Quiz (Preview Mode)
             </Button>
-            
+
             <p className="text-sm text-green-600">
               This is a preview. Students will see a submit button here.
             </p>

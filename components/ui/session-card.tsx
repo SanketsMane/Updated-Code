@@ -1,8 +1,9 @@
 "use client";
 
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Calendar, Clock, Users, ArrowRight, Video } from "lucide-react";
 
 interface SessionCardProps {
@@ -17,7 +18,7 @@ interface SessionCardProps {
     level: string;
     price: string;
     rating: number;
-    index: number; // for staggering animations
+    index: number;
 }
 
 export function SessionCard({
@@ -32,7 +33,9 @@ export function SessionCard({
     level,
     price,
     rating,
+    index,
 }: SessionCardProps) {
+
     const isAvailable = participants < maxParticipants;
     const levelColor =
         level === "Beginner" ? "text-green-600 bg-green-100 dark:bg-green-900/30 dark:text-green-400" :
@@ -40,15 +43,17 @@ export function SessionCard({
                 "text-red-600 bg-red-100 dark:bg-red-900/30 dark:text-red-400";
 
     return (
-        <Card className="group relative overflow-hidden bg-card border-border hover:shadow-lg transition-all duration-300 hover:border-primary/50 flex flex-col h-full">
-            {/* Top Status Bar */}
-            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-
-            <CardContent className="p-6 flex flex-col gap-4 flex-1">
-
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: index * 0.1 }}
+            viewport={{ once: true }}
+            className="group relative overflow-hidden bg-white dark:bg-card border border-gray-100 dark:border-gray-800 rounded-[2rem] hover:shadow-xl transition-all duration-300 flex flex-col h-full p-4"
+        >
+            <CardContent className="p-4 flex flex-col gap-4 flex-1">
                 {/* Header Row */}
                 <div className="flex items-start justify-between">
-                    <Badge variant="outline" className={`${levelColor} border-0 font-semibold px-2.5 py-0.5`}>
+                    <Badge variant="outline" className={`${levelColor} border-0 font-semibold px-2.5 py-0.5 rounded-full`}>
                         {level}
                     </Badge>
                     <div className="flex items-center gap-1 text-sm font-medium text-amber-500">
@@ -58,63 +63,65 @@ export function SessionCard({
 
                 {/* Title */}
                 <div>
-                    <h3 className="text-xl font-bold text-card-foreground leading-tight group-hover:text-primary transition-colors mb-1">
+                    <h3 className="text-xl font-bold text-[#011E21] dark:text-white leading-tight group-hover:text-primary transition-colors mb-2">
                         {title}
                     </h3>
-                    <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-                        <span className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center text-xs font-bold text-primary">
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-600 border border-gray-200">
                             {instructor.charAt(0)}
-                        </span>
-                        by {instructor}
-                    </p>
+                        </div>
+                        <span className="text-sm font-medium text-muted-foreground">by {instructor}</span>
+                    </div>
                 </div>
 
                 {/* Info Grid */}
                 <div className="grid grid-cols-2 gap-3 text-sm text-muted-foreground mt-2">
-                    <div className="flex items-center gap-2 bg-secondary/50 p-2 rounded">
+                    <div className="flex items-center gap-2 bg-gray-50 dark:bg-white/5 p-2.5 rounded-xl border border-gray-100 dark:border-gray-800">
                         <Calendar className="w-4 h-4 text-primary" />
                         <span>{date}</span>
                     </div>
-                    <div className="flex items-center gap-2 bg-secondary/50 p-2 rounded">
+                    <div className="flex items-center gap-2 bg-gray-50 dark:bg-white/5 p-2.5 rounded-xl border border-gray-100 dark:border-gray-800">
                         <Clock className="w-4 h-4 text-primary" />
                         <span>{time}</span>
                     </div>
-                    <div className="flex items-center gap-2 bg-secondary/50 p-2 rounded">
+                    <div className="flex items-center gap-2 bg-gray-50 dark:bg-white/5 p-2.5 rounded-xl border border-gray-100 dark:border-gray-800">
                         <Video className="w-4 h-4 text-primary" />
                         <span>{duration}</span>
                     </div>
-                    <div className="flex items-center gap-2 bg-secondary/50 p-2 rounded">
+                    <div className="flex items-center gap-2 bg-gray-50 dark:bg-white/5 p-2.5 rounded-xl border border-gray-100 dark:border-gray-800">
                         <Users className="w-4 h-4 text-primary" />
                         <span>{participants}/{maxParticipants}</span>
                     </div>
                 </div>
             </CardContent>
 
-            <CardFooter className="p-6 pt-0 flex items-center justify-between border-t border-border/50 bg-secondary/10 mt-auto">
-                <div className="flex flex-col">
-                    <span className="text-2xl font-bold text-primary">{price}</span>
-                    <span className="text-xs text-muted-foreground uppercase">Per Session</span>
-                </div>
+            <div className="p-4 pt-0 mt-auto">
+                <div className="flex items-center justify-between bg-gray-50 dark:bg-black/20 p-4 rounded-2xl border border-gray-100 dark:border-gray-800/50">
+                    <div className="flex flex-col">
+                        <span className="text-xl font-extrabold text-[#011E21] dark:text-white">{price}</span>
+                        <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Per Session</span>
+                    </div>
 
-                <Link
-                    href={`/live-sessions/${id}`}
-                    className={`
-                inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold transition-all
-                ${isAvailable
-                            ? 'bg-foreground text-background hover:bg-primary hover:text-primary-foreground shadow-md'
-                            : 'bg-muted text-muted-foreground cursor-not-allowed opacity-80'}
-            `}
-                >
-                    {isAvailable ? (
-                        <>
-                            Book Seat
-                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                        </>
-                    ) : (
-                        'Full'
-                    )}
-                </Link>
-            </CardFooter>
-        </Card>
+                    <Link
+                        href={`/live-sessions/${id}`}
+                        className={`
+                    inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-sm
+                    ${isAvailable
+                                ? 'bg-[#011E21] dark:bg-white text-white dark:text-black hover:bg-primary hover:text-white'
+                                : 'bg-muted text-muted-foreground cursor-not-allowed opacity-80'}
+                `}
+                    >
+                        {isAvailable ? (
+                            <>
+                                Book
+                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            </>
+                        ) : (
+                            'Full'
+                        )}
+                    </Link>
+                </div>
+            </div>
+        </motion.div>
     );
 }

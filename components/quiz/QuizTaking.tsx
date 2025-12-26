@@ -109,12 +109,12 @@ interface QuizTakingProps {
   existingAttempt?: QuizAttempt;
 }
 
-export function QuizTaking({ 
-  quiz, 
-  userId, 
-  onComplete, 
-  onSaveProgress, 
-  existingAttempt 
+export function QuizTaking({
+  quiz,
+  userId,
+  onComplete,
+  onSaveProgress,
+  existingAttempt
 }: QuizTakingProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>(
@@ -136,7 +136,7 @@ export function QuizTaking({
   const [isPaused, setIsPaused] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const questions = quiz.randomizeQuestions 
+  const questions = quiz.randomizeQuestions
     ? [...quiz.questions].sort(() => Math.random() - 0.5)
     : quiz.questions;
 
@@ -152,12 +152,12 @@ export function QuizTaking({
           handleAutoSubmit();
           return 0;
         }
-        
+
         if (prev && prev <= 300 && !showTimeWarning) { // 5 minutes warning
           setShowTimeWarning(true);
           toast.warning("Only 5 minutes remaining!");
         }
-        
+
         return prev ? prev - 1 : null;
       });
     }, 1000);
@@ -183,9 +183,9 @@ export function QuizTaking({
   useEffect(() => {
     const autoSave = async () => {
       if (Object.keys(answers).length === 0) return;
-      
+
       setAutoSaveStatus('saving');
-      
+
       try {
         const responses: QuizResponse[] = Object.entries(answers).map(([questionId, answer]) => ({
           questionId,
@@ -201,7 +201,7 @@ export function QuizTaking({
           timeSpent: Math.floor((new Date().getTime() - startTime.getTime()) / 1000),
           responses
         });
-        
+
         setAutoSaveStatus('saved');
         setTimeout(() => setAutoSaveStatus('idle'), 2000);
       } catch (error) {
@@ -256,14 +256,14 @@ export function QuizTaking({
   };
 
   const getAnsweredCount = () => {
-    return questions.filter(q => 
+    return questions.filter(q =>
       answers[q.id] !== undefined && answers[q.id] !== null && answers[q.id] !== ''
     ).length;
   };
 
   const getRequiredUnanswered = () => {
-    return questions.filter(q => 
-      q.isRequired && 
+    return questions.filter(q =>
+      q.isRequired &&
       (answers[q.id] === undefined || answers[q.id] === null || answers[q.id] === '')
     );
   };
@@ -275,7 +275,7 @@ export function QuizTaking({
 
   const handleSubmit = async (autoSubmit = false) => {
     const requiredUnanswered = getRequiredUnanswered();
-    
+
     if (!autoSubmit && requiredUnanswered.length > 0) {
       toast.error(`Please answer all required questions (${requiredUnanswered.length} remaining)`);
       return;
@@ -305,7 +305,7 @@ export function QuizTaking({
 
       await onComplete(attempt);
       toast.success("Quiz submitted successfully!");
-      
+
     } catch (error) {
       console.error('Submission failed:', error);
       toast.error("Failed to submit quiz. Please try again.");
@@ -317,7 +317,7 @@ export function QuizTaking({
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const remainingSeconds = seconds % 60;
-    
+
     if (hours > 0) {
       return `${hours}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
     }
@@ -331,7 +331,7 @@ export function QuizTaking({
 
     const renderMultipleChoice = () => {
       const options = currentQuestion.questionData?.options || [];
-      const shuffledOptions = quiz.randomizeOptions 
+      const shuffledOptions = quiz.randomizeOptions
         ? [...options].sort(() => Math.random() - 0.5)
         : options;
 
@@ -348,7 +348,7 @@ export function QuizTaking({
                 onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
                 className="h-4 w-4 text-blue-600"
               />
-              <Label 
+              <Label
                 htmlFor={`option-${option.id}`}
                 className="flex items-center gap-3 cursor-pointer flex-1 p-3 rounded-lg border hover:bg-gray-50 transition-colors"
               >
@@ -376,7 +376,7 @@ export function QuizTaking({
               onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
               className="h-4 w-4 text-blue-600"
             />
-            <Label 
+            <Label
               htmlFor="true"
               className="flex items-center gap-3 cursor-pointer flex-1 p-3 rounded-lg border hover:bg-gray-50 transition-colors"
             >
@@ -384,7 +384,7 @@ export function QuizTaking({
               <span>True</span>
             </Label>
           </div>
-          
+
           <div className="flex items-center space-x-3">
             <input
               type="radio"
@@ -395,7 +395,7 @@ export function QuizTaking({
               onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
               className="h-4 w-4 text-blue-600"
             />
-            <Label 
+            <Label
               htmlFor="false"
               className="flex items-center gap-3 cursor-pointer flex-1 p-3 rounded-lg border hover:bg-gray-50 transition-colors"
             >
@@ -428,9 +428,9 @@ export function QuizTaking({
 
     const renderLongAnswer = () => {
       const maxWords = currentQuestion.questionData?.maxWords;
-      const wordCount = questionAnswer ? 
+      const wordCount = questionAnswer ?
         questionAnswer.split(/\s+/).filter((word: string) => word.length > 0).length : 0;
-      
+
       return (
         <div className="space-y-2">
           <Textarea
@@ -456,7 +456,7 @@ export function QuizTaking({
       const text = currentQuestion.questionData?.text || '';
       const blanks = currentQuestion.questionData?.blanks || [];
       const parts = text.split('___');
-      
+
       return (
         <div className="space-y-4">
           <div className="text-lg leading-relaxed p-4 bg-gray-50 rounded-lg">
@@ -478,7 +478,7 @@ export function QuizTaking({
               </span>
             ))}
           </div>
-          
+
           {blanks.some((blank: any) => blank.caseSensitive) && (
             <p className="text-sm text-muted-foreground flex items-center gap-1">
               <AlertCircle className="h-3 w-3" />
@@ -515,7 +515,7 @@ export function QuizTaking({
     switch (difficulty) {
       case 'Easy': return 'bg-green-100 text-green-800';
       case 'Medium': return 'bg-yellow-100 text-yellow-800';
-      case 'Hard': return 'bg-orange-100 text-orange-800';
+      case 'Hard': return 'bg-blue-100 text-blue-800';
       case 'Expert': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
@@ -536,7 +536,7 @@ export function QuizTaking({
                 Question {currentQuestionIndex + 1} of {questions.length}
               </p>
             </div>
-            
+
             <div className="flex items-center gap-4">
               {/* Auto-save indicator */}
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -545,19 +545,18 @@ export function QuizTaking({
                 {autoSaveStatus === 'saved' && 'Saved'}
                 {autoSaveStatus === 'idle' && 'Auto-save enabled'}
               </div>
-              
+
               {/* Timer */}
               {timeRemaining !== null && (
-                <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${
-                  timeRemaining <= 300 ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'
-                }`}>
+                <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${timeRemaining <= 300 ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'
+                  }`}>
                   <Timer className="h-4 w-4" />
                   <span className="font-mono font-semibold">
                     {formatTime(timeRemaining)}
                   </span>
                 </div>
               )}
-              
+
               {/* Pause/Resume (only if time limited) */}
               {timeRemaining !== null && (
                 <Button
@@ -572,7 +571,7 @@ export function QuizTaking({
               )}
             </div>
           </div>
-          
+
           {/* Progress */}
           <div className="mt-3">
             <div className="flex items-center justify-between text-sm text-muted-foreground mb-1">
@@ -591,26 +590,25 @@ export function QuizTaking({
             <List className="h-4 w-4" />
             Questions
           </h3>
-          
+
           <div className="space-y-2">
             {questions.map((question, index) => {
-              const isAnswered = answers[question.id] !== undefined && 
-                                answers[question.id] !== null && 
-                                answers[question.id] !== '';
+              const isAnswered = answers[question.id] !== undefined &&
+                answers[question.id] !== null &&
+                answers[question.id] !== '';
               const isFlagged = flaggedQuestions.has(question.id);
               const isCurrent = index === currentQuestionIndex;
-              
+
               return (
                 <button
                   key={question.id}
                   onClick={() => handleQuestionNavigation(index)}
-                  className={`w-full text-left p-3 rounded-lg border transition-colors ${
-                    isCurrent ? 'bg-blue-50 border-blue-200' : 'hover:bg-gray-50'
-                  }`}
+                  className={`w-full text-left p-3 rounded-lg border transition-colors ${isCurrent ? 'bg-blue-50 border-blue-200' : 'hover:bg-gray-50'
+                    }`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Badge 
+                      <Badge
                         variant={isCurrent ? "default" : "outline"}
                         className="w-8 h-8 rounded-full flex items-center justify-center"
                       >
@@ -625,13 +623,13 @@ export function QuizTaking({
                         </p>
                       </div>
                     </div>
-                    
+
                     <div className="flex flex-col items-center gap-1">
                       {isAnswered && (
                         <CheckCircle className="h-4 w-4 text-green-600" />
                       )}
                       {isFlagged && (
-                        <Flag className="h-4 w-4 text-orange-600" />
+                        <Flag className="h-4 w-4 text-blue-600" />
                       )}
                       {question.isRequired && (
                         <AlertCircle className="h-3 w-3 text-red-600" />
@@ -642,9 +640,9 @@ export function QuizTaking({
               );
             })}
           </div>
-          
+
           <Separator className="my-4" />
-          
+
           <div className="space-y-2 text-sm">
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Answered:</span>
@@ -706,27 +704,26 @@ export function QuizTaking({
                         </Badge>
                       )}
                     </div>
-                    
+
                     <CardTitle className="text-xl leading-relaxed">
                       {currentQuestion.question}
                     </CardTitle>
                   </div>
-                  
+
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => toggleFlag(currentQuestion.id)}
-                    className={`ml-4 ${
-                      flaggedQuestions.has(currentQuestion.id) 
-                        ? 'text-orange-600 bg-orange-50' 
+                    className={`ml-4 ${flaggedQuestions.has(currentQuestion.id)
+                        ? 'text-blue-600 bg-blue-50'
                         : 'text-muted-foreground'
-                    }`}
+                      }`}
                   >
                     <Flag className="h-4 w-4" />
                   </Button>
                 </div>
               </CardHeader>
-              
+
               <CardContent className="space-y-6">
                 {renderQuestionContent()}
               </CardContent>
@@ -744,7 +741,7 @@ export function QuizTaking({
               <ChevronLeft className="h-4 w-4" />
               Previous
             </Button>
-            
+
             <div className="flex items-center gap-2">
               {currentQuestionIndex === questions.length - 1 ? (
                 <Button
@@ -780,7 +777,7 @@ export function QuizTaking({
                 <p>
                   Are you sure you want to submit your quiz? Once submitted, you cannot make changes.
                 </p>
-                
+
                 <div className="bg-gray-50 p-3 rounded-lg space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span>Questions answered:</span>
@@ -797,7 +794,7 @@ export function QuizTaking({
                     </div>
                   )}
                 </div>
-                
+
                 {getRequiredUnanswered().length > 0 && (
                   <p className="text-red-600 text-sm">
                     Warning: You have {getRequiredUnanswered().length} required questions that are not answered.
@@ -825,12 +822,12 @@ export function QuizTaking({
       <AlertDialog open={showTimeWarning} onOpenChange={setShowTimeWarning}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2 text-orange-600">
+            <AlertDialogTitle className="flex items-center gap-2 text-blue-600">
               <AlertCircle className="h-5 w-5" />
               Time Warning
             </AlertDialogTitle>
             <AlertDialogDescription>
-              You have less than 5 minutes remaining to complete the quiz. 
+              You have less than 5 minutes remaining to complete the quiz.
               The quiz will be automatically submitted when time runs out.
             </AlertDialogDescription>
           </AlertDialogHeader>

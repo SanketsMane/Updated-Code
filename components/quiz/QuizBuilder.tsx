@@ -37,13 +37,13 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { 
-  Brain, 
-  Plus, 
-  Settings, 
-  Eye, 
-  Clock, 
-  CheckCircle, 
+import {
+  Brain,
+  Plus,
+  Settings,
+  Eye,
+  Clock,
+  CheckCircle,
   XCircle,
   HelpCircle,
   FileText,
@@ -110,13 +110,13 @@ interface QuizBuilderProps {
   onCancel?: () => void;
 }
 
-export function QuizBuilder({ 
+export function QuizBuilder({
   initialData,
   courseId,
-  chapterId, 
+  chapterId,
   lessonId,
   onSave,
-  onCancel 
+  onCancel
 }: QuizBuilderProps) {
   const [quiz, setQuiz] = useState<QuizData>({
     title: "",
@@ -173,12 +173,12 @@ export function QuizBuilder({
       id: crypto.randomUUID(),
       position: quiz.questions.length
     };
-    
+
     setQuiz(prev => ({
       ...prev,
       questions: [...prev.questions, newQuestion]
     }));
-    
+
     setShowQuestionDialog(false);
     setSelectedQuestion(null);
   };
@@ -186,11 +186,11 @@ export function QuizBuilder({
   const updateQuestion = (updatedQuestion: QuizQuestion) => {
     setQuiz(prev => ({
       ...prev,
-      questions: prev.questions.map(q => 
+      questions: prev.questions.map(q =>
         q.id === updatedQuestion.id ? updatedQuestion : q
       )
     }));
-    
+
     setShowQuestionDialog(false);
     setSelectedQuestion(null);
   };
@@ -208,22 +208,22 @@ export function QuizBuilder({
     setQuiz(prev => {
       const questions = [...prev.questions];
       const currentIndex = questions.findIndex(q => q.id === questionId);
-      
+
       if (
         (direction === 'up' && currentIndex === 0) ||
         (direction === 'down' && currentIndex === questions.length - 1)
       ) {
         return prev;
       }
-      
+
       const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
       [questions[currentIndex], questions[newIndex]] = [questions[newIndex], questions[currentIndex]];
-      
+
       // Update positions
       questions.forEach((q, index) => {
         q.position = index;
       });
-      
+
       return { ...prev, questions };
     });
   };
@@ -235,7 +235,7 @@ export function QuizBuilder({
       question: `${question.question} (Copy)`,
       position: quiz.questions.length
     };
-    
+
     setQuiz(prev => ({
       ...prev,
       questions: [...prev.questions, duplicated]
@@ -261,7 +261,7 @@ export function QuizBuilder({
     switch (difficulty) {
       case 'Easy': return 'bg-green-100 text-green-800';
       case 'Medium': return 'bg-yellow-100 text-yellow-800';
-      case 'Hard': return 'bg-orange-100 text-orange-800';
+      case 'Hard': return 'bg-blue-100 text-blue-800';
       case 'Expert': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
@@ -280,7 +280,7 @@ export function QuizBuilder({
             Create interactive quizzes with multiple question types and advanced settings
           </p>
         </div>
-        
+
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
@@ -290,7 +290,7 @@ export function QuizBuilder({
             <Eye className="h-4 w-4" />
             Preview
           </Button>
-          
+
           <Button
             onClick={handleSave}
             disabled={saving || quiz.questions.length === 0}
@@ -299,7 +299,7 @@ export function QuizBuilder({
             <Save className="h-4 w-4" />
             {saving ? "Saving..." : "Save Quiz"}
           </Button>
-          
+
           {onCancel && (
             <Button variant="outline" onClick={onCancel}>
               Cancel
@@ -321,7 +321,7 @@ export function QuizBuilder({
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
@@ -333,11 +333,11 @@ export function QuizBuilder({
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-orange-600" />
+              <Clock className="h-4 w-4 text-blue-600" />
               <div>
                 <p className="text-sm font-medium">Time Limit</p>
                 <p className="text-2xl font-bold">
@@ -347,7 +347,7 @@ export function QuizBuilder({
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
@@ -391,7 +391,7 @@ export function QuizBuilder({
                     placeholder="Enter quiz title..."
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="passingScore">Passing Score (%)</Label>
                   <div className="flex items-center gap-2">
@@ -406,7 +406,7 @@ export function QuizBuilder({
                   </div>
                 </div>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="description">Description</Label>
                 <Textarea
@@ -417,7 +417,7 @@ export function QuizBuilder({
                   rows={3}
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="instructions">Instructions</Label>
                 <Textarea
@@ -441,7 +441,7 @@ export function QuizBuilder({
                 Add and manage questions for your quiz
               </p>
             </div>
-            
+
             <Button
               onClick={() => {
                 setSelectedQuestion(null);
@@ -500,18 +500,18 @@ export function QuizBuilder({
                             {question.points} pts
                           </Badge>
                         </div>
-                        
+
                         <h4 className="font-medium mb-1 line-clamp-2">
                           {question.question}
                         </h4>
-                        
+
                         {question.explanation && (
                           <p className="text-sm text-muted-foreground line-clamp-1">
                             {question.explanation}
                           </p>
                         )}
                       </div>
-                      
+
                       <div className="flex items-center gap-1">
                         <Button
                           variant="ghost"
@@ -521,7 +521,7 @@ export function QuizBuilder({
                         >
                           <ArrowUp className="h-4 w-4" />
                         </Button>
-                        
+
                         <Button
                           variant="ghost"
                           size="sm"
@@ -530,7 +530,7 @@ export function QuizBuilder({
                         >
                           <ArrowDown className="h-4 w-4" />
                         </Button>
-                        
+
                         <Button
                           variant="ghost"
                           size="sm"
@@ -538,7 +538,7 @@ export function QuizBuilder({
                         >
                           <Copy className="h-4 w-4" />
                         </Button>
-                        
+
                         <Button
                           variant="ghost"
                           size="sm"
@@ -549,7 +549,7 @@ export function QuizBuilder({
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        
+
                         <Button
                           variant="ghost"
                           size="sm"
@@ -584,10 +584,10 @@ export function QuizBuilder({
                   <div className="flex items-center gap-2">
                     <Switch
                       checked={quiz.timeLimit !== undefined}
-                      onCheckedChange={(checked) => 
-                        setQuiz(prev => ({ 
-                          ...prev, 
-                          timeLimit: checked ? 60 : undefined 
+                      onCheckedChange={(checked) =>
+                        setQuiz(prev => ({
+                          ...prev,
+                          timeLimit: checked ? 60 : undefined
                         }))
                       }
                     />
@@ -595,9 +595,9 @@ export function QuizBuilder({
                       <Input
                         type="number"
                         value={quiz.timeLimit}
-                        onChange={(e) => setQuiz(prev => ({ 
-                          ...prev, 
-                          timeLimit: parseInt(e.target.value) || 60 
+                        onChange={(e) => setQuiz(prev => ({
+                          ...prev,
+                          timeLimit: parseInt(e.target.value) || 60
                         }))}
                         min={1}
                         max={480}
@@ -609,14 +609,14 @@ export function QuizBuilder({
                     </span>
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label>Maximum Attempts</Label>
                   <Select
                     value={quiz.maxAttempts.toString()}
-                    onValueChange={(value) => setQuiz(prev => ({ 
-                      ...prev, 
-                      maxAttempts: parseInt(value) 
+                    onValueChange={(value) => setQuiz(prev => ({
+                      ...prev,
+                      maxAttempts: parseInt(value)
                     }))}
                   >
                     <SelectTrigger>
@@ -652,13 +652,13 @@ export function QuizBuilder({
                   </div>
                   <Switch
                     checked={quiz.showResults}
-                    onCheckedChange={(checked) => setQuiz(prev => ({ 
-                      ...prev, 
-                      showResults: checked 
+                    onCheckedChange={(checked) => setQuiz(prev => ({
+                      ...prev,
+                      showResults: checked
                     }))}
                   />
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>Show Correct Answers</Label>
@@ -668,13 +668,13 @@ export function QuizBuilder({
                   </div>
                   <Switch
                     checked={quiz.showCorrectAnswers}
-                    onCheckedChange={(checked) => setQuiz(prev => ({ 
-                      ...prev, 
-                      showCorrectAnswers: checked 
+                    onCheckedChange={(checked) => setQuiz(prev => ({
+                      ...prev,
+                      showCorrectAnswers: checked
                     }))}
                   />
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>Randomize Questions</Label>
@@ -684,13 +684,13 @@ export function QuizBuilder({
                   </div>
                   <Switch
                     checked={quiz.randomizeQuestions}
-                    onCheckedChange={(checked) => setQuiz(prev => ({ 
-                      ...prev, 
-                      randomizeQuestions: checked 
+                    onCheckedChange={(checked) => setQuiz(prev => ({
+                      ...prev,
+                      randomizeQuestions: checked
                     }))}
                   />
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>Randomize Options</Label>
@@ -700,9 +700,9 @@ export function QuizBuilder({
                   </div>
                   <Switch
                     checked={quiz.randomizeOptions}
-                    onCheckedChange={(checked) => setQuiz(prev => ({ 
-                      ...prev, 
-                      randomizeOptions: checked 
+                    onCheckedChange={(checked) => setQuiz(prev => ({
+                      ...prev,
+                      randomizeOptions: checked
                     }))}
                   />
                 </div>
@@ -728,13 +728,13 @@ export function QuizBuilder({
                 </div>
                 <Switch
                   checked={quiz.isPublished}
-                  onCheckedChange={(checked) => setQuiz(prev => ({ 
-                    ...prev, 
-                    isPublished: checked 
+                  onCheckedChange={(checked) => setQuiz(prev => ({
+                    ...prev,
+                    isPublished: checked
                   }))}
                 />
               </div>
-              
+
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Active</Label>
@@ -744,9 +744,9 @@ export function QuizBuilder({
                 </div>
                 <Switch
                   checked={quiz.isActive}
-                  onCheckedChange={(checked) => setQuiz(prev => ({ 
-                    ...prev, 
-                    isActive: checked 
+                  onCheckedChange={(checked) => setQuiz(prev => ({
+                    ...prev,
+                    isActive: checked
                   }))}
                 />
               </div>
@@ -766,7 +766,7 @@ export function QuizBuilder({
               Create or modify quiz questions with various question types
             </DialogDescription>
           </DialogHeader>
-          
+
           <QuestionBuilder
             initialData={selectedQuestion}
             onSave={selectedQuestion ? updateQuestion : addQuestion}
@@ -787,7 +787,7 @@ export function QuizBuilder({
               Preview how your quiz will appear to students
             </DialogDescription>
           </DialogHeader>
-          
+
           <QuizPreview quiz={quiz} />
         </DialogContent>
       </Dialog>

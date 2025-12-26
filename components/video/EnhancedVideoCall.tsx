@@ -402,7 +402,7 @@ export default function EnhancedVideoCall({
     switch (quality) {
       case 'EXCELLENT': return 'text-green-500';
       case 'GOOD': return 'text-yellow-500';
-      case 'FAIR': return 'text-orange-500';
+      case 'FAIR': return 'text-blue-500';
       case 'POOR': return 'text-red-500';
       default: return 'text-gray-500';
     }

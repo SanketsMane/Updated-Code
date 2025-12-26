@@ -2,21 +2,22 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Search, X, Filter } from "lucide-react";
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Search, X, Filter, Star } from "lucide-react";
 
 const categories = [
-  "All Categories",
   "Programming & Development",
   "Business & Marketing",
   "Design & Creative",
@@ -24,23 +25,29 @@ const categories = [
   "Language Learning",
   "Music & Arts",
   "Photography",
-  "Data Science"
+  "Data Science",
+  "Personal Development",
+  "Finance & Accounting"
 ];
 
 const levels = [
-  "All Levels",
   "Beginner",
   "Intermediate",
   "Advanced"
 ];
 
 const priceRanges = [
-  "All Prices",
-  "Free",
-  "Under $50",
-  "$50 - $100",
-  "$100 - $200",
-  "Above $200"
+  { label: "Free", value: "free" },
+  { label: "Under ₹1000", value: "under-1000" },
+  { label: "₹1000 - ₹5000", value: "1000-5000" },
+  { label: "₹5000 - ₹10000", value: "5000-10000" },
+  { label: "₹10000+", value: "over-10000" }
+];
+
+const ratings = [
+  { label: "4.5 & up", value: "4.5" },
+  { label: "4.0 & up", value: "4.0" },
+  { label: "3.5 & up", value: "3.5" }
 ];
 
 export function CourseFilters() {
@@ -49,181 +56,199 @@ export function CourseFilters() {
 
   const [filters, setFilters] = useState({
     search: searchParams.get("search") || "",
-    category: searchParams.get("category") || "",
-    level: searchParams.get("level") || "",
-    priceRange: searchParams.get("priceRange") || "",
+    categories: searchParams.getAll("category"),
+    levels: searchParams.getAll("level"),
+    priceRanges: searchParams.getAll("priceRange"),
+    minRating: searchParams.get("rating") || "",
   });
 
   const [localSearch, setLocalSearch] = useState(filters.search);
 
+  // Sync state with URL
   useEffect(() => {
     const params = new URLSearchParams();
 
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value && value !== "" &&
-        !value.startsWith("All") &&
-        value !== "All Categories" &&
-        value !== "All Levels" &&
-        value !== "All Prices") {
-        params.set(key, value);
-      }
-    });
+    if (filters.search) params.set("search", filters.search);
+    filters.categories.forEach(c => params.append("category", c));
+    filters.levels.forEach(l => params.append("level", l));
+    filters.priceRanges.forEach(p => params.append("priceRange", p));
+    if (filters.minRating) params.set("rating", filters.minRating);
 
     const queryString = params.toString();
     const newUrl = queryString ? `/courses?${queryString}` : "/courses";
 
-    router.push(newUrl, { scroll: false });
+    // Use replace to prevent history stack buildup on every click
+    router.replace(newUrl, { scroll: false });
   }, [filters, router]);
+
+  const toggleFilter = (type: 'categories' | 'levels' | 'priceRanges', value: string) => {
+    setFilters(prev => {
+      const current = prev[type];
+      const updated = current.includes(value)
+        ? current.filter(item => item !== value)
+        : [...current, value];
+      return { ...prev, [type]: updated };
+    });
+  };
 
   const handleSearch = () => {
     setFilters(prev => ({ ...prev, search: localSearch }));
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
-  };
-
   const clearFilters = () => {
     setFilters({
       search: "",
-      category: "",
-      level: "",
-      priceRange: "",
+      categories: [],
+      levels: [],
+      priceRanges: [],
+      minRating: ""
     });
     setLocalSearch("");
+    router.push("/courses");
   };
 
-  const hasActiveFilters = Object.values(filters).some(value =>
-    value && value !== "" &&
-    !value.startsWith("All") &&
-    value !== "All Categories" &&
-    value !== "All Levels" &&
-    value !== "All Prices"
-  );
+  const activeFilterCount =
+    filters.categories.length +
+    filters.levels.length +
+    filters.priceRanges.length +
+    (filters.minRating ? 1 : 0) +
+    (filters.search ? 1 : 0);
 
   return (
-    <div className="space-y-8">
-      {/* Search Bar */}
-      <div className="relative">
-        <Search className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Search courses..."
-          value={localSearch}
-          onChange={(e) => setLocalSearch(e.target.value)}
-          onKeyDown={handleKeyPress}
-          className="pl-10 h-10 bg-background border-border focus-visible:ring-primary/20"
-        />
-      </div>
-
-      <div className="space-y-6">
-        {/* Category Filter */}
-        <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-            <Filter className="w-4 h-4 text-primary" />
-            Category
-          </h3>
-          <Select
-            value={filters.category || "All Categories"}
-            onValueChange={(value) =>
-              setFilters(prev => ({
-                ...prev,
-                category: value === "All Categories" ? "" : value
-              }))
-            }
+    <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+      <div className="p-4 border-b border-border flex items-center justify-between">
+        <h2 className="font-bold flex items-center gap-2">
+          <Filter className="w-5 h-5 text-primary" />
+          Filters
+        </h2>
+        {activeFilterCount > 0 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearFilters}
+            className="text-xs text-muted-foreground hover:text-destructive h-8 px-2"
           >
-            <SelectTrigger className="w-full bg-background border-input hover:border-primary/50 transition-colors">
-              <SelectValue placeholder="Select Category" />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((category) => (
-                <SelectItem key={category} value={category}>
-                  {category}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Level Filter */}
-        <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-foreground">Level</h3>
-          <Select
-            value={filters.level || "All Levels"}
-            onValueChange={(value) =>
-              setFilters(prev => ({
-                ...prev,
-                level: value === "All Levels" ? "" : value
-              }))
-            }
-          >
-            <SelectTrigger className="w-full bg-background border-input hover:border-primary/50 transition-colors">
-              <SelectValue placeholder="Select Level" />
-            </SelectTrigger>
-            <SelectContent>
-              {levels.map((level) => (
-                <SelectItem key={level} value={level}>
-                  {level}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Price Filter */}
-        <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-foreground">Price</h3>
-          <Select
-            value={filters.priceRange || "All Prices"}
-            onValueChange={(value) =>
-              setFilters(prev => ({
-                ...prev,
-                priceRange: value === "All Prices" ? "" : value
-              }))
-            }
-          >
-            <SelectTrigger className="w-full bg-background border-input hover:border-primary/50 transition-colors">
-              <SelectValue placeholder="Select Price Range" />
-            </SelectTrigger>
-            <SelectContent>
-              {priceRanges.map((range) => (
-                <SelectItem key={range} value={range}>
-                  {range}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Active Filters & Clear */}
-        {hasActiveFilters && (
-          <div className="pt-4 border-t border-border space-y-3">
-            <div className="flex flex-wrap gap-2">
-              {Object.entries(filters).map(([key, value]) => {
-                if (!value || value === "" || value.startsWith("All")) return null;
-                return (
-                  <Badge key={key} variant="secondary" className="px-2 py-1 text-xs gap-1">
-                    {value}
-                    <X
-                      className="h-3 w-3 cursor-pointer hover:text-destructive"
-                      onClick={() => setFilters(prev => ({ ...prev, [key]: "" }))}
-                    />
-                  </Badge>
-                )
-              })}
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={clearFilters}
-              className="w-full text-muted-foreground hover:text-destructive text-xs h-8"
-            >
-              Clear All Filters
-            </Button>
-          </div>
+            Clear All
+          </Button>
         )}
       </div>
+
+      <ScrollArea className="h-[calc(100vh-200px)] p-4">
+        <div className="space-y-6">
+          {/* Search */}
+          <div className="relative">
+            <Input
+              placeholder="Search keywords..."
+              value={localSearch}
+              onChange={(e) => setLocalSearch(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              className="pl-9 h-10 bg-secondary/30"
+            />
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          </div>
+
+          <Accordion type="multiple" defaultValue={["categories", "price", "levels", "ratings"]} className="w-full">
+
+            {/* Categories */}
+            <AccordionItem value="categories" className="border-b-0">
+              <AccordionTrigger className="font-semibold text-sm py-2 hover:no-underline hover:text-primary">
+                Categories
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-3 pt-2">
+                  {categories.map((category) => (
+                    <div key={category} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`cat-${category}`}
+                        checked={filters.categories.includes(category)}
+                        onCheckedChange={() => toggleFilter('categories', category)}
+                      />
+                      <Label htmlFor={`cat-${category}`} className="text-sm font-normal cursor-pointer leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        {category}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Price */}
+            <AccordionItem value="price" className="border-b-0 border-t border-border/50">
+              <AccordionTrigger className="font-semibold text-sm py-3 hover:no-underline hover:text-primary">
+                Price
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-3 pt-1">
+                  {priceRanges.map((range) => (
+                    <div key={range.value} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`price-${range.value}`}
+                        checked={filters.priceRanges.includes(range.value)}
+                        onCheckedChange={() => toggleFilter('priceRanges', range.value)}
+                      />
+                      <Label htmlFor={`price-${range.value}`} className="text-sm font-normal cursor-pointer">
+                        {range.label}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Levels */}
+            <AccordionItem value="levels" className="border-b-0 border-t border-border/50">
+              <AccordionTrigger className="font-semibold text-sm py-3 hover:no-underline hover:text-primary">
+                Level
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-3 pt-1">
+                  {levels.map((level) => (
+                    <div key={level} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`lvl-${level}`}
+                        checked={filters.levels.includes(level)}
+                        onCheckedChange={() => toggleFilter('levels', level)}
+                      />
+                      <Label htmlFor={`lvl-${level}`} className="text-sm font-normal cursor-pointer">
+                        {level}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Ratings */}
+            <AccordionItem value="ratings" className="border-b-0 border-t border-border/50">
+              <AccordionTrigger className="font-semibold text-sm py-3 hover:no-underline hover:text-primary">
+                Ratings
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-3 pt-1">
+                  {ratings.map((rating) => (
+                    <div key={rating.value} className="flex items-center space-x-2">
+                      <div className="flex items-center gap-2 cursor-pointer group" onClick={() => setFilters(prev => ({ ...prev, minRating: prev.minRating === rating.value ? "" : rating.value }))}>
+                        <div className={`w-4 h-4 rounded-full border border-primary flex items-center justify-center ${filters.minRating === rating.value ? 'bg-primary' : ''}`}>
+                          {filters.minRating === rating.value && <div className="w-2 h-2 rounded-full bg-white" />}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="flex text-amber-500">
+                            {[1, 2, 3, 4, 5].map(s => (
+                              <Star key={s} className={`w-3.5 h-3.5 ${s <= parseFloat(rating.value) ? 'fill-current' : 'text-slate-200 fill-slate-200'}`} />
+                            ))}
+                          </div>
+                          <span className="text-sm text-foreground group-hover:text-primary">{rating.label}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+          </Accordion>
+        </div>
+      </ScrollArea>
     </div>
   );
 }

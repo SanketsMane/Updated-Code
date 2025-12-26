@@ -7,135 +7,154 @@ import {
   Instagram,
   Youtube,
   Mail,
-  Phone,
   MapPin,
-  BookOpen,
-  Users,
-  Award,
-  TrendingUp,
-  Globe
+  Phone,
+  ArrowRight
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 
 const footerLinks = {
-  courses: [
-    { name: "Programming", href: "/courses?category=Programming" },
-    { name: "Business", href: "/courses?category=Business" },
-    { name: "Design", href: "/courses?category=Design" },
-    { name: "Marketing", href: "/courses?category=Marketing" },
-    { name: "Data Science", href: "/courses?category=Data" },
+  learn: [
+    { name: "Find Tutors", href: "/marketplace" },
+    { name: "Online Courses", href: "/courses" },
+    { name: "Live Sessions", href: "/live-sessions" },
+    { name: "Group Classes", href: "/classes" },
+  ],
+  teach: [
+    { name: "Become a Tutor", href: "/teacher/register" },
+    { name: "Teacher Rules", href: "/teacher/rules" },
+    { name: "Success Stories", href: "/teacher/stories" },
+    { name: "Teacher Verify", href: "/teacher/verify" },
   ],
   support: [
     { name: "Help Center", href: "/help" },
     { name: "Contact Us", href: "/contact" },
-    { name: "FAQ", href: "/faq" },
-    { name: "Live Chat", href: "/chat" },
+    { name: "FAQs", href: "/faq" },
+    { name: "Report Issue", href: "/report" },
   ],
   company: [
     { name: "About Us", href: "/about" },
     { name: "Careers", href: "/careers" },
     { name: "Blog", href: "/blog" },
-    { name: "Partnerships", href: "/partnerships" },
-  ],
-  legal: [
     { name: "Privacy Policy", href: "/privacy" },
-    { name: "Terms", href: "/terms" },
-    { name: "Accessibility", href: "/accessibility" },
   ],
 };
 
-const socialLinks = [
-  { name: "Facebook", href: "#", icon: Facebook },
-  { name: "Twitter", href: "#", icon: Twitter },
-  { name: "Instagram", href: "#", icon: Instagram },
-  { name: "YouTube", href: "#", icon: Youtube },
-];
-
 export function Footer() {
   return (
-    <footer className="bg-[#1C1D1F] text-white border-t border-gray-800">
-      {/* Newsletter & Stats Bar */}
-      <div className="border-b border-gray-700">
-        <div className="container mx-auto px-4 md:px-8 py-8 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <div className="bg-white/10 p-3 rounded">
-              <TrendingUp className="h-6 w-6 text-white" />
+    <footer className="bg-[#0b1120] text-slate-300 border-t border-slate-800/50 font-sans">
+      {/* Top Section: Newsletter */}
+      <div className="border-b border-slate-800">
+        <div className="container mx-auto px-4 py-10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="flex items-center gap-4 max-w-lg">
+              <div className="h-12 w-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary shrink-0">
+                <Mail className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="text-white font-bold text-lg">Subscribe to our Newsletter</h3>
+                <p className="text-slate-400 text-sm">Get the latest news, updates and special offers delivered directly to your inbox.</p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-bold text-lg">Teach the world online</h3>
-              <p className="text-sm text-gray-400">Create an online video course, reach students across the globe, and earn money.</p>
+
+            <div className="flex w-full md:w-auto gap-2">
+              <Input
+                placeholder="Enter your email"
+                className="bg-slate-900/50 border-slate-700 text-white placeholder:text-slate-500 focus-visible:ring-primary h-11 min-w-[280px]"
+              />
+              <Button className="h-11 px-6 font-bold bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20">
+                Subscribe
+              </Button>
             </div>
           </div>
-
-          <Button suppressHydrationWarning className="bg-white text-[#1C1D1F] hover:bg-gray-100 font-bold px-6">
-            Teach on KIDOKOOL
-          </Button>
         </div>
       </div>
 
-      {/* Main Footer Links */}
-      <div className="container mx-auto px-4 md:px-8 py-12">
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-12">
-          <div className="lg:col-span-1">
-            <Link href="/" className="flex items-center gap-2 mb-6">
-              <Image src={Logo} alt="Logo" className="w-8 h-8" />
-              <span className="font-bold text-xl">KIDOKOOL</span>
+      {/* Main Links Section */}
+      <div className="container mx-auto px-4 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8">
+          {/* Brand Column */}
+          <div className="lg:col-span-2 space-y-6">
+            <Link href="/" className="flex items-center gap-2">
+              <Image src={Logo} alt="KIDOKOOL" width={40} height={40} className="w-10 h-10" />
+              <span className="text-2xl font-bold text-white tracking-tight">KIDOKOOL</span>
             </Link>
-            <div className="flex gap-4">
-              {socialLinks.map((social) => {
-                const Icon = social.icon;
-                return (
-                  <Link key={social.name} href={social.href} className="text-gray-400 hover:text-white transition-colors">
-                    <Icon className="h-5 w-5" />
-                  </Link>
-                )
-              })}
+            <p className="text-slate-400 leading-relaxed max-w-sm">
+              The world's leading online learning platform. Join millions of learners and instructors gathering to master new skills.
+            </p>
+
+            <div className="flex items-center gap-4 text-sm text-slate-400 pt-4">
+              <div className="flex items-center gap-2">
+                <Phone className="h-4 w-4 text-primary" />
+                <span>+1 (555) 123-4567</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Mail className="h-4 w-4 text-primary" />
+                <span>support@kidokool.com</span>
+              </div>
+            </div>
+
+            <div className="flex gap-4 pt-2">
+              {[Facebook, Twitter, Instagram, Youtube].map((Icon, i) => (
+                <div key={i} className="h-10 w-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-primary hover:text-white transition-all cursor-pointer">
+                  <Icon className="h-5 w-5" />
+                </div>
+              ))}
             </div>
           </div>
 
-          <div>
-            <h4 className="font-bold mb-4">Discovery</h4>
-            <ul className="space-y-2 text-sm text-gray-300">
-              {footerLinks.courses.map(link => (
-                <li key={link.name}><Link href={link.href} className="hover:underline">{link.name}</Link></li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold mb-4">Kidokool</h4>
-            <ul className="space-y-2 text-sm text-gray-300">
-              {footerLinks.company.map(link => (
-                <li key={link.name}><Link href={link.href} className="hover:underline">{link.name}</Link></li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold mb-4">Support</h4>
-            <ul className="space-y-2 text-sm text-gray-300">
-              {footerLinks.support.map(link => (
-                <li key={link.name}><Link href={link.href} className="hover:underline">{link.name}</Link></li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <div className="flex items-center gap-2 mb-4 border border-white/20 px-4 py-2 rounded justify-center md:justify-start cursor-pointer hover:border-white transition-colors">
-              <Globe className="h-4 w-4" />
-              <span className="text-sm">English</span>
+          {/* Links Columns */}
+          <div className="lg:col-span-3 grid grid-cols-2 md:grid-cols-3 gap-8">
+            <div>
+              <h4 className="text-white font-bold mb-6">Learn</h4>
+              <ul className="space-y-3 text-sm">
+                {footerLinks.learn.map((link) => (
+                  <li key={link.name}>
+                    <Link href={link.href} className="hover:text-primary transition-colors block py-1">
+                      {link.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white font-bold mb-6">Teach</h4>
+              <ul className="space-y-3 text-sm">
+                {footerLinks.teach.map((link) => (
+                  <li key={link.name}>
+                    <Link href={link.href} className="hover:text-primary transition-colors block py-1">
+                      {link.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white font-bold mb-6">Company</h4>
+              <ul className="space-y-3 text-sm">
+                {footerLinks.company.map((link) => (
+                  <li key={link.name}>
+                    <Link href={link.href} className="hover:text-primary transition-colors block py-1">
+                      {link.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
+      </div>
 
-        <div className="border-t border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Link href="/" className="font-bold text-2xl">KIDOKOOL</Link>
-          </div>
-          <div className="text-xs text-gray-400">
-            © 2025 KIDOKOOL, Inc.
+      {/* Bottom Bar */}
+      <div className="border-t border-slate-800 bg-[#060a15]">
+        <div className="container mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-500">
+          <p>© 2025 KIDOKOOL Inc. All rights reserved.</p>
+          <div className="flex items-center gap-6">
+            <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
+            <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+            <Link href="/cookies" className="hover:text-white transition-colors">Cookies</Link>
           </div>
         </div>
       </div>

@@ -138,7 +138,7 @@ export default function NotificationsPage() {
       case "Payment":
         return "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400";
       case "Message":
-        return "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400";
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400";
       case "Review":
         return "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400";
       default:
@@ -338,7 +338,7 @@ function NotificationCard({
       case "Payment":
         return "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400";
       case "Message":
-        return "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400";
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400";
       case "Review":
         return "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400";
       default:

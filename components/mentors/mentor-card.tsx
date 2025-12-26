@@ -33,7 +33,7 @@ export function MentorCard({
     featured = false,
 }: MentorProps) {
     return (
-        <div className="relative group bg-[#0F1115] border border-white/5 rounded-[24px] p-6 hover:border-orange-500/50 transition-colors duration-300 w-full max-w-sm">
+        <div className="relative group bg-[#0F1115] border border-white/5 rounded-[24px] p-6 hover:border-blue-500/50 transition-colors duration-300 w-full max-w-sm">
             {/* Featured Badge */}
             {featured && (
                 <div className="absolute top-6 right-6">

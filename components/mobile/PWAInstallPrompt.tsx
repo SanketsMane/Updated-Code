@@ -236,8 +236,8 @@ export default function PWAInstallPrompt({ className }: PWAInstallPromptProps) {
                 <span className="text-xs font-medium">Faster Loading</span>
               </div>
               
-              <div className="flex items-center gap-2 p-2 bg-orange-50 dark:bg-orange-950 rounded-lg">
-                <Smartphone className="h-4 w-4 text-orange-600" />
+              <div className="flex items-center gap-2 p-2 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                <Smartphone className="h-4 w-4 text-blue-600" />
                 <span className="text-xs font-medium">Native Feel</span>
               </div>
             </div>

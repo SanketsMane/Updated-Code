@@ -112,12 +112,12 @@ interface QuizResultsProps {
   onViewFeedback?: () => void;
 }
 
-export function QuizResults({ 
-  result, 
-  showClassAnalytics = false, 
+export function QuizResults({
+  result,
+  showClassAnalytics = false,
   canRetake = false,
   onRetake,
-  onViewFeedback 
+  onViewFeedback
 }: QuizResultsProps) {
   const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
   const [showDetailedAnalytics, setShowDetailedAnalytics] = useState(false);
@@ -156,16 +156,15 @@ export function QuizResults({
     <Card className={`${passed ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
       <CardContent className="p-8">
         <div className="text-center space-y-6">
-          <div className={`w-24 h-24 mx-auto rounded-full flex items-center justify-center ${
-            passed ? 'bg-green-100' : 'bg-red-100'
-          }`}>
+          <div className={`w-24 h-24 mx-auto rounded-full flex items-center justify-center ${passed ? 'bg-green-100' : 'bg-red-100'
+            }`}>
             {passed ? (
               <Trophy className="h-12 w-12 text-green-600" />
             ) : (
               <XCircle className="h-12 w-12 text-red-600" />
             )}
           </div>
-          
+
           <div>
             <h2 className="text-3xl font-bold mb-2">{scorePercentage}%</h2>
             <p className={`text-lg font-semibold ${passed ? 'text-green-700' : 'text-red-700'}`}>
@@ -175,7 +174,7 @@ export function QuizResults({
               Grade: <span className="font-semibold">{grade}</span>
             </p>
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4 pt-4 border-t">
             <div className="text-center">
               <p className="text-2xl font-bold text-blue-600">
@@ -190,7 +189,7 @@ export function QuizResults({
               <p className="text-sm text-muted-foreground">Total Points</p>
             </div>
           </div>
-          
+
           <div className="flex items-center justify-center gap-4 pt-4">
             {canRetake && (
               <Button onClick={onRetake} variant="outline" className="flex items-center gap-2">
@@ -198,15 +197,15 @@ export function QuizResults({
                 Retake Quiz
               </Button>
             )}
-            
+
             <Button onClick={onViewFeedback} variant="outline" className="flex items-center gap-2">
               <MessageSquare className="h-4 w-4" />
               View Feedback
             </Button>
-            
-            <Button 
+
+            <Button
               onClick={() => setShowDetailedAnalytics(true)}
-              variant="outline" 
+              variant="outline"
               className="flex items-center gap-2"
             >
               <BarChart3 className="h-4 w-4" />
@@ -227,7 +226,7 @@ export function QuizResults({
           <p className="text-sm text-muted-foreground">Correct</p>
         </CardContent>
       </Card>
-      
+
       <Card>
         <CardContent className="p-4 text-center">
           <XCircle className="h-8 w-8 text-red-600 mx-auto mb-2" />
@@ -235,7 +234,7 @@ export function QuizResults({
           <p className="text-sm text-muted-foreground">Incorrect</p>
         </CardContent>
       </Card>
-      
+
       <Card>
         <CardContent className="p-4 text-center">
           <Clock className="h-8 w-8 text-blue-600 mx-auto mb-2" />
@@ -245,7 +244,7 @@ export function QuizResults({
           <p className="text-sm text-muted-foreground">Avg. Time</p>
         </CardContent>
       </Card>
-      
+
       <Card>
         <CardContent className="p-4 text-center">
           <Target className="h-8 w-8 text-purple-600 mx-auto mb-2" />
@@ -264,35 +263,33 @@ export function QuizResults({
         const response = getQuestionResponse(question.id);
         const isCorrect = response?.isCorrect || false;
         const pointsEarned = response?.pointsEarned || 0;
-        
+
         return (
-          <Card key={question.id} className={`${
-            isCorrect ? 'border-green-200' : 
-            pointsEarned > 0 ? 'border-yellow-200' : 'border-red-200'
-          }`}>
+          <Card key={question.id} className={`${isCorrect ? 'border-green-200' :
+              pointsEarned > 0 ? 'border-yellow-200' : 'border-red-200'
+            }`}>
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <Badge variant="outline">Q{index + 1}</Badge>
-                    <Badge className={`text-xs ${
-                      question.difficulty === 'Easy' ? 'bg-green-100 text-green-800' :
-                      question.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-                      question.difficulty === 'Hard' ? 'bg-orange-100 text-orange-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
+                    <Badge className={`text-xs ${question.difficulty === 'Easy' ? 'bg-green-100 text-green-800' :
+                        question.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                          question.difficulty === 'Hard' ? 'bg-blue-100 text-blue-800' :
+                            'bg-red-100 text-red-800'
+                      }`}>
                       {question.difficulty}
                     </Badge>
                     <Badge variant="secondary" className="text-xs">
                       {pointsEarned}/{question.points} pts
                     </Badge>
                   </div>
-                  
+
                   <CardTitle className="text-base font-medium leading-relaxed">
                     {question.question}
                   </CardTitle>
                 </div>
-                
+
                 <div className="ml-4">
                   {isCorrect ? (
                     <CheckCircle className="h-6 w-6 text-green-600" />
@@ -304,7 +301,7 @@ export function QuizResults({
                 </div>
               </div>
             </CardHeader>
-            
+
             <CardContent>
               <div className="space-y-3">
                 {/* Student's Answer */}
@@ -314,7 +311,7 @@ export function QuizResults({
                     {renderStudentAnswer(question, response)}
                   </div>
                 </div>
-                
+
                 {/* Correct Answer (if quiz settings allow) */}
                 {quiz.showCorrectAnswers && (
                   <div>
@@ -324,7 +321,7 @@ export function QuizResults({
                     </div>
                   </div>
                 )}
-                
+
                 {/* Explanation */}
                 {question.explanation && (
                   <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
@@ -337,7 +334,7 @@ export function QuizResults({
                     </div>
                   </div>
                 )}
-                
+
                 {/* Time Spent */}
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Clock className="h-3 w-3" />
@@ -360,26 +357,26 @@ export function QuizResults({
       case 'MultipleChoice':
         const selectedOption = question.questionData?.options?.find((opt: any) => opt.id === response.answer);
         return selectedOption?.text || 'Invalid selection';
-        
+
       case 'TrueFalse':
         return response.answer === 'true' ? 'True' : 'False';
-        
+
       case 'ShortAnswer':
         return response.answer;
-        
+
       case 'LongAnswer':
         return (
           <div className="max-h-32 overflow-y-auto">
             {response.answer}
           </div>
         );
-        
+
       case 'FillInTheBlank':
         if (typeof response.answer === 'object') {
           return Object.values(response.answer).join(', ');
         }
         return response.answer;
-        
+
       default:
         return JSON.stringify(response.answer);
     }
@@ -390,22 +387,22 @@ export function QuizResults({
       case 'MultipleChoice':
         const correctOptions = question.questionData?.options?.filter((opt: any) => opt.isCorrect) || [];
         return correctOptions.map((opt: any) => opt.text).join(', ');
-        
+
       case 'TrueFalse':
         return question.questionData?.correctAnswer ? 'True' : 'False';
-        
+
       case 'ShortAnswer':
         return question.questionData?.correctAnswers?.join(' / ') || 'Multiple acceptable answers';
-        
+
       case 'LongAnswer':
         return question.questionData?.sampleAnswer || 'See explanation for sample answer';
-        
+
       case 'FillInTheBlank':
         const blanks = question.questionData?.blanks || [];
-        return blanks.map((blank: any, index: number) => 
+        return blanks.map((blank: any, index: number) =>
           `Blank ${index + 1}: ${blank.correctAnswers.join(' / ')}`
         ).join('\n');
-        
+
       default:
         return 'See explanation';
     }
@@ -446,7 +443,7 @@ export function QuizResults({
               <p className="text-sm text-muted-foreground">Completion Rate</p>
             </div>
           </div>
-          
+
           <div>
             <h4 className="font-medium mb-3">Your Performance vs Class</h4>
             <div className="space-y-2">
@@ -455,22 +452,22 @@ export function QuizResults({
                 <span>{Math.round(classAnalytics.averageScore)}%</span>
               </div>
               <Progress value={classAnalytics.averageScore} className="h-2" />
-              
+
               <div className="flex items-center justify-between text-sm">
                 <span>Your Score</span>
                 <span className={scorePercentage > classAnalytics.averageScore ? 'text-green-600' : 'text-red-600'}>
                   {scorePercentage}%
                 </span>
               </div>
-              <Progress 
-                value={scorePercentage} 
+              <Progress
+                value={scorePercentage}
                 className={`h-2 ${scorePercentage > classAnalytics.averageScore ? 'text-green-600' : 'text-red-600'}`}
               />
             </div>
-            
+
             <div className="mt-4 p-3 bg-blue-50 rounded-lg">
               <p className="text-sm text-blue-800">
-                {scorePercentage > classAnalytics.averageScore 
+                {scorePercentage > classAnalytics.averageScore
                   ? `Great job! You scored ${scorePercentage - Math.round(classAnalytics.averageScore)} points above the class average.`
                   : `You scored ${Math.round(classAnalytics.averageScore) - scorePercentage} points below the class average. Consider reviewing the material.`
                 }
@@ -529,7 +526,7 @@ export function QuizResults({
                           {stats.correct}/{stats.total}
                         </span>
                       </div>
-                      <Progress 
+                      <Progress
                         value={(stats.correct / stats.total) * 100}
                         className="h-2"
                       />
@@ -556,7 +553,7 @@ export function QuizResults({
                           {stats.correct}/{stats.total}
                         </span>
                       </div>
-                      <Progress 
+                      <Progress
                         value={(stats.correct / stats.total) * 100}
                         className="h-2"
                       />
@@ -579,12 +576,12 @@ export function QuizResults({
           <Download className="h-4 w-4" />
           Download Results
         </Button>
-        
+
         <Button variant="outline" className="flex items-center gap-2">
           <Share2 className="h-4 w-4" />
           Share Results
         </Button>
-        
+
         <Button variant="outline" className="flex items-center gap-2">
           <BookOpen className="h-4 w-4" />
           Study Resources

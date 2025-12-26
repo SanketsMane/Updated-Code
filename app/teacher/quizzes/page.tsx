@@ -369,7 +369,7 @@ export default function QuizManagementPage() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
-              <Target className="h-5 w-5 text-orange-600" />
+              <Target className="h-5 w-5 text-blue-600" />
               <div>
                 <p className="text-sm font-medium">Questions</p>
                 <p className="text-2xl font-bold">

@@ -57,8 +57,12 @@ export default function MarketplacePage() {
                   type="text"
                   placeholder="Search by skill, company, or name (e.g. 'React', 'Google')..."
                   className="w-full pl-14 pr-32 py-5 rounded-full border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent text-lg outline-none transition-all placeholder:text-muted-foreground/60"
+                  suppressHydrationWarning
                 />
-                <button className="absolute right-2 top-2 bottom-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-8 rounded-full transition-colors flex items-center">
+                <button
+                  className="absolute right-2 top-2 bottom-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-8 rounded-full transition-colors flex items-center"
+                  suppressHydrationWarning
+                >
                   Search
                 </button>
               </div>
@@ -108,7 +112,10 @@ export default function MarketplacePage() {
             <Link href="/register/teacher" className="px-8 py-4 bg-background text-foreground font-bold rounded-lg hover:bg-zinc-100 transition-colors shadow-xl inline-block text-center">
               Become a Mentor
             </Link>
-            <button className="px-8 py-4 bg-primary-foreground/10 text-primary-foreground border border-white/20 font-bold rounded-lg hover:bg-primary-foreground/20 transition-colors">
+            <button
+              className="px-8 py-4 bg-primary-foreground/10 text-primary-foreground border border-white/20 font-bold rounded-lg hover:bg-primary-foreground/20 transition-colors"
+              suppressHydrationWarning
+            >
               Learn More
             </button>
           </div>
