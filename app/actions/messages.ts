@@ -12,7 +12,7 @@ export async function getOrCreateConversation(participantId: string) {
   }
 
   const currentUserId = session.user.id;
-  
+
   // Don't create conversation with yourself
   if (currentUserId === participantId) {
     throw new Error("Cannot create conversation with yourself");
@@ -98,8 +98,8 @@ export async function sendMessage(conversationId: string, content: string, messa
   }
 
   // Determine receiver ID
-  const receiverId = conversation.participant1Id === currentUserId 
-    ? conversation.participant2Id 
+  const receiverId = conversation.participant1Id === currentUserId
+    ? conversation.participant2Id
     : conversation.participant1Id;
 
   // Create the message
@@ -183,13 +183,16 @@ export async function getConversationMessages(conversationId: string, page: numb
 }
 
 // Get user's conversations
-export async function getUserConversations() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session?.user?.id) {
-    redirect("/sign-in");
-  }
+export async function getUserConversations(userId?: string) {
+  let currentUserId = userId;
 
-  const currentUserId = session.user.id;
+  if (!currentUserId) {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session?.user?.id) {
+      redirect("/sign-in");
+    }
+    currentUserId = session.user.id;
+  }
 
   const conversations = await prisma.conversation.findMany({
     where: {
@@ -228,10 +231,10 @@ export async function getUserConversations() {
 
   // Add unread count and other participant info
   const conversationsWithData = conversations.map((conv) => {
-    const otherParticipant = conv.participant1Id === currentUserId 
-      ? conv.participant2 
+    const otherParticipant = conv.participant1Id === currentUserId
+      ? conv.participant2
       : conv.participant1;
-    
+
     return {
       ...conv,
       otherParticipant,

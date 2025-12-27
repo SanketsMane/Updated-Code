@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  Bell, 
+import {
+  Bell,
   Check,
   Settings,
   BookOpen,
@@ -43,7 +43,7 @@ export function NotificationBell() {
 
   useEffect(() => {
     loadNotifications();
-    
+
     // Set up polling for real-time updates
     const interval = setInterval(loadNotifications, 30000); // Check every 30 seconds
     return () => clearInterval(interval);
@@ -52,12 +52,19 @@ export function NotificationBell() {
   const loadNotifications = async () => {
     try {
       const response = await fetch("/api/notifications?page=1&limit=10");
+      if (response.status === 401) {
+        setUnreadCount(0);
+        return;
+      }
       if (!response.ok) throw new Error("Failed to fetch");
       const data = await response.json();
-      setNotifications(data.notifications);
-      setUnreadCount(data.unreadCount);
+      setNotifications(data.notifications || []);
+      setUnreadCount(data.unreadCount || 0);
     } catch (error) {
-      console.error("Error loading notifications:", error);
+      console.warn("Error loading notifications:", error);
+      // Failsafe to avoid UI crashes
+      setNotifications([]);
+      setUnreadCount(0);
     } finally {
       setLoading(false);
     }
@@ -141,7 +148,7 @@ export function NotificationBell() {
               </Badge>
             )}
           </CardHeader>
-          
+
           <CardContent className="p-0">
             <ScrollArea className="h-96">
               {loading ? (
@@ -162,15 +169,14 @@ export function NotificationBell() {
                   {notifications.slice(0, 8).map((notification, index) => (
                     <div
                       key={notification.id}
-                      className={`p-4 border-b last:border-b-0 hover:bg-muted/50 transition-colors ${
-                        !notification.isRead ? "bg-blue-50/50 dark:bg-blue-950/30" : ""
-                      }`}
+                      className={`p-4 border-b last:border-b-0 hover:bg-muted/50 transition-colors ${!notification.isRead ? "bg-blue-50/50 dark:bg-blue-950/30" : ""
+                        }`}
                     >
                       <div className="flex items-start gap-3">
                         <div className={`p-1.5 rounded-lg ${getNotificationColor(notification.type)}`}>
                           {getNotificationIcon(notification.type)}
                         </div>
-                        
+
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
                             <h4 className="text-sm font-medium truncate">
@@ -190,11 +196,11 @@ export function NotificationBell() {
                               </Button>
                             )}
                           </div>
-                          
+
                           <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
                             {notification.message}
                           </p>
-                          
+
                           <div className="flex items-center justify-between">
                             <span className="text-xs text-muted-foreground">
                               {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
@@ -218,7 +224,7 @@ export function NotificationBell() {
               )}
             </ScrollArea>
           </CardContent>
-          
+
           {notifications.length > 0 && (
             <div className="p-4 border-t">
               <Link href="/dashboard/notifications">

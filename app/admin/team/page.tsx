@@ -32,7 +32,7 @@ export default async function AdminTeamPage() {
     include: {
       teacherProfile: true, // Join teacher profile
       _count: {
-        select: { Enrollment: true } // Count courses/enrollments if possible, but schema might vary. 
+        select: { enrollment: true } // Count courses/enrollments if possible, but schema might vary. 
         // AdminGetCourses used 'Course' model. User has 'Course' relation?
       }
     },

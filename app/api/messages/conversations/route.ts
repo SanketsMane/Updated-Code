@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
       const messages = await getConversationMessages(conversationId);
       return NextResponse.json(messages);
     } else {
-      const conversations = await getUserConversations();
+      const conversations = await getUserConversations(session.user.id);
       return NextResponse.json(conversations);
     }
   } catch (error) {

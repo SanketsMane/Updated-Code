@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { RevenueCard } from "@/components/dashboard/yo-coach/revenue-card";
 import { StatBox } from "@/components/dashboard/yo-coach/stat-box";
 import { ChartSection } from "@/components/dashboard/yo-coach/chart-section";
@@ -5,6 +8,8 @@ import { LayoutDashboard, Users, BookOpen, MonitorPlay, Wallet, CreditCard, Tick
 import { ChartAreaInteractive } from "@/components/sidebar/chart-area-interactive";
 
 export default function AdminDashboardPage() {
+  const [activeTab, setActiveTab] = useState("Lesson commissions");
+
   // Mock Data
   const revenueStats = [
     {
@@ -49,7 +54,7 @@ export default function AdminDashboardPage() {
   ];
 
   return (
-    <div className="space-y-6 p-6 max-w-[1600px] mx-auto bg-gray-50/50 dark:bg-black/50 min-h-screen">
+    <div className="space-y-6 bg-gray-50/50 dark:bg-black/50">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
       </div>
@@ -79,7 +84,8 @@ export default function AdminDashboardPage() {
         <ChartSection
           title="Statistics"
           tabs={["Lesson commissions", "Class commissions", "Course commissions"]}
-          activeTab="Lesson commissions"
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
           className="lg:col-span-2 bg-white dark:bg-card"
         >
           {/* Reusing existing chart component for now, can be specialized later */}

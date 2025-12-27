@@ -5,15 +5,20 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 
 // Get user notifications with pagination
-export async function getUserNotifications(page: number = 1, limit: number = 20, filter?: "all" | "unread" | "read") {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session?.user?.id) {
-    redirect("/sign-in");
+export async function getUserNotifications(page: number = 1, limit: number = 20, filter?: "all" | "unread" | "read", userId?: string) {
+  let currentUserId = userId;
+
+  if (!currentUserId) {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session?.user?.id) {
+      redirect("/sign-in");
+    }
+    currentUserId = session.user.id;
   }
 
   const skip = (page - 1) * limit;
   const where: any = {
-    userId: session.user.id,
+    userId: currentUserId,
   };
 
   if (filter === "unread") {
@@ -32,7 +37,7 @@ export async function getUserNotifications(page: number = 1, limit: number = 20,
     prisma.notification.count({ where }),
     prisma.notification.count({
       where: {
-        userId: session.user.id,
+        userId: currentUserId,
         isRead: false,
       },
     }),

@@ -17,7 +17,7 @@ export function MessageNotification() {
 
   useEffect(() => {
     loadUnreadCount();
-    
+
     // Set up polling for real-time updates (in production, use WebSockets)
     const interval = setInterval(loadUnreadCount, 10000); // Check every 10 seconds
     return () => clearInterval(interval);
@@ -26,12 +26,17 @@ export function MessageNotification() {
   const loadUnreadCount = async () => {
     try {
       const response = await fetch("/api/messages/conversations");
+      if (response.status === 401) {
+        setUnreadCount(0);
+        return;
+      }
       if (!response.ok) throw new Error("Failed to fetch");
       const conversations = await response.json();
       const totalUnread = conversations.reduce((sum: number, conv: Conversation) => sum + conv.unreadCount, 0);
       setUnreadCount(totalUnread);
     } catch (error) {
-      console.error("Error loading unread count:", error);
+      console.warn("Error loading unread count:", error);
+      setUnreadCount(0);
     }
   };
 
@@ -65,12 +70,17 @@ export function FloatingMessageButton() {
   const loadUnreadCount = async () => {
     try {
       const response = await fetch("/api/messages/conversations");
+      if (response.status === 401) {
+        setUnreadCount(0);
+        return;
+      }
       if (!response.ok) throw new Error("Failed to fetch");
       const conversations = await response.json();
       const totalUnread = conversations.reduce((sum: number, conv: Conversation) => sum + conv.unreadCount, 0);
       setUnreadCount(totalUnread);
     } catch (error) {
-      console.error("Error loading unread count:", error);
+      console.warn("Error loading unread count:", error);
+      setUnreadCount(0);
     }
   };
 

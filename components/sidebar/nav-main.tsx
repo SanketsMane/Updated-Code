@@ -45,22 +45,29 @@ export function NavMain({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title} asChild>
-                <Link
-                  href={item.url}
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2 rounded-lg font-medium transition-colors hover:bg-muted dark:hover:bg-white/5",
-                    pathname === item.url && "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
-                  )}
-                >
-                  {item.icon && (
-                    <item.icon
-                      className={cn("h-4 w-4", pathname === item.url && "text-white")}
-                    />
-                  )}
-                  <span>{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
+              {(() => {
+                const isActive = item.url === "/admin"
+                  ? pathname === "/admin"
+                  : pathname.startsWith(item.url);
+                return (
+                  <SidebarMenuButton tooltip={item.title} asChild>
+                    <Link
+                      href={item.url}
+                      className={cn(
+                        "flex items-center gap-3 px-3 py-2 rounded-lg font-medium transition-colors hover:bg-muted dark:hover:bg-white/5",
+                        isActive && "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+                      )}
+                    >
+                      {item.icon && (
+                        <item.icon
+                          className={cn("h-4 w-4", isActive && "text-white")}
+                        />
+                      )}
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                );
+              })()}
             </SidebarMenuItem>
           ))}
         </SidebarMenu>

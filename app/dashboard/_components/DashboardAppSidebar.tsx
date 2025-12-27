@@ -41,6 +41,11 @@ const data = {
       icon: IconDashboard,
     },
     {
+      title: "Find a Mentor",
+      url: "/dashboard/mentors",
+      icon: IconSearch,
+    },
+    {
       title: "My Courses",
       url: "/dashboard/courses",
       icon: IconBook,

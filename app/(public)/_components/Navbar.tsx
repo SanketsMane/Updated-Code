@@ -37,7 +37,7 @@ const navigationItems: IMenu[] = [
   {
     id: 4,
     title: "Mentors",
-    url: "/marketplace",
+    url: "/find-teacher",
   },
 ];
 

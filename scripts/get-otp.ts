@@ -1,27 +1,35 @@
+import { PrismaClient } from "@prisma/client";
 
-import { prisma } from "../lib/db";
+const prisma = new PrismaClient();
 
-async function getOTP() {
-    console.log(`Fetching ALL OTPs...`);
+async function main() {
+    const email = "bksun170882@gmail.com";
 
-    const verifications = await prisma.verification.findMany({
-        where: {
-            identifier: { contains: 'admin' }
-        },
-        orderBy: {
-            expiresAt: 'desc'
-        },
-        take: 5
-    });
-
-    if (verifications.length > 0) {
-        console.log("FOUND ADMIN OTPS:");
-        verifications.forEach(v => {
-            console.log(`\n>>> CODE: ${v.value} <<<\nFor: ${v.identifier} | Expires: ${v.expiresAt}\n`);
+    try {
+        const verification = await prisma.verification.findFirst({
+            where: {
+                identifier: email,
+            },
+            orderBy: {
+                createdAt: 'desc', // Get the most recent one
+            },
         });
-    } else {
-        console.log("No ADMIN verifications found.");
+
+        if (verification) {
+            console.log("\n🔐 LATEST LOGIN CODE:");
+            console.log("=====================");
+            console.log(`Email: ${verification.identifier}`);
+            console.log(`Code:  ${verification.value}`);
+            console.log(`Expires: ${verification.expiresAt}`);
+            console.log("=====================\n");
+        } else {
+            console.log("❌ No verification code found for this email.");
+        }
+    } catch (error) {
+        console.error("❌ Error fetching OTP:", error);
+    } finally {
+        await prisma.$disconnect();
     }
 }
 
-getOTP();
+main();

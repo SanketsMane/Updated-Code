@@ -35,11 +35,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       style={
         {
           "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
+          "--header-height": "4.25rem",
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="inset" />
+      <AppSidebar />
       <SidebarInset>
         <SiteHeader />
         <div className="flex flex-1 flex-col h-[calc(100vh-var(--header-height))]">

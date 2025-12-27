@@ -2,6 +2,6 @@
 
 import { FindTeacherContent } from "@/components/mentors/FindTeacherContent";
 
-export default function FindTeacherPage() {
+export default function DashboardMentorsPage() {
     return <FindTeacherContent />;
 }

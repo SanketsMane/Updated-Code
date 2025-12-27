@@ -28,6 +28,7 @@ import { toast } from "sonner";
 import Image from "next/image";
 import Autoplay from "embla-carousel-autoplay";
 import { MotionWrapper } from "@/components/ui/motion-wrapper";
+import { setTeacherRole } from "@/app/actions/auth-actions";
 
 const testimonials = [
   {
@@ -71,11 +72,21 @@ export default function RegisterPage() {
         password: formData.password,
         name: `${formData.firstName} ${formData.lastName}`,
         image: undefined,
-        callbackURL: userType === "teacher" ? "/teacher/onboarding" : "/dashboard",
+        role: userType,
+        callbackURL: userType === "teacher" ? "/teacher" : "/dashboard",
       }, {
-        onSuccess: () => {
+        onSuccess: async () => {
+          if (userType === "teacher") {
+            try {
+              await setTeacherRole();
+            } catch (err) {
+              console.error("Failed to set teacher role", err);
+              toast.error("Failed to set account permissions");
+              return;
+            }
+          }
           toast.success("Account created successfully!");
-          router.push(userType === "teacher" ? "/teacher/onboarding" : "/dashboard");
+          router.push(userType === "teacher" ? "/teacher/profile" : "/dashboard");
         },
         onError: (ctx) => {
           toast.error(ctx.error.message || "Something went wrong");
