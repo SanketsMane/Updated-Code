@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { useAuth } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
@@ -24,16 +24,22 @@ export default function TeacherLayout({
 }) {
   const { data: session, isPending } = useAuth();
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    if (!isPending && !session) {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isMounted && !isPending && !session) {
       router.push("/login");
-    } else if (!isPending && session && session.user.role !== "teacher" && session.user.role !== "admin") {
+    } else if (isMounted && !isPending && session && session.user.role !== "teacher" && session.user.role !== "admin") {
       router.push("/not-admin");
     }
-  }, [session, isPending, router]);
+  }, [session, isPending, router, isMounted]);
 
-  if (isPending) {
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!isMounted || isPending) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />

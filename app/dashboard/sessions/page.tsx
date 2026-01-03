@@ -5,41 +5,34 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  Calendar, 
-  Clock, 
-  Video, 
-  User, 
-  Star,
-  ExternalLink,
-  MessageSquare,
-  Download,
-  CheckCircle,
-  XCircle,
-  AlertCircle
-} from "lucide-react";
+import { Video } from "lucide-react";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
+import { StudentSessionCard } from "./_components/StudentSessionCard";
 
 async function getUserSessions(userId: string) {
-  const sessions = await prisma.liveSession.findMany({
+  const bookings = await prisma.sessionBooking.findMany({
     where: { studentId: userId },
     include: {
-      teacher: {
+      session: {
         include: {
-          user: {
-            select: {
-              name: true,
-              image: true,
+          teacher: {
+            include: {
+              user: {
+                select: {
+                  name: true,
+                  image: true,
+                }
+              }
             }
           }
         }
       }
     },
-    orderBy: { scheduledAt: "desc" }
+    orderBy: { createdAt: "desc" }
   });
 
-  return sessions;
+  return bookings;
 }
 
 export default async function SessionsDashboard() {
@@ -101,32 +94,36 @@ export default async function SessionsDashboard() {
 }
 
 async function SessionsList({ userId, filter }: { userId: string; filter: string }) {
-  const sessions = await getUserSessions(userId);
+  const bookings = await getUserSessions(userId);
   
-  // Filter sessions based on status and date
+  // Filter bookings based on status and date
   const now = new Date();
-  let filteredSessions = sessions;
+  let filteredBookings = bookings;
 
   switch (filter) {
     case "upcoming":
-      filteredSessions = sessions.filter(s => 
-        s.scheduledAt > now && s.status === "Scheduled"
+      filteredBookings = bookings.filter(b => 
+        b.session.scheduledAt && b.session.scheduledAt > now && 
+        (b.status === "confirmed" || b.status === "pending")
       );
       break;
     case "completed":
-      filteredSessions = sessions.filter(s => s.status === "Completed");
+      filteredBookings = bookings.filter(b => 
+        b.session.status === "completed" || b.session.status === "Completed"
+      );
       break;
     case "cancelled":
-      filteredSessions = sessions.filter(s => 
-        s.status === "Cancelled" || s.status === "NoShow"
+      filteredBookings = bookings.filter(b => 
+        b.status === "cancelled" || b.status === "refunded" ||
+        b.session.status === "cancelled" || b.session.status === "Cancelled"
       );
       break;
     default:
-      // Show all sessions
+      // Show all bookings
       break;
   }
 
-  if (filteredSessions.length === 0) {
+  if (filteredBookings.length === 0) {
     return (
       <Card>
         <CardContent className="p-12 text-center">
@@ -150,8 +147,8 @@ async function SessionsList({ userId, filter }: { userId: string; filter: string
 
   return (
     <div className="space-y-4">
-      {filteredSessions.map((session) => (
-        <SessionCard key={session.id} session={session} />
+      {filteredBookings.map((booking) => (
+        <StudentSessionCard key={booking.id} booking={booking} />
       ))}
     </div>
   );

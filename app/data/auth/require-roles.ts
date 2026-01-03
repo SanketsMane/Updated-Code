@@ -37,6 +37,22 @@ export const requireTeacher = cache(async () => {
   return session;
 });
 
+export const requireAdmin = cache(async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    return redirect("/login");
+  }
+
+  if (session.user.role !== "admin") {
+    return redirect("/not-admin");
+  }
+
+  return session;
+});
+
 export const getSessionWithRole = cache(async () => {
   const session = await auth.api.getSession({
     headers: await headers(),

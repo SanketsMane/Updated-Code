@@ -1,0 +1,91 @@
+import { requireUser } from "@/app/data/user/require-user";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { IconSchool, IconCheck, IconX, IconClock } from "@tabler/icons-react";
+import { prisma as db } from "@/lib/db";
+
+export default async function TeachersPage() {
+  await requireUser();
+
+  const teachers = await db.user.findMany({
+    where: { role: 'teacher' },
+    include: {
+      teacherProfile: true,
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold flex items-center gap-3">
+          <IconSchool className="h-8 w-8" />
+          Teachers Management
+        </h1>
+        <p className="text-muted-foreground">Manage teacher accounts and applications</p>
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-4">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium">Active Teachers</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{teachers.length}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium">Pending Approval</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">0</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium">This Month</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">+{teachers.filter(t => {
+              const monthAgo = new Date();
+              monthAgo.setMonth(monthAgo.getMonth() - 1);
+              return new Date(t.createdAt) > monthAgo;
+            }).length}</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>All Teachers</CardTitle>
+          <CardDescription>View and manage teacher accounts</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {teachers.map((teacher) => (
+              <div key={teacher.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <p className="font-medium">{teacher.name}</p>
+                  <p className="text-sm text-muted-foreground">{teacher.email}</p>
+                  {teacher.teacherProfile?.bio && (
+                    <p className="text-sm text-muted-foreground mt-1">{teacher.teacherProfile.bio.slice(0, 100)}...</p>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary">Active</Badge>
+                  <Button variant="outline" size="sm">View Profile</Button>
+                  <Button variant="outline" size="sm">Edit</Button>
+                </div>
+              </div>
+            ))}
+            {teachers.length === 0 && (
+              <p className="text-center text-muted-foreground py-8">No teachers found</p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

@@ -1,0 +1,128 @@
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { prisma as db } from "@/lib/db";
+import { stripe } from "@/lib/stripe";
+import { headers } from "next/headers";
+import { differenceInHours } from "date-fns";
+
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    // Verify authentication
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const userId = session.user.id;
+    const { reason } = await req.json();
+
+    // Get the booking
+    const booking = await db.sessionBooking.findFirst({
+      where: {
+        id: params.id,
+        studentId: userId
+      },
+      include: {
+        session: true
+      }
+    });
+
+    if (!booking) {
+      return NextResponse.json(
+        { error: "Booking not found" },
+        { status: 404 }
+      );
+    }
+
+    // Check if already cancelled
+    if (booking.status === 'cancelled' || booking.status === 'refunded') {
+      return NextResponse.json(
+        { error: "Booking already cancelled" },
+        { status: 400 }
+      );
+    }
+
+    // Check if session is in the past
+    if (booking.session.scheduledAt && booking.session.scheduledAt < new Date()) {
+      return NextResponse.json(
+        { error: "Cannot cancel past sessions" },
+        { status: 400 }
+      );
+    }
+
+    // Calculate refund amount based on cancellation policy
+    const hoursUntilSession = booking.session.scheduledAt
+      ? differenceInHours(booking.session.scheduledAt, new Date())
+      : 0;
+
+    let refundPercentage = 0;
+    if (hoursUntilSession >= 48) {
+      refundPercentage = 1.0; // 100% refund
+    } else if (hoursUntilSession >= 24) {
+      refundPercentage = 0.5; // 50% refund
+    } else {
+      refundPercentage = 0; // No refund
+    }
+
+    const refundAmount = Math.round(booking.amount * refundPercentage);
+
+    // Process refund via Stripe if applicable
+    if (refundAmount > 0 && booking.stripePaymentIntentId) {
+      try {
+        await stripe.refunds.create({
+          payment_intent: booking.stripePaymentIntentId,
+          amount: refundAmount,
+          reason: 'requested_by_customer'
+        });
+      } catch (stripeError: any) {
+        console.error('Stripe refund error:', stripeError);
+        // Continue with cancellation even if refund fails
+      }
+    }
+
+    // Update booking
+    await db.sessionBooking.update({
+      where: { id: booking.id },
+      data: {
+        status: refundAmount > 0 ? 'refunded' : 'cancelled',
+        cancelledAt: new Date(),
+        cancellationReason: reason,
+        refundAmount: refundAmount,
+        refundedAt: refundAmount > 0 ? new Date() : null
+      }
+    });
+
+    // Update session status
+    await db.liveSession.update({
+      where: { id: booking.sessionId },
+      data: {
+        status: 'cancelled',
+        cancelledBy: 'student',
+        cancellationReason: reason,
+        refundAmount: refundAmount
+      }
+    });
+
+    // TODO: Send cancellation notification emails
+    // TODO: Update calendar invites
+
+    return NextResponse.json({
+      success: true,
+      refundAmount: refundAmount,
+      refundPercentage: refundPercentage * 100
+    });
+
+  } catch (error: any) {
+    console.error('Cancellation error:', error);
+    return NextResponse.json(
+      { error: error.message || "Failed to cancel booking" },
+      { status: 500 }
+    );
+  }
+}

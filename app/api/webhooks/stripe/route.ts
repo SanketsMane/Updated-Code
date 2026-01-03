@@ -47,50 +47,65 @@ async function handleLiveSessionPayment(session: Stripe.Checkout.Session) {
   const metadata = session.metadata!;
   
   try {
-    // Update the live session status to confirmed
-    const liveSession = await prisma.liveSession.findFirst({
+    // Get the pending booking
+    const booking = await prisma.sessionBooking.findFirst({
       where: {
-        teacherId: metadata.teacherId,
-        studentId: metadata.studentId,
-        scheduledAt: new Date(metadata.scheduledAt),
+        stripeSessionId: session.id,
+        status: 'pending'
       },
+      include: {
+        session: true
+      }
     });
 
-    if (liveSession) {
-      await prisma.liveSession.update({
-        where: { id: liveSession.id },
-        data: {
-          status: "Scheduled",
-          // You can add meeting URL here from your video conferencing provider
-        },
-      });
-
-      // Create commission record for teacher
-      const price = parseInt(metadata.price || "0");
-      const commissionRate = 0.15; // 15% commission
-      const commissionAmount = Math.round(price * commissionRate);
-      const netAmount = price - commissionAmount;
-
-      await prisma.commission.create({
-        data: {
-          teacherId: metadata.teacherId,
-          sessionId: liveSession.id,
-          type: "LiveSession",
-          amount: price,
-          commission: commissionAmount,
-          netAmount: netAmount,
-          status: "Pending",
-        },
-      });
-
-      // TODO: Send confirmation emails to both student and teacher
-      // TODO: Create calendar invites
-      // TODO: Send notifications
-      
-      console.log(`Live session payment confirmed: ${liveSession.id}`);
+    if (!booking) {
+      console.error('No pending booking found for session:', session.id);
+      return;
     }
+
+    // Update booking status to confirmed
+    await prisma.sessionBooking.update({
+      where: { id: booking.id },
+      data: {
+        status: 'confirmed',
+        stripePaymentIntentId: session.payment_intent as string,
+        paymentCompletedAt: new Date()
+      }
+    });
+
+    // Update live session status
+    await prisma.liveSession.update({
+      where: { id: booking.sessionId },
+      data: {
+        status: 'scheduled',
+        stripeSessionId: session.id
+      }
+    });
+
+    // Create commission record for teacher
+    const commissionRate = 0.15; // 15% platform fee
+    const commissionAmount = Math.round(booking.amount * commissionRate);
+    const netAmount = booking.amount - commissionAmount;
+
+    await prisma.commission.create({
+      data: {
+        teacherId: metadata.teacherId!,
+        sessionId: booking.sessionId,
+        type: 'LiveSession',
+        amount: booking.amount,
+        commission: commissionAmount,
+        netAmount: netAmount,
+        status: 'Pending'
+      }
+    });
+
+    // TODO: Send confirmation emails to both student and teacher
+    // TODO: Create calendar invites
+    // TODO: Send notifications
+    
+    console.log(`Live session booking confirmed: ${booking.id}`);
   } catch (error) {
-    console.error("Error processing live session payment:", error);
+    console.error('Error processing live session payment:', error);
   }
 }
 

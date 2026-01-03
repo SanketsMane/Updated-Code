@@ -1,0 +1,292 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import {
+  Calendar,
+  Clock,
+  DollarSign,
+  ArrowLeft,
+  Loader2,
+  CheckCircle,
+  AlertCircle
+} from "lucide-react";
+import Link from "next/link";
+import { format } from "date-fns";
+import { toast } from "sonner";
+
+interface BookingPageClientProps {
+  session: {
+    id: string;
+    title: string;
+    description: string | null;
+    subject: string | null;
+    scheduledAt: Date | null;
+    duration: number;
+    price: number;
+    timezone: string;
+    teacher: {
+      user: {
+        name: string;
+        image: string | null;
+      };
+    };
+  };
+}
+
+export function BookingPageClient({ session }: BookingPageClientProps) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [agreedToRefund, setAgreedToRefund] = useState(false);
+
+  const handleBooking = async () => {
+    if (!agreedToTerms || !agreedToRefund) {
+      toast.error("Please agree to the terms and refund policy");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // Create checkout session
+      const response = await fetch(`/api/sessions/${session.id}/checkout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create checkout session');
+      }
+
+      const { url } = await response.json();
+      
+      // Redirect to Stripe Checkout
+      window.location.href = url;
+    } catch (error: any) {
+      toast.error(error.message);
+      setLoading(false);
+    }
+  };
+
+  const platformFee = Math.round(session.price * 0.05); // 5% platform fee
+  const total = session.price;
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto py-8 max-w-4xl">
+        {/* Back Button */}
+        <Link href={`/live-sessions/${session.id}`}>
+          <Button variant="ghost" className="mb-6">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Session
+          </Button>
+        </Link>
+
+        <h1 className="text-3xl font-bold mb-8">Complete Your Booking</h1>
+
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Session Summary */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Session Details</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex gap-4">
+                  <Avatar className="h-12 w-12">
+                    <AvatarImage src={session.teacher.user.image || undefined} />
+                    <AvatarFallback>
+                      {session.teacher.user.name.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <Badge variant="secondary" className="mb-2">{session.subject}</Badge>
+                    <h3 className="font-bold text-lg mb-1">{session.title}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      with {session.teacher.user.name}
+                    </p>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-3">
+                  {session.scheduledAt && (
+                    <div className="flex items-center gap-3">
+                      <Calendar className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <p className="font-medium">
+                          {format(new Date(session.scheduledAt), "EEEE, MMMM dd, yyyy")}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {format(new Date(session.scheduledAt), "h:mm a")} ({session.timezone})
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-3">
+                    <Clock className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <p className="font-medium">{session.duration} minutes</p>
+                      <p className="text-sm text-muted-foreground">Live video session</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Important Information */}
+            <Card className="border-blue-200 bg-blue-50/50 dark:border-blue-900 dark:bg-blue-950/20">
+              <CardContent className="pt-6">
+                <div className="flex gap-3">
+                  <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                  <div className="space-y-2 text-sm">
+                    <p className="font-semibold text-blue-900 dark:text-blue-100">
+                      Important Information
+                    </p>
+                    <ul className="space-y-1 text-blue-800 dark:text-blue-200">
+                      <li>• You'll receive a confirmation email with session link</li>
+                      <li>• Join from any device with internet connection</li>
+                      <li>• Recording will be available for 7 days</li>
+                      <li>• Session reminder sent 24 hours before</li>
+                    </ul>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Refund Policy */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Cancellation & Refund Policy</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm">
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-medium">Full Refund (100%)</p>
+                    <p className="text-muted-foreground">Cancel 48+ hours before session</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-yellow-600 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-medium">Partial Refund (50%)</p>
+                    <p className="text-muted-foreground">Cancel 24-48 hours before session</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-medium">No Refund</p>
+                    <p className="text-muted-foreground">Cancel less than 24 hours before</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Terms Agreement */}
+            <Card>
+              <CardContent className="pt-6 space-y-4">
+                <div className="flex items-start gap-3">
+                  <Checkbox
+                    id="terms"
+                    checked={agreedToTerms}
+                    onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
+                  />
+                  <label htmlFor="terms" className="text-sm leading-relaxed cursor-pointer">
+                    I agree to the{" "}
+                    <Link href="/terms" className="text-primary hover:underline">
+                      Terms of Service
+                    </Link>{" "}
+                    and{" "}
+                    <Link href="/privacy" className="text-primary hover:underline">
+                      Privacy Policy
+                    </Link>
+                  </label>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <Checkbox
+                    id="refund"
+                    checked={agreedToRefund}
+                    onCheckedChange={(checked) => setAgreedToRefund(checked as boolean)}
+                  />
+                  <label htmlFor="refund" className="text-sm leading-relaxed cursor-pointer">
+                    I understand the cancellation and refund policy outlined above
+                  </label>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Order Summary Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Order Summary</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Session Price</span>
+                      <span className="font-medium">${(session.price / 100).toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Platform Fee (5%)</span>
+                      <span className="font-medium">${(platformFee / 100).toFixed(2)}</span>
+                    </div>
+                    <Separator />
+                    <div className="flex justify-between items-center">
+                      <span className="font-bold text-lg">Total</span>
+                      <div className="text-right">
+                        <div className="font-bold text-2xl text-green-600">
+                          ${(total / 100).toFixed(2)}
+                        </div>
+                        <span className="text-xs text-muted-foreground">USD</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={handleBooking}
+                    disabled={loading || !agreedToTerms || !agreedToRefund}
+                    className="w-full"
+                    size="lg"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <DollarSign className="mr-2 h-5 w-5" />
+                        Proceed to Payment
+                      </>
+                    )}
+                  </Button>
+
+                  <p className="text-xs text-center text-muted-foreground">
+                    You'll be redirected to Stripe for secure payment
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

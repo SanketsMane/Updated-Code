@@ -102,7 +102,7 @@ export async function getMeetingRoom(sessionId: string) {
 }
 
 // Update session status when meeting starts/ends
-export async function updateSessionStatus(sessionId: string, status: "InProgress" | "Completed") {
+export async function updateSessionStatus(sessionId: string, status: "in_progress" | "completed") {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user?.id) {
     redirect("/sign-in");
@@ -130,7 +130,7 @@ export async function updateSessionStatus(sessionId: string, status: "InProgress
     data: {
       status,
       ...(status === "InProgress" && { actualStartTime: new Date() }),
-      ...(status === "Completed" && { actualEndTime: new Date() }),
+      ...(status === "completed" && { actualEndTime: new Date() }),
     },
   });
 

@@ -66,11 +66,10 @@ export default async function Home() {
   if (session) {
     if (session.user.role === "admin") {
       redirect("/admin");
-    }
-    if (session.user.role === "teacher") {
+    } else if (session.user.role === "teacher") {
       redirect("/teacher");
-    }
-    if (session.user.role === null || session.user.role === undefined) {
+    } else {
+      // Default to student dashboard for students or users without a role
       redirect("/dashboard");
     }
   }

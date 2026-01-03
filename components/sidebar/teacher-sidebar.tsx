@@ -12,6 +12,12 @@ import {
   IconPlus,
   IconFileText,
   IconUser,
+  IconVideo,
+  IconCalendar,
+  IconBell,
+  IconMessage,
+  IconShield,
+  IconWallet,
 } from "@tabler/icons-react";
 import Logo from "@/public/logo.png";
 
@@ -53,14 +59,29 @@ const teacherData = {
       icon: IconPlus,
     },
     {
-      title: "Analytics",
-      url: "/teacher/analytics",
-      icon: IconChartBar,
+      title: "Live Sessions",
+      url: "/teacher/sessions",
+      icon: IconVideo,
     },
     {
       title: "Students",
       url: "/teacher/students",
       icon: IconUsers,
+    },
+    {
+      title: "Analytics",
+      url: "/teacher/analytics",
+      icon: IconChartBar,
+    },
+    {
+      title: "Profile Verification",
+      url: "/teacher/verification",
+      icon: IconShield,
+    },
+    {
+      title: "Payouts & Earnings",
+      url: "/teacher/payouts",
+      icon: IconWallet,
     },
     {
       title: "Quizzes",
@@ -71,6 +92,21 @@ const teacherData = {
       title: "Resources",
       url: "/teacher/resources",
       icon: IconFileText,
+    },
+    {
+      title: "Messages",
+      url: "/teacher/messages",
+      icon: IconMessage,
+    },
+    {
+      title: "Notifications",
+      url: "/teacher/notifications",
+      icon: IconBell,
+    },
+    {
+      title: "Calendar",
+      url: "/teacher/calendar",
+      icon: IconCalendar,
     },
   ],
   navSecondary: [

@@ -37,13 +37,23 @@ function VerifyRequest() {
 
   function verifyOtp() {
     startTranstion(async () => {
-      await authClient.signIn.emailOtp({
+      const result = await authClient.signIn.emailOtp({
         email: email,
         otp: otp,
         fetchOptions: {
-          onSuccess: () => {
+          onSuccess: async (ctx) => {
             toast.success("Email verified");
-            router.push("/");
+            // Get the user role from the response
+            const role = ctx.data?.user?.role;
+            
+            // Redirect based on role
+            if (role === "admin") {
+              router.push("/admin");
+            } else if (role === "teacher") {
+              router.push("/teacher");
+            } else {
+              router.push("/dashboard");
+            }
           },
           onError: () => {
             toast.error("Error verifying Email/OTP");

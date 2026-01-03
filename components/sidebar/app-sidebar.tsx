@@ -10,6 +10,17 @@ import {
   IconSettings,
   IconUsers,
   IconFolder,
+  IconSchool,
+  IconUserCircle,
+  IconCreditCard,
+  IconFileText,
+  IconShieldCheck,
+  IconBell,
+  IconCalendar,
+  IconVideo,
+  IconShieldCheck as IconVerification,
+  IconUserCheck,
+  IconWallet,
 } from "@tabler/icons-react";
 import Logo from "@/public/logo.png";
 
@@ -36,9 +47,34 @@ const data = {
       icon: IconDashboard,
     },
     {
+      title: "Users",
+      url: "/admin/users",
+      icon: IconUsers,
+    },
+    {
+      title: "Teachers",
+      url: "/admin/teachers",
+      icon: IconSchool,
+    },
+    {
+      title: "Students",
+      url: "/admin/students",
+      icon: IconUserCircle,
+    },
+    {
       title: "Courses",
       url: "/admin/courses",
       icon: IconListDetails,
+    },
+    {
+      title: "Live Sessions",
+      url: "/admin/live-sessions",
+      icon: IconVideo,
+    },
+    {
+      title: "Payments",
+      url: "/admin/payments",
+      icon: IconCreditCard,
     },
     {
       title: "Analytics",
@@ -46,25 +82,47 @@ const data = {
       icon: IconChartBar,
     },
     {
-      title: "Projects",
-      url: "/admin/projects",
-      icon: IconFolder,
+      title: "Verification Center",
+      url: "/admin/verification",
+      icon: IconVerification,
+      items: [
+        {
+          title: "Profile Verification",
+          url: "/admin/verification/profiles",
+          icon: IconUserCheck,
+        },
+        {
+          title: "Payouts & Earnings",
+          url: "/admin/verification/payouts",
+          icon: IconWallet,
+        },
+      ],
     },
     {
-      title: "Team",
-      url: "/admin/team",
-      icon: IconUsers,
+      title: "Reports",
+      url: "/admin/reports",
+      icon: IconFileText,
+    },
+    {
+      title: "Content Review",
+      url: "/admin/content-review",
+      icon: IconShieldCheck,
+    },
+    {
+      title: "Notifications",
+      url: "/admin/notifications",
+      icon: IconBell,
     },
   ],
   navSecondary: [
     {
       title: "Settings",
-      url: "#",
+      url: "/admin/settings",
       icon: IconSettings,
     },
     {
       title: "Get Help",
-      url: "#",
+      url: "/admin/help",
       icon: IconHelp,
     },
     {

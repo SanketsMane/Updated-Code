@@ -31,6 +31,7 @@ model User {
   // New marketplace relationships
   teacherProfile    TeacherProfile?
   studentSessions   LiveSession[]     @relation("StudentSessions")
+  sessionBookings   SessionBooking[]  @relation("StudentBookings")
   groupEnrollments  GroupEnrollment[] @relation("GroupEnrollments")
   reviewsGiven      Review[]          @relation("UserReviews")
   notifications     Notification[]    @relation("UserNotifications")
@@ -308,6 +309,12 @@ model TeacherProfile {
   groupClasses GroupClass[]
   reviews      Review[]      @relation("TeacherReviews")
   commissions  Commission[]
+  sessionAvailability SessionAvailability[] @relation("TeacherAvailability")
+  
+  // Verification and Payout relationships
+  verification TeacherVerification? @relation("TeacherVerification")
+  payoutRequests PayoutRequest[]    @relation("TeacherPayouts") 
+  earningsReports EarningsReport[]  @relation("TeacherEarnings")
 }
 
 model LiveSession {
@@ -326,15 +333,107 @@ model LiveSession {
   scheduledAt DateTime
   duration    Int      // Duration in minutes
   price       Int      // Price in cents
+  maxParticipants Int? // Maximum number of students (null = unlimited)
   
-  status      SessionStatus @default(Scheduled)
+  status      SessionStatus @default(scheduled)
   
   meetingUrl  String?
   recordingUrl String?
   notes       String?
   
+  // Payment tracking
+  stripePriceId    String?
+  stripeSessionId  String?
+  
+  // Scheduling enhancements
+  timezone         String   @default("UTC")
+  isRecurring      Boolean  @default(false)
+  recurringPattern String?  // "weekly", "monthly", etc.
+  
+  // Reschedule management
+  maxReschedules   Int      @default(2)
+  rescheduleCount  Int      @default(0)
+  originalScheduledAt DateTime?
+  
+  // Cancellation tracking
+  cancelledBy      String?  // "student" or "teacher"
+  cancellationReason String?
+  refundAmount     Int?     // Amount refunded in cents
+  
+  // Notifications
+  reminderSent     Boolean  @default(false)
+  confirmationSent Boolean  @default(false)
+  
+  // Session metadata
+  sessionNotes     String?  // Teacher's notes after session
+  studentRating    Int?     // Student rates teacher (1-5)
+  teacherRating    Int?     // Teacher rates student (1-5)
+  
+  // Relations
+  bookings    SessionBooking[] @relation("SessionBookings")
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  @@index([teacherId, scheduledAt])
+  @@index([studentId, scheduledAt])
+  @@index([status, scheduledAt])
+}
+
+model SessionAvailability {
+  id          String   @id @default(uuid())
+  
+  teacherId   String
+  teacher     TeacherProfile @relation("TeacherAvailability", fields: [teacherId], references: [id], onDelete: Cascade)
+  
+  dayOfWeek   Int      // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  startTime   String   // "09:00" in 24hr format
+  endTime     String   // "17:00" in 24hr format
+  
+  timezone    String   @default("UTC")
+  
+  isActive    Boolean  @default(true)
+  
+  // Session configuration for this availability slot
+  defaultDuration Int   @default(60) // Default session duration in minutes
+  bufferTime   Int     @default(15) // Buffer between sessions in minutes
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([teacherId, dayOfWeek, isActive])
+  @@unique([teacherId, dayOfWeek, startTime, endTime])
+}
+
+model SessionBooking {
+  id          String   @id @default(uuid())
+  
+  sessionId   String
+  session     LiveSession @relation("SessionBookings", fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  studentId   String
+  student     User     @relation("StudentBookings", fields: [studentId], references: [id], onDelete: Cascade)
+  
+  status      BookingStatus @default(pending)
+  
+  // Payment tracking
+  amount      Int      // Amount paid in cents
+  stripeSessionId      String?  @unique
+  stripePaymentIntentId String?
+  paymentCompletedAt   DateTime?
+  
+  // Cancellation
+  cancelledAt    DateTime?
+  cancellationReason String?
+  refundAmount   Int?
+  refundedAt     DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([sessionId, studentId])
+  @@index([studentId, status])
+  @@unique([sessionId, studentId])
 }
 
 model GroupClass {
@@ -455,6 +554,9 @@ model Commission {
   status      PayoutStatus @default(Pending)
   
   paidAt      DateTime?
+  
+  // Payout relationship
+  payoutCommissions PayoutCommission[] @relation("PayoutCommissions")
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -629,11 +731,18 @@ model BlogTag {
 // Enums
 
 enum SessionStatus {
-  Scheduled
-  InProgress
-  Completed
-  Cancelled
-  NoShow
+  scheduled
+  in_progress
+  completed
+  cancelled
+  no_show
+}
+
+enum BookingStatus {
+  pending
+  confirmed
+  cancelled
+  refunded
 }
 
 enum ClassStatus {
@@ -1297,4 +1406,199 @@ enum ChatMessageType {
   MESSAGE
   SYSTEM
   FILE
+}
+
+// Verification and Payout Models
+model TeacherVerification {
+  id                String            @id @default(cuid())
+  teacherId         String            @unique
+  teacher           TeacherProfile    @relation("TeacherVerification", fields: [teacherId], references: [id], onDelete: Cascade)
+  
+  // Verification status
+  status            VerificationStatus @default(Pending)
+  verificationLevel VerificationLevel  @default(Basic)
+  
+  // Identity verification
+  identityDocumentType String?        // "passport", "driving_license", "national_id"
+  identityDocumentUrl  String?
+  identityVerifiedAt   DateTime?
+  
+  // Qualification verification
+  qualificationDocuments String[]      // URLs to qualification documents
+  qualificationsVerifiedAt DateTime?
+  
+  // Experience verification
+  experienceDocuments    String[]      // URLs to experience documents
+  experienceYears        Int?
+  experienceVerifiedAt   DateTime?
+  
+  // Bank account verification
+  bankAccountName        String?
+  bankAccountNumber      String?       // Encrypted
+  bankRoutingNumber      String?       // Encrypted
+  bankVerifiedAt         DateTime?
+  
+  // Background check
+  backgroundCheckProvider String?
+  backgroundCheckStatus   String?
+  backgroundCheckDate     DateTime?
+  
+  // Verification notes
+  adminNotes             String?
+  rejectionReason        String?
+  
+  // Verification dates
+  submittedAt            DateTime?
+  reviewedAt             DateTime?
+  approvedAt             DateTime?
+  rejectedAt             DateTime?
+  
+  // Reviewer info
+  reviewedById           String?
+  
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+  
+  @@map("teacher_verifications")
+}
+
+model PayoutRequest {
+  id              String         @id @default(cuid())
+  teacherId       String
+  teacher         TeacherProfile @relation("TeacherPayouts", fields: [teacherId], references: [id], onDelete: Cascade)
+  
+  // Request details
+  requestedAmount Decimal        // Amount requested in dollars
+  currency        String         @default("USD")
+  
+  // Bank details (at time of request)
+  bankAccountName   String
+  bankAccountNumber String       // Encrypted
+  bankRoutingNumber String?      // Encrypted
+  bankName          String?
+  bankAddress       String?
+  swiftCode         String?
+  
+  // Status tracking
+  status          PayoutRequestStatus @default(Pending)
+  
+  // Processing details
+  processedAmount Decimal?       // Actual amount processed (after fees)
+  processingFee   Decimal?       // Processing fee deducted
+  netAmount       Decimal?       // Final amount sent to teacher
+  
+  // External payment tracking
+  paymentMethodId String?        // Stripe Connect account, PayPal, etc.
+  transactionId   String?        // External transaction ID
+  
+  // Verification and approval
+  verifiedAt      DateTime?
+  approvedAt      DateTime?
+  processedAt     DateTime?
+  rejectedAt      DateTime?
+  
+  // Admin notes
+  adminNotes      String?
+  rejectionReason String?
+  
+  // Processing details
+  processedById   String?
+  
+  // Commission breakdown
+  commissions     PayoutCommission[]
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  
+  @@map("payout_requests")
+  @@index([teacherId, status])
+  @@index([status, createdAt])
+}
+
+model PayoutCommission {
+  id              String         @id @default(cuid())
+  payoutRequestId String
+  payoutRequest   PayoutRequest  @relation(fields: [payoutRequestId], references: [id], onDelete: Cascade)
+  
+  // Commission source
+  commissionId    String         @unique
+  commission      Commission     @relation("PayoutCommissions", fields: [commissionId], references: [id], onDelete: Cascade)
+  
+  amount          Decimal        // Amount included in this payout
+  
+  createdAt       DateTime       @default(now())
+  
+  @@map("payout_commissions")
+}
+
+model EarningsReport {
+  id              String         @id @default(cuid())
+  teacherId       String
+  teacher         TeacherProfile @relation("TeacherEarnings", fields: [teacherId], references: [id], onDelete: Cascade)
+  
+  // Report period
+  periodStart     DateTime
+  periodEnd       DateTime
+  reportType      ReportType     @default(Monthly)
+  
+  // Earnings breakdown
+  totalEarnings   Decimal        @default(0)
+  courseEarnings  Decimal        @default(0)
+  sessionEarnings Decimal        @default(0)
+  
+  // Commission breakdown
+  platformFee     Decimal        @default(0)
+  netEarnings     Decimal        @default(0)
+  
+  // Transaction counts
+  totalTransactions Int          @default(0)
+  courseTransactions Int         @default(0)
+  sessionTransactions Int        @default(0)
+  
+  // Status
+  isProcessed     Boolean        @default(false)
+  processedAt     DateTime?
+  
+  // Metadata
+  metadata        Json?          // Additional data like tax info, etc.
+  
+  generatedAt     DateTime       @default(now())
+  
+  @@map("earnings_reports")
+  @@unique([teacherId, periodStart, periodEnd, reportType])
+}
+
+enum VerificationStatus {
+  Pending
+  UnderReview
+  Approved
+  Rejected
+  Suspended
+}
+
+enum VerificationLevel {
+  Basic           // Email + Basic info
+  Identity        // Government ID verified
+  Qualified       // Education/Qualification verified
+  Professional    // Experience + Background check
+  Premium         // Full verification + enhanced features
+}
+
+enum PayoutRequestStatus {
+  Pending         // Awaiting admin review
+  UnderReview     // Being reviewed by admin
+  Approved        // Approved, pending processing
+  Processing      // Being processed by payment provider
+  Completed       // Successfully processed
+  Failed          // Processing failed
+  Rejected        // Rejected by admin
+  Cancelled       // Cancelled by teacher
+}
+
+enum ReportType {
+  Daily
+  Weekly
+  Monthly
+  Quarterly
+  Yearly
 }

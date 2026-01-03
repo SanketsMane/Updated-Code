@@ -16,6 +16,11 @@ async function protect(req: NextRequest) {
     userId = getClientIP(req) || "127.0.0.1";
   }
 
+  // Skip rate limiting for sign-out requests
+  if (req.nextUrl.pathname.startsWith("/api/auth/sign-out")) {
+    return { success: true };
+  }
+
   // If this is a signup then use the special protectSignup rule
   if (req.nextUrl.pathname.startsWith("/api/auth/sign-up")) {
     // Better-Auth reads the body, so we need to clone the request preemptively

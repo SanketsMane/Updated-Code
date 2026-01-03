@@ -53,7 +53,7 @@ export async function getUserAnalytics(userId?: string) {
     prisma.liveSession.count({
       where: {
         studentId: targetUserId,
-        status: "Completed"
+        status: "completed"
       }
     }),
 
@@ -150,7 +150,7 @@ export async function getTeacherAnalytics() {
     prisma.liveSession.count({
       where: {
         teacherId: session.user.id,
-        status: "Completed"
+        status: "completed"
       }
     }),
 
