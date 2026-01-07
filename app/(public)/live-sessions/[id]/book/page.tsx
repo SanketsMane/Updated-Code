@@ -35,14 +35,14 @@ async function getSession(id: string) {
   return session;
 }
 
-export default async function BookSessionPage({
-  params
-}: {
-  params: { id: string };
+export default async function BookSessionPage(props: {
+  params: Promise<{ id: string }>;
 }) {
+  const params = await props.params;
+
   // Require authentication
   const sessionAuth = await auth.api.getSession({ headers: await headers() });
-  
+
   if (!sessionAuth?.user) {
     redirect(`/login?redirect=/live-sessions/${params.id}/book`);
   }

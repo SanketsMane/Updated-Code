@@ -52,19 +52,18 @@ async function getSession(id: string) {
   return session;
 }
 
-export default async function SessionDetailPage({
-  params
-}: {
-  params: { id: string };
+export default async function SessionDetailPage(props: {
+  params: Promise<{ id: string }>;
 }) {
+  const params = await props.params;
   const session = await getSession(params.id);
   const sessionAuth = await auth.api.getSession({ headers: await headers() });
-  
+
   const confirmedBookings = session.bookings.length;
-  const spotsLeft = session.maxParticipants 
-    ? session.maxParticipants - confirmedBookings 
+  const spotsLeft = session.maxParticipants
+    ? session.maxParticipants - confirmedBookings
     : null;
-  
+
   const isFull = spotsLeft !== null && spotsLeft <= 0;
   const hasExpired = session.scheduledAt ? isPast(session.scheduledAt) : false;
   const canBook = !isFull && !hasExpired && session.status === 'scheduled';
@@ -113,7 +112,7 @@ export default async function SessionDetailPage({
               </div>
 
               <h1 className="text-3xl md:text-4xl font-bold mb-4">{session.title}</h1>
-              
+
               {session.description && (
                 <p className="text-lg text-muted-foreground leading-relaxed">
                   {session.description}
@@ -158,7 +157,7 @@ export default async function SessionDetailPage({
                     <div>
                       <p className="font-semibold">Participants</p>
                       <p className="text-muted-foreground">
-                      {confirmedBookings} / {session.maxParticipants} enrolled
+                        {confirmedBookings} / {session.maxParticipants} enrolled
                       </p>
                       {spotsLeft !== null && spotsLeft > 0 && (
                         <p className="text-sm text-green-600 font-medium">
