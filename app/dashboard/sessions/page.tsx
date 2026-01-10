@@ -39,7 +39,7 @@ async function getUserSessions(userId: string) {
 
 export default async function SessionsDashboard() {
   const user = await requireUser();
-  
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -97,25 +97,25 @@ export default async function SessionsDashboard() {
 
 async function SessionsList({ userId, filter }: { userId: string; filter: string }) {
   const bookings = await getUserSessions(userId);
-  
+
   // Filter bookings based on status and date
   const now = new Date();
   let filteredBookings = bookings;
 
   switch (filter) {
     case "upcoming":
-      filteredBookings = bookings.filter(b => 
-        b.session.scheduledAt && b.session.scheduledAt > now && 
+      filteredBookings = bookings.filter(b =>
+        b.session.scheduledAt && b.session.scheduledAt > now &&
         (b.status === "confirmed" || b.status === "pending")
       );
       break;
     case "completed":
-      filteredBookings = bookings.filter(b => 
+      filteredBookings = bookings.filter(b =>
         b.session.status === "completed" || b.session.status === "Completed"
       );
       break;
     case "cancelled":
-      filteredBookings = bookings.filter(b => 
+      filteredBookings = bookings.filter(b =>
         b.status === "cancelled" || b.status === "refunded" ||
         b.session.status === "cancelled" || b.session.status === "Cancelled"
       );
@@ -132,7 +132,7 @@ async function SessionsList({ userId, filter }: { userId: string; filter: string
           <Video className="mx-auto h-16 w-16 text-gray-400 mb-4" />
           <h3 className="text-lg font-semibold mb-2">No sessions found</h3>
           <p className="text-muted-foreground mb-6">
-            {filter === "upcoming" 
+            {filter === "upcoming"
               ? "You don't have any upcoming sessions scheduled."
               : `No ${filter} sessions to display.`
             }
@@ -181,9 +181,10 @@ function SessionCard({ session }: { session: any }) {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "Scheduled":
-        return <Clock className="h-4 w-4" />;
-      case "Completed":
+      case "scheduled":
+      case "in_progress":
+      case "completed":
+      case "cancelled":
         return <CheckCircle className="h-4 w-4" />;
       case "Cancelled":
       case "NoShow":
@@ -282,14 +283,14 @@ function SessionCard({ session }: { session: any }) {
               </Button>
             </Link>
           )}
-          
+
           {isUpcoming && !canJoin && (
             <Button variant="outline">
               <Calendar className="mr-2 h-4 w-4" />
               Add to Calendar
             </Button>
           )}
-          
+
           {session.status === "Completed" && (
             <>
               {session.recordingUrl && (
@@ -304,12 +305,12 @@ function SessionCard({ session }: { session: any }) {
               </Button>
             </>
           )}
-          
+
           <Button variant="outline" size="sm">
             <MessageSquare className="mr-2 h-4 w-4" />
             Message Teacher
           </Button>
-          
+
           {isUpcoming && (
             <Button variant="outline" size="sm">
               <ExternalLink className="mr-2 h-4 w-4" />

@@ -30,7 +30,7 @@ export async function bookSessionAction(data: BookSessionInput) {
                 scheduledAt: scheduledAt,
                 duration: 60, // Default 60 mins
                 price: data.price,
-                status: "Scheduled",
+                status: "scheduled",
                 meetingUrl: `/video-call/${crypto.randomUUID()}` // Generate a unique meeting ID URL
             }
         });

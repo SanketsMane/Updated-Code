@@ -67,7 +67,7 @@ export async function bookLiveSession(
           lt: endDateTime,
         },
         status: {
-          in: ["Scheduled", "InProgress"]
+          in: ["scheduled", "in_progress"]
         }
       }
     });
@@ -120,7 +120,7 @@ export async function bookLiveSession(
         scheduledAt: scheduledDateTime,
         duration: data.duration,
         price: Math.round(data.price * 100),
-        status: "Scheduled",
+        status: "scheduled",
       },
     });
 
@@ -170,7 +170,7 @@ export async function getAvailableTimeSlots(
           lte: endOfDay,
         },
         status: {
-          in: ["Scheduled", "InProgress"]
+          in: ["scheduled", "in_progress"]
         }
       },
     });

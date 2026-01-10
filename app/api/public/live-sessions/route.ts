@@ -11,7 +11,7 @@ export async function GET() {
         scheduledAt: {
           gte: new Date(), // Only future sessions
         },
-        status: "Scheduled" // Use the correct enum value
+        status: "scheduled" // Use the correct enum value
       },
       include: {
         teacher: {

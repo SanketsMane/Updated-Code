@@ -16,6 +16,7 @@ export const auth = betterAuth({
     "http://localhost:3002",
     "http://localhost:3003",
     "https://kidokool-lms.vercel.app",
+    ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
   ],
   // socialProviders: {
   //   github: {

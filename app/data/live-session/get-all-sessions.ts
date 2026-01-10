@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 export async function getAllSessions() {
     const sessions = await prisma.liveSession.findMany({
         where: {
-            status: "Scheduled", // or any status logic
+            status: "scheduled", // or any status logic
         },
         include: {
             teacher: {
