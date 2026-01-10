@@ -6,6 +6,8 @@ import { prisma } from "@/lib/db";
 import { getSessionWithRole } from "@/app/data/auth/require-roles";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
+export const dynamic = "force-dynamic";
+
 export default async function TeacherStudentsPage() {
   await requireTeacher();
   const session = await getSessionWithRole();

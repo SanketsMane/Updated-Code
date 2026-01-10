@@ -4,10 +4,12 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { S3 } from "@/lib/S3Client";
+import { getS3Client } from "@/lib/S3Client";
 import { protectGeneral } from "@/lib/security";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+
+export const dynamic = "force-dynamic";
 
 const fileUploadSchema = z.object({
   fileName: z.string().min(1, { message: "Filename is required" }),
@@ -57,6 +59,7 @@ export async function POST(request: Request) {
       Key: uniqueKey,
     });
 
+    const S3 = getS3Client();
     const presignedUrl = await getSignedUrl(S3, command, {
       expiresIn: 360, // URL expires in 6 minutes
     });

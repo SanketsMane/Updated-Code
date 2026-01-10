@@ -4,6 +4,8 @@ import { headers } from "next/headers";
 import { prisma } from "@/lib/db";
 import { z } from "zod";
 
+export const dynamic = "force-dynamic";
+
 const updateWhiteboardSchema = z.object({
   title: z.string().min(1, "Title is required").optional(),
   description: z.string().optional(),

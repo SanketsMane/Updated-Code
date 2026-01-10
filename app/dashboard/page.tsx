@@ -15,6 +15,8 @@ import { StatBox } from "@/components/dashboard/yo-coach/stat-box";
 import { ChartSection } from "@/components/dashboard/yo-coach/chart-section";
 import { ChartAreaInteractive } from "@/components/sidebar/chart-area-interactive";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
   const session = await getSessionWithRole();
 

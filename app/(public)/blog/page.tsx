@@ -103,6 +103,8 @@ const recentPosts = [
   }
 ];
 
+export const dynamic = "force-dynamic";
+
 export default async function BlogPage({ searchParams }: BlogPageProps) {
   return (
     <div style={{ fontFamily: 'system-ui, -apple-system, sans-serif', backgroundColor: '#fafafa', minHeight: '100vh' }}>

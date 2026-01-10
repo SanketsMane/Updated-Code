@@ -1,9 +1,11 @@
 import { requireAdmin } from "@/app/data/admin/require-admin";
 import { protectGeneral } from "@/lib/security";
 import { env } from "@/lib/env";
-import { S3 } from "@/lib/S3Client";
+import { getS3Client } from "@/lib/S3Client";
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 
 export async function DELETE(request: Request) {
   const session = await requireAdmin();
@@ -13,7 +15,7 @@ export async function DELETE(request: Request) {
       maxRequests: 5,
       windowMs: 60000
     });
-    
+
     if (!securityCheck.success) {
       return NextResponse.json({ error: securityCheck.error }, { status: securityCheck.status });
     }
@@ -33,6 +35,7 @@ export async function DELETE(request: Request) {
       Key: key,
     });
 
+    const S3 = getS3Client();
     await S3.send(command);
 
     return NextResponse.json(

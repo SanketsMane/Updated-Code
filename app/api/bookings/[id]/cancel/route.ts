@@ -5,6 +5,8 @@ import { stripe } from "@/lib/stripe";
 import { headers } from "next/headers";
 import { differenceInHours } from "date-fns";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }

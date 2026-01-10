@@ -16,6 +16,8 @@ import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Loader2, Trash2 } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default function DeleteCourseRoute() {
   const [pending, startTransition] = useTransition();
   const { courseId } = useParams<{ courseId: string }>();

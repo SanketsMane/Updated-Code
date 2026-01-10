@@ -8,6 +8,8 @@ import { BookOpen, Users, Wallet, Clock, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function TeacherDashboardPage() {
   await requireTeacher();
   const courses = await adminGetCourses();

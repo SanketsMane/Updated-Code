@@ -6,6 +6,8 @@ import { IconCreditCard, IconTrendingUp, IconDownload } from "@tabler/icons-reac
 import { prisma as db } from "@/lib/db";
 import { format } from "date-fns";
 
+export const dynamic = "force-dynamic";
+
 export default async function PaymentsPage() {
   await requireUser();
 

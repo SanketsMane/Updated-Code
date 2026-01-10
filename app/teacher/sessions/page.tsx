@@ -20,6 +20,8 @@ import Link from "next/link";
 import { SessionsList } from "./_components/SessionsList";
 import { SessionStats } from "./_components/SessionStats";
 
+export const dynamic = "force-dynamic";
+
 export default async function TeacherSessionsPage() {
   await requireTeacher();
 

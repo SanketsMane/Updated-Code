@@ -15,6 +15,8 @@ import Link from "next/link";
 import { requireAdmin } from "@/app/data/auth/require-roles";
 import { getVerificationStats, getRecentVerificationActivity } from "@/app/data/admin/verification-data";
 
+export const dynamic = "force-dynamic";
+
 export default async function VerificationCenterPage() {
   await requireAdmin();
 

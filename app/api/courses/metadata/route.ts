@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCourseCategories, getCourseLevels, getCourseDurations } from "@/app/data/course/get-course-metadata";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const [categories, levels, durations] = await Promise.all([

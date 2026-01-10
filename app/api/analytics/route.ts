@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAnalyticsData } from "@/app/data/analytics/get-analytics";
 import { auth } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   try {
     // Check if user is authenticated and has admin role

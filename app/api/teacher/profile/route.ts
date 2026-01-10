@@ -3,6 +3,8 @@ import { prisma } from "@/lib/db";
 import { teacherProfileSchema } from "@/lib/zodSchemas";
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const session = await auth.api.getSession({

@@ -8,6 +8,8 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Settings, User, Bell, Lock, DollarSign, Calendar } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function TeacherSettingsPage() {
   const user = await requireUser();
 

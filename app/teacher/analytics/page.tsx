@@ -5,6 +5,8 @@ import { getTeacherAnalytics } from "@/app/data/teacher/get-teacher-analytics";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
+export const dynamic = "force-dynamic";
+
 export default async function TeacherAnalyticsPage() {
   await requireTeacher();
 

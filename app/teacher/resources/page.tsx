@@ -2,6 +2,8 @@ import { requireTeacher } from "../../data/auth/require-roles";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IconFileText } from "@tabler/icons-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function TeacherResourcesPage() {
   await requireTeacher();
 

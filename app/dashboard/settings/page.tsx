@@ -7,6 +7,8 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Settings, User, Bell, Lock, Palette } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function SettingsPage() {
   const user = await requireUser();
 

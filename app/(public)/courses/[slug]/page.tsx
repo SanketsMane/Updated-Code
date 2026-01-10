@@ -256,3 +256,5 @@ export default async function CourseDetailsPage({
 
 // Helper icon
 import { Smartphone } from "lucide-react";
+
+export const dynamic = "force-dynamic";

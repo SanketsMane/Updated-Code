@@ -3,6 +3,8 @@ import { protectSignup, protectGeneral, getClientIP } from "@/lib/security";
 import { toNextJsHandler } from "better-auth/next-js";
 import { NextRequest } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 async function protect(req: NextRequest) {
   const session = await auth.api.getSession({
     headers: req.headers,

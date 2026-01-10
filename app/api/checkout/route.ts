@@ -4,14 +4,16 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { env } from "@/lib/env";
 
-// Initialize Stripe with type safety checks for API key
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
+export const dynamic = "force-dynamic";
+
+const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY || "", {
     apiVersion: "2025-05-28.basil", // Use latest consistent version
     typescript: true,
 });
 
 export async function POST(req: Request) {
     try {
+        const stripe = getStripe();
         const session = await getSessionWithRole();
         const user = session?.user;
 

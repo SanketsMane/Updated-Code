@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { HelpCircle, Mail, MessageSquare, Book, Video } from "lucide-react";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function HelpPage() {
   await requireUser();
 

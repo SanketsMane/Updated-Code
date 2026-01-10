@@ -46,6 +46,8 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useConfetti } from "@/hooks/use-confetti";
 
+export const dynamic = "force-dynamic";
+
 export default function CourseCreationPage() {
   const [pending, startTransition] = useTransition();
   const router = useRouter();

@@ -3,6 +3,8 @@ import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
+export const dynamic = "force-dynamic";
+
 // PUT - Update availability slot
 export async function PUT(
   req: NextRequest,

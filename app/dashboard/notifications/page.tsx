@@ -34,6 +34,8 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
+export const dynamic = "force-dynamic";
+
 type Notification = {
   id: string;
   title: string;

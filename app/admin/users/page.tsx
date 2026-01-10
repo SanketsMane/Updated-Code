@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { IconUsers, IconSearch, IconUserPlus, IconShield, IconSchool, IconUser } from "@tabler/icons-react";
 import { prisma as db } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export default async function UsersManagementPage() {
   await requireUser();
 

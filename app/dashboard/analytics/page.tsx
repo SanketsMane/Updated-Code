@@ -22,6 +22,8 @@ import { getUserAnalytics, getTeacherAnalytics } from "@/app/actions/analytics";
 import { getSessionWithRole } from "@/app/data/auth/require-roles";
 import { format } from "date-fns";
 
+export const dynamic = "force-dynamic";
+
 export default async function AnalyticsPage() {
   const session = await getSessionWithRole();
   

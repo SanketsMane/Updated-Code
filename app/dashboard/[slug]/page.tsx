@@ -1,6 +1,8 @@
 import { getCourseSidebarData } from "@/app/data/course/get-course-sidebar-data";
 import { redirect } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 interface iAppProps {
   params: Promise<{ slug: string }>;
 }

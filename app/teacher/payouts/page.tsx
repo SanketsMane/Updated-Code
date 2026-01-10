@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { requireTeacher } from "@/app/data/auth/require-roles";
 
+export const dynamic = "force-dynamic";
+
 export default async function TeacherPayoutsPage() {
   await requireTeacher();
 

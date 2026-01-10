@@ -30,6 +30,8 @@ import Autoplay from "embla-carousel-autoplay";
 import { MotionWrapper } from "@/components/ui/motion-wrapper";
 import { setTeacherRole } from "@/app/actions/auth-actions";
 
+export const dynamic = "force-dynamic";
+
 const testimonials = [
   {
     quote: "KIDOKOOL has completely transformed the way I learn. The courses are structured, easy to follow, and the instructors are world-class.",

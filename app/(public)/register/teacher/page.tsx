@@ -13,6 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, Users, Award, IndianRupee, Globe, ArrowLeft, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 
+export const dynamic = "force-dynamic";
+
 const benefits = [
   "Earn up to ₹4000/hour teaching students",
   "Flexible schedule - teach when you want",

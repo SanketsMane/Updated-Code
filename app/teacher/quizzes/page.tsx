@@ -71,6 +71,8 @@ import {
 import { toast } from "sonner";
 import { QuizBuilder } from "@/components/quiz/QuizBuilder";
 
+export const dynamic = "force-dynamic";
+
 interface Quiz {
   id: string;
   title: string;

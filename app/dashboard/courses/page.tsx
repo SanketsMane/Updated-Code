@@ -8,6 +8,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { CertificateButton } from "./_components/CertificateButton";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardCoursesPage() {
   const enrolledCourses = await getEnrolledCourses();
 

@@ -8,6 +8,8 @@ import {
 import { EmptyState } from "@/components/general/EmptyState";
 import { Suspense } from "react";
 
+export const dynamic = "force-dynamic";
+
 export default function CoursesPage() {
   return (
     <>

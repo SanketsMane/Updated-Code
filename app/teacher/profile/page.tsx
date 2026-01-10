@@ -28,6 +28,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 interface TeacherProfile {
   id: string;
   userId: string;

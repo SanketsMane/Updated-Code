@@ -7,6 +7,8 @@ import { Calendar as CalendarIcon, Clock, User, Video, BookOpen, Users } from "l
 import Link from "next/link";
 import { format } from "date-fns";
 
+export const dynamic = "force-dynamic";
+
 async function getUpcomingSessions(userId: string) {
   const now = new Date();
   

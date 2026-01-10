@@ -3,6 +3,8 @@ import { auth } from "@/lib/auth";
 import { recommendationEngine } from "@/lib/recommendation-engine";
 import { prisma } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: Request) {
   try {
     const session = await auth.api.getSession({

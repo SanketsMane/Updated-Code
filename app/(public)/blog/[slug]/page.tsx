@@ -20,6 +20,8 @@ import {
 import { getBlogPostBySlug, getFeaturedBlogPosts } from "@/app/actions/blog";
 import { format } from "date-fns";
 
+export const dynamic = "force-dynamic";
+
 interface BlogPostPageProps {
   params: Promise<{
     slug: string;

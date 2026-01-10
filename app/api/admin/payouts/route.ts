@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/app/data/auth/require-roles";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   try {
     await requireAdmin();
@@ -9,13 +11,13 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const teacherId = searchParams.get('teacherId');
-    
+
     const whereClause: any = {};
-    
+
     if (status) {
       whereClause.status = status;
     }
-    
+
     if (teacherId) {
       whereClause.teacherId = teacherId;
     }

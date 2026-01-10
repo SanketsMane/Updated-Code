@@ -4,6 +4,8 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { BookingPageClient } from "./_components/BookingPageClient";
 
+export const dynamic = "force-dynamic";
+
 async function getSession(id: string) {
   const session = await db.liveSession.findUnique({
     where: { id },

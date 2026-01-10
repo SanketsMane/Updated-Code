@@ -10,6 +10,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { StudentSessionCard } from "./_components/StudentSessionCard";
 
+export const dynamic = "force-dynamic";
+
 async function getUserSessions(userId: string) {
   const bookings = await prisma.sessionBooking.findMany({
     where: { studentId: userId },

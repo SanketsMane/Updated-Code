@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/app/data/auth/require-roles";
 
+export const dynamic = "force-dynamic";
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -48,7 +50,7 @@ export async function PATCH(
     if (status === 'Approved') {
       await prisma.teacherProfile.update({
         where: { id: verification.teacherId },
-        data: { 
+        data: {
           isVerified: true
         }
       });

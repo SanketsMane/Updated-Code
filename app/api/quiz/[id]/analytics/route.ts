@@ -3,6 +3,8 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/quiz/[id]/analytics - Get quiz analytics
 export async function GET(
   request: NextRequest,

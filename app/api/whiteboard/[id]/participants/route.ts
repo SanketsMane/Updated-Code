@@ -4,6 +4,8 @@ import { headers } from "next/headers";
 import { prisma } from "@/lib/db";
 import { z } from "zod";
 
+export const dynamic = "force-dynamic";
+
 const addParticipantSchema = z.object({
   userId: z.string().min(1, "User ID is required"),
   role: z.enum(['Owner', 'Collaborator', 'Viewer']).default('Viewer'),

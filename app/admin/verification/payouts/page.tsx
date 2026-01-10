@@ -20,6 +20,8 @@ import { requireAdmin } from "@/app/data/auth/require-roles";
 import { getPendingPayouts } from "@/app/data/admin/verification-data";
 import { prisma } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export default async function PayoutSystemPage() {
   await requireAdmin();
 

@@ -6,6 +6,8 @@ import { IconVideo, IconCalendar, IconUsers } from "@tabler/icons-react";
 import { prisma as db } from "@/lib/db";
 import { format } from "date-fns";
 
+export const dynamic = "force-dynamic";
+
 export default async function LiveSessionsPage() {
   await requireUser();
 

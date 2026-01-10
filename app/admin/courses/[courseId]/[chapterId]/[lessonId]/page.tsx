@@ -1,6 +1,8 @@
 import { adminGetLesson } from "@/app/data/admin/admin-get-lesson";
 import { LessonForm } from "./_components/LessonForm";
 
+export const dynamic = "force-dynamic";
+
 type Params = Promise<{
   courseId: string;
   chapterId: string;

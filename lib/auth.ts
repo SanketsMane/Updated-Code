@@ -15,13 +15,14 @@ export const auth = betterAuth({
     "http://localhost:3001",
     "http://localhost:3002",
     "http://localhost:3003",
+    "https://kidokool-lms.vercel.app",
   ],
-  socialProviders: {
-    github: {
-      clientId: env.AUTH_GITHUB_CLIENT_ID,
-      clientSecret: env.AUTH_GITHUB_SECRET,
-    },
-  },
+  // socialProviders: {
+  //   github: {
+  //     clientId: env.AUTH_GITHUB_CLIENT_ID,
+  //     clientSecret: env.AUTH_GITHUB_SECRET,
+  //   },
+  // },
 
   emailAndPassword: {
     enabled: true,

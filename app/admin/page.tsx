@@ -7,6 +7,8 @@ import { ChartSection } from "@/components/dashboard/yo-coach/chart-section";
 import { LayoutDashboard, Users, BookOpen, MonitorPlay, Wallet, CreditCard, Ticket } from "lucide-react";
 import { ChartAreaInteractive } from "@/components/sidebar/chart-area-interactive";
 
+export const dynamic = "force-dynamic";
+
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState("Lesson commissions");
 

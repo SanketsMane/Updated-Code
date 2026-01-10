@@ -7,6 +7,8 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Settings, Globe, Database, Mail, Shield, Palette } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminSettingsPage() {
   await requireUser();
 

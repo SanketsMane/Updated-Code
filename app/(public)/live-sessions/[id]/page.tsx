@@ -22,6 +22,8 @@ import { format, formatDistance, isPast } from "date-fns";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
+export const dynamic = "force-dynamic";
+
 async function getSession(id: string) {
   const session = await db.liveSession.findUnique({
     where: { id },

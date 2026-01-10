@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { IconShieldCheck, IconCheck, IconX, IconClock } from "@tabler/icons-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function ContentReviewPage() {
   await requireUser();
 

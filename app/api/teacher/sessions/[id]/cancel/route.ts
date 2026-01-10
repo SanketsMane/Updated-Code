@@ -4,6 +4,8 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { stripe } from "@/lib/stripe";
 
+export const dynamic = "force-dynamic";
+
 // POST - Cancel a session
 export async function POST(
   req: NextRequest,

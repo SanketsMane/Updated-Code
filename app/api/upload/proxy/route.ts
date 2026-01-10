@@ -1,10 +1,13 @@
-import { S3 } from "@/lib/S3Client";
+
+import { getS3Client } from "@/lib/S3Client";
 import { auth } from "@/lib/auth";
 import { env } from "@/lib/env";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
+
+export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
     try {
@@ -39,6 +42,7 @@ export async function POST(request: Request) {
             ContentType: file.type,
         });
 
+        const S3 = getS3Client();
         await S3.send(command);
 
         return NextResponse.json({

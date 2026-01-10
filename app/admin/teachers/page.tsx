@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { IconSchool, IconCheck, IconX, IconClock } from "@tabler/icons-react";
 import { prisma as db } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export default async function TeachersPage() {
   await requireUser();
 

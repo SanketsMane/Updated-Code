@@ -22,6 +22,8 @@ import { formatDistanceToNow } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
+export const dynamic = "force-dynamic";
+
 type User = {
   id: string;
   name: string;

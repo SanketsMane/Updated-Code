@@ -5,6 +5,8 @@ import { FadeIn } from "@/components/ui/fade-in";
 import { Calendar, Clock, Award, Globe, Video, CheckCircle2 } from "lucide-react";
 import { BookingWidget } from "./_components/booking-widget";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
     params: Promise<{ teacherId: string }>;
 }

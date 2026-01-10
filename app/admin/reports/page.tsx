@@ -3,6 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { IconFileText, IconDownload, IconCalendar } from "@tabler/icons-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function ReportsPage() {
   await requireUser();
 

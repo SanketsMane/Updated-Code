@@ -10,6 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EditCourseForm } from "./_components/EditCourseForm";
 import { CourseStructure } from "./_components/CourseStructure";
 
+export const dynamic = "force-dynamic";
+
 type Params = Promise<{ courseId: string }>;
 
 export default async function EditRoute({ params }: { params: Params }) {

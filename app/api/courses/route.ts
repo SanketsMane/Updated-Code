@@ -3,6 +3,8 @@ import { getSessionWithRole } from "@/app/data/auth/require-roles";
 import { prisma } from "@/lib/db";
 import { z } from "zod";
 
+export const dynamic = "force-dynamic";
+
 const createCourseSchema = z.object({
     title: z.string().min(3),
     slug: z.string().min(3),

@@ -3,6 +3,8 @@ import { CourseContent } from "./_components/CourseContent";
 import { Suspense } from "react";
 import { LessonSkeleton } from "./_components/LessonSkeleton";
 
+export const dynamic = "force-dynamic";
+
 type Params = Promise<{ lessonId: string }>;
 
 export default async function LessonContentPage({

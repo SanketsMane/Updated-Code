@@ -13,6 +13,8 @@ import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import slugify from "slugify";
 
+export const dynamic = "force-dynamic";
+
 const CATEGORIES = [
     "Programming", "Design", "Business", "Marketing", "Data Science", "Photography"
 ];

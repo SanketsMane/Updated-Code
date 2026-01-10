@@ -3,6 +3,8 @@ import { getUserConversations, getConversationMessages, sendMessage, markMessage
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   try {
     const session = await auth.api.getSession({ headers: await headers() });

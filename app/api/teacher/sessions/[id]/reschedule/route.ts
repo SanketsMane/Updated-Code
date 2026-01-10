@@ -3,6 +3,8 @@ import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
+export const dynamic = "force-dynamic";
+
 // POST - Reschedule a session
 export async function POST(
   req: NextRequest,

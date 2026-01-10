@@ -4,6 +4,8 @@ import { headers } from "next/headers";
 import { prisma } from "@/lib/db";
 import { z } from "zod";
 
+export const dynamic = "force-dynamic";
+
 const createElementSchema = z.object({
   type: z.enum(['PEN', 'SHAPE', 'TEXT', 'STICKY_NOTE', 'IMAGE', 'LINE', 'ARROW']),
   data: z.record(z.any()),

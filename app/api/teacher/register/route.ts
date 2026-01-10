@@ -4,6 +4,8 @@ import { auth } from "@/lib/auth";
 import { z } from "zod";
 import { sendEmail } from "@/lib/email";
 
+export const dynamic = "force-dynamic";
+
 const teacherRegistrationSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
