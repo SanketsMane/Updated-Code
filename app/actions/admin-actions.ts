@@ -6,6 +6,8 @@ import { revalidatePath } from "next/cache";
 export async function deleteDummyData() {
     const dummyNames = [
         "Sarah Jenkins",
+        "Sarah Wilson",
+        "Mike Chen",
         "David Chen",
         "Emily Watson",
         "John Doe",
