@@ -51,7 +51,7 @@ export default async function TeachersPage() {
             <CardTitle className="text-sm font-medium">This Month</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+{teachers.filter(t => {
+            <div className="text-2xl font-bold">+{teachers.filter((t: any) => {
               const monthAgo = new Date();
               monthAgo.setMonth(monthAgo.getMonth() - 1);
               return new Date(t.createdAt) > monthAgo;
@@ -67,7 +67,7 @@ export default async function TeachersPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {teachers.map((teacher) => (
+            {teachers.map((teacher: any) => (
               <div key={teacher.id} className="flex items-center justify-between p-4 border rounded-lg">
                 <div>
                   <p className="font-medium">{teacher.name}</p>
