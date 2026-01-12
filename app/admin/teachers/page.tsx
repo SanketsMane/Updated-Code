@@ -3,7 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { IconSchool, IconCheck, IconX, IconClock } from "@tabler/icons-react";
+import { IconSchool, IconCheck, IconX, IconClock } from "@tabler/icons-react";
 import { prisma as db } from "@/lib/db";
+import { TeacherActions } from "./_components/teacher-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -76,9 +78,14 @@ export default async function TeachersPage() {
                   )}
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant="secondary">Active</Badge>
-                  <Button variant="outline" size="sm">View Profile</Button>
-                  <Button variant="outline" size="sm">Edit</Button>
+                  <Badge variant={teacher.teacherProfile?.isApproved ? "default" : "secondary"} className={teacher.teacherProfile?.isApproved ? "bg-green-600" : "bg-orange-500"}>
+                    {teacher.teacherProfile?.isApproved ? "Active" : "Pending"}
+                  </Badge>
+                  <TeacherActions
+                    userId={teacher.id}
+                    isApproved={!!teacher.teacherProfile?.isApproved}
+                    isVerified={!!teacher.teacherProfile?.isVerified}
+                  />
                 </div>
               </div>
             ))}
