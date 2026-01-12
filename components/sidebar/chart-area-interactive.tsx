@@ -66,27 +66,40 @@ interface ChartAreaInteractiveProps {
   data?: { date: string; enrollments: number }[];
 }
 
-export function ChartAreaInteractive({ data = dummyEnrollmentData }: ChartAreaInteractiveProps) {
-  const totalEnrollmentsNumber = React.useMemo(
-    () => data.reduce((acc, curr) => acc + curr.enrollments, 0),
-    [data]
+export function ChartAreaInteractive({
+  data = dummyEnrollmentData,
+  dataKey = "enrollments",
+  label = "Enrollments",
+  color = "var(--chart-1)"
+}: ChartAreaInteractiveProps & { dataKey?: string, label?: string, color?: string }) {
+  const totalNumber = React.useMemo(
+    () => data.reduce((acc, curr) => acc + (curr[dataKey as keyof typeof curr] as number || 0), 0),
+    [data, dataKey]
   );
+
+  const dynamicConfig = {
+    [dataKey]: {
+      label: label,
+      color: color,
+    }
+  } satisfies ChartConfig;
+
   return (
     <Card className="@container/card">
       <CardHeader>
-        <CardTitle>Total Enrollments</CardTitle>
+        <CardTitle>Total {label}</CardTitle>
         <CardDescription>
           <span className="hidden @[540px]/card:block">
-            Total Enrollments for the last 30 days: {totalEnrollmentsNumber}
+            Total {label}: {totalNumber.toLocaleString()}
           </span>
           <span className="@[540px]/card:hidden">
-            Last 30 days: {totalEnrollmentsNumber}
+            Total: {totalNumber.toLocaleString()}
           </span>
         </CardDescription>
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
         <ChartContainer
-          config={chartConfig}
+          config={dynamicConfig}
           className="aspect-auto h-[250px] w-full"
         >
           <BarChart
@@ -127,7 +140,7 @@ export function ChartAreaInteractive({ data = dummyEnrollmentData }: ChartAreaIn
               }
             />
 
-            <Bar dataKey={"enrollments"} fill="var(--color-enrollments)" />
+            <Bar dataKey={dataKey} fill={color} />
           </BarChart>
         </ChartContainer>
       </CardContent>

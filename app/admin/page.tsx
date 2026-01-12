@@ -5,7 +5,7 @@ import { StatBox } from "@/components/dashboard/yo-coach/stat-box";
 import { LayoutDashboard, Wallet, MonitorPlay, CreditCard, Ticket } from "lucide-react";
 
 export default async function AdminDashboardPage() {
-  const { stats } = await getPlatformAnalytics();
+  const { stats, revenueOverTime } = await getPlatformAnalytics();
 
   // Mapped Data
   const revenueStats = [
@@ -78,9 +78,14 @@ export default async function AdminDashboardPage() {
 
       {/* 3. Main Chart Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <AdminChartSection />
+        <AdminChartSection
+          data={revenueOverTime.map(item => ({
+            date: item.month,
+            revenue: item.revenue / 100
+          }))}
+        />
 
-        {/* Right Side Widgets (Placeholder for "Total Orders" or similar) */}
+        {/* Right Side Widgets */}
         <div className="space-y-6">
           <div className="bg-[#1e293b] text-white p-6 rounded-xl shadow-lg h-48 flex flex-col justify-center relative overflow-hidden">
             <div className="relative z-10">
@@ -106,7 +111,6 @@ export default async function AdminDashboardPage() {
                 <h3 className="text-2xl font-bold">{stats.totalEnrollments}</h3>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">This month <span className="text-green-600 font-bold">+12%</span></p>
           </div>
         </div>
       </div>
