@@ -58,7 +58,7 @@ export function HorizontalTeacherCard({ teacher }: TeacherCardProps) {
         ? Object.entries(teacher.availability as Record<string, string[]>).flatMap(([day, slots]) =>
             slots.map(slot => `${day.charAt(0).toUpperCase() + day.slice(1)} ${slot}`)
         ).slice(0, 3)
-        : ["Today 2:00 PM", "Tomorrow 10:00 AM", "Wed 3:00 PM"];
+        : [];
 
     return (
         <motion.div
@@ -278,19 +278,25 @@ export function HorizontalTeacherCard({ teacher }: TeacherCardProps) {
                                 </span>
                             </div>
                             <div className="space-y-2">
-                                {nextAvailableSlots.map((slot, idx) => (
-                                    <motion.div
-                                        key={idx}
-                                        initial={{ opacity: 0, x: -10 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: idx * 0.1 }}
-                                        className="flex items-center gap-2 text-sm"
-                                    >
-                                        <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                                        <IconClock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                                        <span className="text-gray-700 dark:text-gray-300">{slot}</span>
-                                    </motion.div>
-                                ))}
+                                {nextAvailableSlots.length > 0 ? (
+                                    nextAvailableSlots.map((slot, idx) => (
+                                        <motion.div
+                                            key={idx}
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: idx * 0.1 }}
+                                            className="flex items-center gap-2 text-sm"
+                                        >
+                                            <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                                            <IconClock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                                            <span className="text-gray-700 dark:text-gray-300">{slot}</span>
+                                        </motion.div>
+                                    ))
+                                ) : (
+                                    <div className="text-sm text-slate-500 italic px-2">
+                                        Contact instructor for availability
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </motion.div>
