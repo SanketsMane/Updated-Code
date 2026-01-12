@@ -90,7 +90,7 @@ export default async function LiveSessionsPage() {
                   <Badge variant={session.status === 'scheduled' ? 'default' : session.status === 'completed' ? 'secondary' : 'outline'}>
                     {session.status}
                   </Badge>
-                  <Button variant="outline" size="sm">View Details</Button>
+
                 </div>
               </div>
             ))}

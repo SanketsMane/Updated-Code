@@ -34,10 +34,7 @@ export default async function PaymentsPage() {
           </h1>
           <p className="text-muted-foreground">Monitor platform revenue and transactions</p>
         </div>
-        <Button>
-          <IconDownload className="h-4 w-4 mr-2" />
-          Export Report
-        </Button>
+
       </div>
 
       <div className="grid md:grid-cols-4 gap-4">
