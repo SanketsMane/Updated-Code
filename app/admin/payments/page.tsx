@@ -21,8 +21,8 @@ export default async function PaymentsPage() {
   });
 
   const totalRevenue = enrollments
-    .filter(e => e.status === 'Active')
-    .reduce((sum, e) => sum + e.amount, 0);
+    .filter((e: any) => e.status === 'Active')
+    .reduce((sum: number, e: any) => sum + e.amount, 0);
 
   return (
     <div className="space-y-6">
@@ -59,7 +59,7 @@ export default async function PaymentsPage() {
             <CardTitle className="text-sm font-medium">Active</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{enrollments.filter(e => e.status === 'Active').length}</div>
+            <div className="text-2xl font-bold">{enrollments.filter((e: any) => e.status === 'Active').length}</div>
           </CardContent>
         </Card>
         <Card>
@@ -67,7 +67,7 @@ export default async function PaymentsPage() {
             <CardTitle className="text-sm font-medium">Pending</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{enrollments.filter(e => e.status === 'Pending').length}</div>
+            <div className="text-2xl font-bold">{enrollments.filter((e: any) => e.status === 'Pending').length}</div>
           </CardContent>
         </Card>
       </div>
@@ -79,7 +79,7 @@ export default async function PaymentsPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {enrollments.map((enrollment) => (
+            {enrollments.map((enrollment: any) => (
               <div key={enrollment.id} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex-1">
                   <p className="font-medium">{enrollment.Course.title}</p>

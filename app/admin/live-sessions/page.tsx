@@ -70,7 +70,7 @@ export default async function LiveSessionsPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {sessions.map((session) => (
+            {sessions.map((session: any) => (
               <div key={session.id} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex-1">
                   <p className="font-medium">{session.title}</p>
