@@ -29,7 +29,8 @@ export default async function FindTeacherPage() {
         speaks: t.languages,
         description: t.bio || "No description available.",
         country: "Global", // Schema doesn't have country yet
-        isVerified: t.isVerified
+        isVerified: t.isVerified,
+        availability: t.availability || {}
     }));
 
     return <FindTeacherContent teachers={formattedTeachers} featuredMentors={featuredMentors} />;
