@@ -17,10 +17,10 @@ import { Separator } from "@/components/ui/separator";
 
 const footerLinks = {
   learn: [
-    { name: "Find Tutors", href: "/marketplace" },
+    { name: "Find Tutors", href: "/find-teacher" }, // Was /marketplace
     { name: "Online Courses", href: "/courses" },
     { name: "Live Sessions", href: "/live-sessions" },
-    { name: "Group Classes", href: "/classes" },
+    { name: "Group Classes", href: "/live-sessions" }, // Reusing live-sessions for now or creating later
   ],
   teach: [
     { name: "Become a Tutor", href: "/teacher/register" },
