@@ -20,7 +20,7 @@ export default async function AdminSettingsPage() {
       <div>
         <h1 className="text-3xl font-bold flex items-center gap-3">
           <Settings className="h-8 w-8" />
-          System Settings (Live)
+          System Settings (Live v2)
         </h1>
         <p className="text-muted-foreground">Manage platform-wide settings and configurations</p>
       </div>
