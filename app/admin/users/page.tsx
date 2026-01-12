@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { IconUsers, IconSearch, IconUserPlus, IconShield, IconSchool, IconUser } from "@tabler/icons-react";
 import { prisma as db } from "@/lib/db";
+import { UserActions } from "./_components/user-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -107,11 +108,20 @@ export default async function UsersManagementPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Badge variant={user.role === 'admin' ? 'default' : user.role === 'teacher' ? 'secondary' : 'outline'}>
-                    {user.role}
-                  </Badge>
-                  <Button variant="outline" size="sm">Edit</Button>
-                  <Button variant="destructive" size="sm">Suspend</Button>
+                  {user.banned ? (
+                    <Badge variant="destructive">Suspended</Badge>
+                  ) : (
+                    <Badge variant={user.role === 'admin' ? 'default' : user.role === 'teacher' ? 'secondary' : 'outline'}>
+                      {user.role || 'user'}
+                    </Badge>
+                  )}
+                  <UserActions user={{
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                    banned: user.banned
+                  }} />
                 </div>
               </div>
             ))}
