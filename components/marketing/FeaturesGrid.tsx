@@ -27,7 +27,7 @@ const features = [
                 >
                     <div className="flex items-center gap-4 mb-4">
                         <div className="w-12 h-12 rounded-full bg-gray-200 overflow-hidden relative ring-2 ring-yellow-100">
-                            <Image src="https://randomuser.me/api/portraits/women/44.jpg" alt="Tutor" fill className="object-cover" />
+                            <Image src="https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&q=80&w=200" alt="Tutor" fill className="object-cover" unoptimized />
                         </div>
                         <div>
                             <div className="h-2.5 w-24 bg-gray-800 rounded mb-1.5" />
@@ -59,13 +59,13 @@ const features = [
                         whileHover={{ scale: 1.05 }}
                         className="w-24 h-32 bg-gray-900 rounded-xl overflow-hidden relative shadow-2xl border-2 border-white transform -rotate-3"
                     >
-                        <Image src="https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=1000&auto=format&fit=crop" alt="Tutor" fill className="object-cover opacity-90" />
+                        <Image src="https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=1000&auto=format&fit=crop" alt="Tutor" fill className="object-cover opacity-90" unoptimized />
                     </motion.div>
                     <motion.div
                         whileHover={{ scale: 1.05 }}
                         className="w-24 h-32 bg-gray-200 rounded-xl overflow-hidden relative shadow-2xl border-2 border-white transform rotate-3 mt-8"
                     >
-                        <Image src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1000&auto=format&fit=crop" alt="Student" fill className="object-cover" />
+                        <Image src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1000&auto=format&fit=crop" alt="Student" fill className="object-cover" unoptimized />
 
                         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
                             <div className="w-5 h-5 rounded-full bg-red-500 flex items-center justify-center"><div className="w-2 h-[2px] bg-white" /></div>
@@ -96,7 +96,7 @@ const features = [
                                 whileHover={{ scale: 1.05 }}
                                 className="aspect-video bg-gray-200 rounded-lg relative overflow-hidden"
                             >
-                                <Image src={`https://randomuser.me/api/portraits/${i % 2 === 0 ? 'men' : 'women'}/${40 + i}.jpg`} alt="Participant" fill className="object-cover" />
+                                <Image src={`https://randomuser.me/api/portraits/${i % 2 === 0 ? 'men' : 'women'}/${40 + i}.jpg`} alt="Participant" fill className="object-cover" unoptimized />
                                 <div className="absolute bottom-1 right-1 w-2 h-2 rounded-full bg-green-500 border border-white" />
                             </motion.div>
                         ))}

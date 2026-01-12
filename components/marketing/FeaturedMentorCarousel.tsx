@@ -7,37 +7,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-const featuredMentors = [
-    {
-        id: "1",
-        name: "Sarah Jenkins",
-        role: "Business English Coach",
-        rating: 5.0,
-        image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop",
-        students: "2.5k+",
-        color: "from-blue-500/10 to-indigo-500/10 border-blue-100 dark:border-blue-900/20"
-    },
-    {
-        id: "2",
-        name: "Hiroshi Tanaka",
-        role: "Japanese Language Expert",
-        rating: 4.9,
-        image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop",
-        students: "1.8k+",
-        color: "from-red-500/10 to-pink-500/10 border-red-100 dark:border-red-900/20"
-    },
-    {
-        id: "3",
-        name: "Elena Rodriguez",
-        role: "Spanish Immersion",
-        rating: 4.9,
-        image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&h=200&fit=crop",
-        students: "3k+",
-        color: "from-amber-500/10 to-yellow-500/10 border-amber-100 dark:border-amber-900/20"
-    }
-];
+import { FeaturedMentor } from "@/app/data/marketing/get-marketing-data";
 
-export function FeaturedMentorCarousel() {
+interface FeaturedMentorCarouselProps {
+    mentors: FeaturedMentor[];
+}
+
+export function FeaturedMentorCarousel({ mentors }: FeaturedMentorCarouselProps) {
+    if (!mentors || mentors.length === 0) return null;
+
     return (
         <div className="w-full py-2">
             <div className="flex items-center justify-between mb-4">
@@ -45,13 +23,13 @@ export function FeaturedMentorCarousel() {
                     <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
                     Top Rated This Week
                 </h3>
-                <Link href="#" className="text-xs font-semibold text-primary hover:underline flex items-center">
+                <Link href="/mentors" className="text-xs font-semibold text-primary hover:underline flex items-center">
                     View All <ChevronRight className="w-3 h-3" />
                 </Link>
             </div>
 
             <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
-                {featuredMentors.map((mentor, i) => (
+                {mentors.map((mentor, i) => (
                     <motion.div
                         key={mentor.id}
                         initial={{ opacity: 0, x: 20 }}
@@ -77,7 +55,7 @@ export function FeaturedMentorCarousel() {
                                 <p className="text-xs text-muted-foreground mb-1">{mentor.role}</p>
                                 <div className="flex items-center gap-2 text-xs">
                                     <span className="font-bold text-amber-600 dark:text-amber-400 flex items-center gap-0.5">
-                                        <Star className="w-3 h-3 fill-current" /> {mentor.rating}
+                                        <Star className="w-3 h-3 fill-current" /> {mentor.rating.toFixed(1)}
                                     </span>
                                     <span className="text-muted-foreground">• {mentor.students} students</span>
                                 </div>

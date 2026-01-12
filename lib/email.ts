@@ -20,26 +20,26 @@ interface TemplateData {
  * Create nodemailer transporter based on configuration
  */
 function createTransporter() {
-  const service = process.env.EMAIL_SERVICE;
+  const service = (process.env.EMAIL_SERVICE || '').trim();
 
   if (service === 'gmail') {
     // Gmail configuration
     return nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.EMAIL_USER || '',
-        pass: process.env.EMAIL_PASS || ''
+        user: (process.env.EMAIL_USER || '').trim(),
+        pass: (process.env.EMAIL_PASS || '').trim()
       }
     });
   } else {
     // Custom SMTP configuration
     return nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: parseInt(process.env.EMAIL_PORT || '587'),
-      secure: process.env.EMAIL_SECURE === 'true',
+      host: (process.env.EMAIL_HOST || '').trim(),
+      port: parseInt((process.env.EMAIL_PORT || '587').trim()),
+      secure: (process.env.EMAIL_SECURE || 'false').trim() === 'true',
       auth: {
-        user: process.env.EMAIL_USER || '',
-        pass: process.env.EMAIL_PASS || ''
+        user: (process.env.EMAIL_USER || '').trim(),
+        pass: (process.env.EMAIL_PASS || '').trim()
       }
     });
   }
@@ -321,7 +321,7 @@ export async function sendEmail(emailData: EmailData): Promise<boolean> {
 
     // ... existing logic ...
     const mailOptions = {
-      from: emailData.from || process.env.EMAIL_FROM || process.env.EMAIL_USER,
+      from: emailData.from || (process.env.EMAIL_FROM || '').trim() || (process.env.EMAIL_USER || '').trim(),
       to: emailData.to,
       subject: emailData.subject,
       html: emailData.html

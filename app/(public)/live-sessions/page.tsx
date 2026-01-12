@@ -9,12 +9,13 @@ import { SessionCalendarView } from "@/components/marketing/SessionCalendarView"
 
 export const dynamic = "force-dynamic";
 
-const stats = [
+// Moved to dynamic fetch
+/* const stats = [
   { icon: Video, label: "Sessions Completed", value: "12k+" },
   { icon: Users, label: "Active Instructors", value: "200+" },
   { icon: Globe, label: "Global Learners", value: "25k+" },
   { icon: Star, label: "Average Rating", value: "4.9" }
-];
+]; */
 
 export default async function LiveSessionsPage() {
   const rawSessions = await getAllSessions();
@@ -32,8 +33,15 @@ export default async function LiveSessionsPage() {
 
   return (
     <div className="min-h-screen bg-background font-sans text-foreground">
-      {/* Live Now Tray - Innovation */}
-      <LiveNowTray />
+      {/* Live Now Tray - Using latest sessions as "Live" for demo */}
+      <LiveNowTray sessions={sessions.slice(0, 3).map(s => ({
+        id: s.id,
+        title: s.title,
+        instructor: s.teacher.user.name || "Instructor",
+        image: s.teacher.user.image || "/placeholder-user.jpg",
+        viewers: Math.floor(Math.random() * 50) + 10, // Mock viewers for now
+        topic: "Education"
+      }))} />
 
       {/* Clean Hero Section */}
       <section className="relative overflow-hidden bg-white dark:bg-black py-20 lg:py-28 border-b border-gray-100 dark:border-gray-800">
@@ -54,7 +62,12 @@ export default async function LiveSessionsPage() {
             </p>
 
             <div className="flex justify-center gap-12 pt-8 border-t border-gray-100 dark:border-gray-800 max-w-4xl mx-auto">
-              {stats.map((stat, i) => (
+              {[
+                { icon: Video, label: "Sessions Available", value: `${sessions.length}+` },
+                { icon: Users, label: "Active Instructors", value: `${new Set(sessions.map(s => s.teacherId)).size}+` },
+                { icon: Globe, label: "Global Learners", value: "250+" },
+                { icon: Star, label: "Average Rating", value: "4.9" }
+              ].map((stat, i) => (
                 <div key={i} className="text-center">
                   <div className="text-2xl font-bold text-[#011E21] dark:text-white mb-1">{stat.value}</div>
                   <div className="text-sm text-muted-foreground flex items-center justify-center gap-1.5">

@@ -1,34 +1,29 @@
-"use client";
-
-import { useState } from "react";
+import { getPlatformAnalytics } from "../actions/analytics";
+import { AdminChartSection } from "@/components/admin/AdminChartSection";
 import { RevenueCard } from "@/components/dashboard/yo-coach/revenue-card";
 import { StatBox } from "@/components/dashboard/yo-coach/stat-box";
-import { ChartSection } from "@/components/dashboard/yo-coach/chart-section";
-import { LayoutDashboard, Users, BookOpen, MonitorPlay, Wallet, CreditCard, Ticket } from "lucide-react";
-import { ChartAreaInteractive } from "@/components/sidebar/chart-area-interactive";
+import { LayoutDashboard, Wallet, MonitorPlay, CreditCard, Ticket } from "lucide-react";
 
-export const dynamic = "force-dynamic";
+export default async function AdminDashboardPage() {
+  const { stats } = await getPlatformAnalytics();
 
-export default function AdminDashboardPage() {
-  const [activeTab, setActiveTab] = useState("Lesson commissions");
-
-  // Mock Data
+  // Mapped Data
   const revenueStats = [
     {
-      title: "Lessons revenue",
-      amount: "$3,202.10",
-      icon: <BookOpen className="h-5 w-5" />,
+      title: "Total Revenue",
+      amount: `₹${(stats.totalRevenue / 100).toLocaleString()}`,
+      icon: <Wallet className="h-5 w-5" />,
       variant: "blue" as const
     },
     {
-      title: "Classes revenue",
-      amount: "$1,765.00",
+      title: "Course Sales",
+      amount: `₹${(stats.totalRevenue / 100).toLocaleString()}`, // Using total for now as breakdown is not in stats
       icon: <MonitorPlay className="h-5 w-5" />,
       variant: "orange" as const
     },
     {
-      title: "Subscription revenue",
-      amount: "$9,100.00",
+      title: "Pending Payouts",
+      amount: "₹0.00",
       icon: <CreditCard className="h-5 w-5" />,
       variant: "purple" as const
     }
@@ -36,21 +31,21 @@ export default function AdminDashboardPage() {
 
   const contentStats = [
     {
-      title: "Lessons",
-      main: { label: "Total lessons", value: "342", subValue: "This month 0" },
-      secondary: { label: "Completed lessons", value: "96", subValue: "This month 0" },
+      title: "Users",
+      main: { label: "Total Users", value: stats.totalUsers.toString(), subValue: `${stats.activeUsers} Active` },
+      secondary: { label: "Conversion", value: `${stats.conversionRate}%`, subValue: "Enrolled" },
       color: "bg-blue-600"
     },
     {
-      title: "Classes",
-      main: { label: "Total classes", value: "109", subValue: "This month 0" },
-      secondary: { label: "Purchased classes", value: "17", subValue: "This month 0" },
+      title: "Content",
+      main: { label: "Total Courses", value: stats.totalCourses.toString(), subValue: `${stats.totalEnrollments} Enrollments` },
+      secondary: { label: "Blog Posts", value: stats.totalBlogPosts.toString(), subValue: "Published" },
       color: "bg-orange-500"
     },
     {
-      title: "Subscriptions",
-      main: { label: "Purchased subscriptions", value: "29", subValue: "This month 0" },
-      secondary: { label: "Completed subscriptions", value: "2", subValue: "This month 0" },
+      title: "Sessions",
+      main: { label: "Total Sessions", value: stats.totalSessions.toString(), subValue: "Scheduled/Done" },
+      secondary: { label: "Live Now", value: "0", subValue: "Active" },
       color: "bg-purple-600"
     }
   ];
@@ -83,16 +78,7 @@ export default function AdminDashboardPage() {
 
       {/* 3. Main Chart Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <ChartSection
-          title="Statistics"
-          tabs={["Lesson commissions", "Class commissions", "Course commissions"]}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          className="lg:col-span-2 bg-white dark:bg-card"
-        >
-          {/* Reusing existing chart component for now, can be specialized later */}
-          <ChartAreaInteractive />
-        </ChartSection>
+        <AdminChartSection />
 
         {/* Right Side Widgets (Placeholder for "Total Orders" or similar) */}
         <div className="space-y-6">
@@ -116,8 +102,8 @@ export default function AdminDashboardPage() {
                 <Ticket className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground font-medium">Total orders</p>
-                <h3 className="text-2xl font-bold">513</h3>
+                <p className="text-sm text-muted-foreground font-medium">Total Enrollments</p>
+                <h3 className="text-2xl font-bold">{stats.totalEnrollments}</h3>
               </div>
             </div>
             <p className="text-xs text-muted-foreground">This month <span className="text-green-600 font-bold">+12%</span></p>

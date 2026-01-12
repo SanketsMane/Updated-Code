@@ -24,6 +24,8 @@ import { PopularLanguages } from "@/components/marketing/PopularLanguages";
 import { FeaturedCourses } from "@/components/marketing/FeaturedCourses";
 import { StatsBar } from "@/components/marketing/StatsBar";
 import { VibeCard } from "@/components/marketing/vibe-card";
+import { getFeaturedCourses } from "../data/courses/get-featured-courses";
+import { getTopCategories, getFeaturedReviews } from "../data/marketing/get-marketing-data";
 
 const features = [
   {
@@ -78,12 +80,12 @@ export default async function Home() {
 
   // Fetch Real Data
   const courseCount = await prisma.course.count({ where: { status: 'Published' } });
-  const studentCount = await prisma.user.count({ where: { role: 'student' } }); // Assuming role 'student' or null defaults to student
+  const studentCount = await prisma.user.count({ where: { role: 'student' } });
   const instructorCount = await prisma.teacherProfile.count({ where: { isVerified: true } });
 
-
-
-
+  const featuredCourses = await getFeaturedCourses();
+  const categories = await getTopCategories();
+  const reviews = await getFeaturedReviews();
 
   const stats = [
     { icon: BookOpen, label: "Total Courses", value: `${courseCount}+` },
@@ -146,9 +148,9 @@ export default async function Home() {
       {/* --- NEW SECTIONS --- */}
       <FeaturesGrid />
 
-      <FeaturedCourses />
+      <FeaturedCourses courses={featuredCourses} />
 
-      <CategoriesGrid />
+      <CategoriesGrid categories={categories} />
 
       <PopularLanguages />
 
@@ -157,7 +159,7 @@ export default async function Home() {
 
 
       {/* --- REVIEWS --- */}
-      <Testimonials />
+      <Testimonials reviews={reviews} />
 
 
 

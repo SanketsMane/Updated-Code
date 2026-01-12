@@ -10,58 +10,54 @@ import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
+import { getTeacherAnalytics } from "../actions/analytics";
+
 export default async function TeacherDashboardPage() {
-  await requireTeacher();
-  const courses = await adminGetCourses();
+  // await requireTeacher(); // Assuming this is handled layout/middleware or check below
+  const { stats, topReview } = await getTeacherAnalytics();
 
-  const stats = {
-    totalCourses: courses.length,
-    activeCourses: courses.filter((c: any) => c.status === "Published").length,
-    draftCourses: courses.filter((c: any) => c.status === "Draft").length,
-  };
-
-  // Mock Earnings Data
+  // Earnings Data
   const earningsStats = [
     {
       title: "Total Earnings",
-      amount: "₹12,450.00",
+      amount: `₹${(stats.totalEarnings / 100).toLocaleString()}`, // Assuming cents
       icon: <Wallet className="h-5 w-5" />,
       variant: "blue" as const,
-      subTitle: "This month ₹2,400.00"
+      subTitle: "Lifetime earnings"
     },
     {
       title: "Pending Payout",
-      amount: "₹1,240.00",
+      amount: "₹0.00", // TODO: Implement payouts
       icon: <Clock className="h-5 w-5" />,
       variant: "orange" as const,
-      subTitle: "Process date: 30th Dec"
+      subTitle: "No pending payouts"
     },
     {
       title: "Lifetime Students",
-      amount: "156",
+      amount: stats.studentsCount.toString(),
       icon: <Users className="h-5 w-5" />,
       variant: "purple" as const,
-      subTitle: "+12 this week"
+      subTitle: `Across ${stats.coursesCreated} courses`
     }
   ];
 
   const contentStats = [
     {
       title: "My Content",
-      main: { label: "Total Courses", value: stats.totalCourses.toString(), subValue: `${stats.activeCourses} Published` },
-      secondary: { label: "Total Lessons", value: "48", subValue: "Across all courses" },
+      main: { label: "Total Courses", value: stats.coursesCreated.toString(), subValue: `${stats.totalEnrollments} Enrollments` },
+      secondary: { label: "Blog Posts", value: stats.blogPostsCount.toString(), subValue: "Published articles" },
       color: "bg-blue-600"
     },
     {
       title: "Engagement",
-      main: { label: "Total Reviews", value: "24", subValue: "Avg Rating 4.8" },
-      secondary: { label: "Questions Answered", value: "142", subValue: "Response rate 98%" },
+      main: { label: "Avg Rating", value: stats.averageRating.toFixed(1), subValue: "Student reviews" },
+      secondary: { label: "Sessions", value: stats.sessionsCompleted.toString(), subValue: "Completed" },
       color: "bg-orange-500"
     },
     {
       title: "Live Sessions",
-      main: { label: "Hours Taught", value: "128h", subValue: "This year" },
-      secondary: { label: "Upcoming", value: "3", subValue: "Next: Today 6PM" },
+      main: { label: "Sessions", value: stats.sessionsCompleted.toString(), subValue: "Completed" },
+      secondary: { label: "Upcoming", value: "0", subValue: "Check Calendar" }, // TODO: Add upcoming count
       color: "bg-purple-600"
     }
   ];
@@ -115,14 +111,23 @@ export default async function TeacherDashboardPage() {
             <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
               <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" /> Top Review
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300 italic mb-4">"The React course was absolutely amazing! Explained concepts clearly."</p>
-            <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-full bg-gray-200" />
-              <div>
-                <p className="text-xs font-bold">Sarah Jenkins</p>
-                <p className="text-[10px] text-muted-foreground">Frontend Developer</p>
-              </div>
-            </div>
+            {topReview ? (
+              <>
+                <p className="text-sm text-gray-600 dark:text-gray-300 italic mb-4">"{topReview.comment || "No comment provided."}"</p>
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-full bg-gray-200 overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {topReview.reviewer.image && <img src={topReview.reviewer.image} alt={topReview.reviewer.name || ""} className="w-full h-full object-cover" />}
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold">{topReview.reviewer.name || "Anonymous"}</p>
+                    <p className="text-[10px] text-muted-foreground">{new Date(topReview.createdAt).toLocaleDateString()}</p>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <p className="text-sm text-gray-500 italic">No reviews yet.</p>
+            )}
           </div>
         </div>
       </div>

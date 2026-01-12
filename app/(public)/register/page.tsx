@@ -88,7 +88,12 @@ export default function RegisterPage() {
             }
           }
           toast.success("Account created successfully!");
-          router.push(userType === "teacher" ? "/teacher/profile" : "/dashboard");
+          if (userType === "teacher") {
+            // Force a hard refresh to ensure the session updates with the new role
+            window.location.href = "/teacher/profile";
+          } else {
+            router.push("/dashboard");
+          }
         },
         onError: (ctx) => {
           toast.error(ctx.error.message || "Something went wrong");

@@ -40,9 +40,14 @@ const trendingTopics = [
   "Cloud Computing", "Cybersecurity"
 ];
 
+import { getTopCategories } from "@/app/data/marketing/get-marketing-data";
+
+// ... existing imports
+
 export default async function PublicCoursesRoute({ searchParams }: Props) {
   const params = await searchParams;
   const allCourses = await getAllCourses();
+  const categories = await getTopCategories(); // Fetch dynamic categories
 
   // Filter courses based on search parameters
   let filteredCourses = allCourses;

@@ -17,67 +17,29 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 
-// Rich Mock Data for Yo-Coach Fidelity
-const mockTeachers = [
-    {
-        id: "1",
-        name: "Sarah Jenkins",
-        image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
-        headline: "Expert Business English Coach & IELTS Trainer",
-        rating: 4.9,
-        reviewCount: 128,
-        hourlyRate: 2500,
-        teaches: ["English", "Business Comms"],
-        speaks: ["English (Native)", "French (B2)"],
-        description: "Certified TEFL teacher with 10 years of experience helping professionals master Business English. Specialized in IELTS preparation and corporate communication skills. My interactive sessions focus on real-world usage and confidence building.",
-        country: "United Kingdom",
-        isVerified: true,
-    },
-    {
-        id: "2",
-        name: "Hiroshi田中",
-        image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
-        headline: "Certified Japanese Tutor | JLPT N1-N5",
-        rating: 5.0,
-        reviewCount: 85,
-        hourlyRate: 3000,
-        teaches: ["Japanese", "Calligraphy"],
-        speaks: ["Japanese (Native)", "English (Fluent)"],
-        description: "Native Japanese speaker with a passion for sharing my culture. I structure lessons based on your goals, whether it's passing the JLPT, watching anime without subtitles, or business etiquette. Let's make learning Japanese fun together!",
-        country: "Japan",
-        isVerified: true,
-    },
-    {
-        id: "3",
-        name: "Elena Rodriguez",
-        image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=400&fit=crop",
-        headline: "Spanish for Travelers and Professionals",
-        rating: 4.8,
-        reviewCount: 210,
-        hourlyRate: 1800,
-        teaches: ["Spanish", "Culture"],
-        speaks: ["Spanish (Native)", "English (Advanced)"],
-        description: "Hola! I am a professional language teacher from Madrid. My methodology involves total immersion and conversation from day one. I have extensive materials for grammar, vocabulary, and cultural nuances tailored to your level.",
-        country: "Spain",
-        isVerified: true,
-    },
-    {
-        id: "4",
-        name: "David Chen",
-        image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
-        headline: "Math & Physics Tutor for High School & College",
-        rating: 4.9,
-        reviewCount: 156,
-        hourlyRate: 2200,
-        teaches: ["Mathematics", "Physics", "Calculus"],
-        speaks: ["English (Native)", "Mandarin (Native)"],
-        description: "MSc in Physics from MIT. I help students grasp complex concepts through simple analogies. Whether you're struggling with high school algebra or college-level quantum mechanics, I can guide you to academic success.",
-        country: "USA",
-        isVerified: true,
-    }
-];
+import { FeaturedMentor } from "@/app/data/marketing/get-marketing-data";
 
-export function FindTeacherContent() {
+export interface TeacherWithProfile {
+    id: string;
+    name: string;
+    image: string;
+    headline: string;
+    rating: number;
+    reviewCount: number;
+    hourlyRate: number;
+    teaches: string[];
+    speaks: string[];
+    description: string;
+    country: string;
+    isVerified: boolean;
+}
+
+interface FindTeacherContentProps {
+    teachers: TeacherWithProfile[];
+    featuredMentors: FeaturedMentor[];
+}
+
+export function FindTeacherContent({ teachers, featuredMentors }: FindTeacherContentProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
     const [selectedAvailability, setSelectedAvailability] = useState<string[]>([]);
@@ -91,7 +53,7 @@ export function FindTeacherContent() {
 
     // Filter and search logic
     const filteredTeachers = useMemo(() => {
-        return mockTeachers.filter(teacher => {
+        return teachers.filter(teacher => {
             // Search filter
             const matchesSearch = searchQuery === "" ||
                 teacher.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -304,7 +266,7 @@ export function FindTeacherContent() {
 
                             {/* Featured Carousel in Sidebar */}
                             <div className="mb-6 pb-6 border-b border-slate-100 dark:border-slate-800">
-                                <FeaturedMentorCarousel />
+                                <FeaturedMentorCarousel mentors={featuredMentors} />
                             </div>
 
                             <div className="flex items-center justify-between mb-6">

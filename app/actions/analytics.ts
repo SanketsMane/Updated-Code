@@ -119,6 +119,7 @@ export async function getTeacherAnalytics() {
     averageRating,
     studentsCount,
     blogPostsCount,
+    topReview,
   ] = await Promise.all([
     // Courses created
     prisma.course.count({
@@ -183,6 +184,23 @@ export async function getTeacherAnalytics() {
     prisma.blogPost.count({
       where: { authorId: session.user.id }
     }),
+
+    // Top Review
+    prisma.review.findFirst({
+      where: {
+        OR: [
+          { course: { userId: session.user.id } },
+          { teacher: { userId: session.user.id } }
+        ],
+        rating: 5
+      },
+      orderBy: { createdAt: "desc" },
+      include: {
+        reviewer: {
+          select: { name: true, image: true }
+        }
+      }
+    }),
   ]);
 
   // Get revenue over time
@@ -203,6 +221,7 @@ export async function getTeacherAnalytics() {
     },
     revenueData,
     coursePerformance,
+    topReview,
   };
 }
 

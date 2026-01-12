@@ -14,6 +14,7 @@ import { RevenueCard } from "@/components/dashboard/yo-coach/revenue-card"; // R
 import { StatBox } from "@/components/dashboard/yo-coach/stat-box";
 import { ChartSection } from "@/components/dashboard/yo-coach/chart-section";
 import { ChartAreaInteractive } from "@/components/sidebar/chart-area-interactive";
+import { getStudentSchedule } from "../data/student/get-student-schedule";
 
 export const dynamic = "force-dynamic";
 
@@ -28,38 +29,32 @@ export default async function DashboardPage() {
   const userId = session?.user?.id || '';
   const analytics = await getUserAnalytics(userId);
   const enrolledCourses = await getEnrolledCourses();
+  const scheduleItems = await getStudentSchedule(userId);
 
-  // Mock Data
-  const scheduleItems = [
-    { id: "1", title: "React Live Class", time: "06:00 PM", date: "Today", type: "class" as const, user: "Instructor Mike" },
-  ];
-
-  const recentActivity = [
-    { id: "1", text: "Logged in successfully", time: "Just now" },
-    { id: "2", text: "Completed 'NextJS 14' Lesson 3", time: "2 hours ago" },
-  ];
+  // Recent activity adapted from analytics
+  // const recentActivity = analytics.recentActivity ... (TODO: Map this if needed for a widget)
 
   // Yo-Coach Style Top Cards (Adapted for Student)
   const topStats = [
     {
-      title: "Learning Hours",
-      amount: "128h",
-      subTitle: "This month 12h",
-      icon: <Clock className="h-5 w-5" />,
+      title: "Lessons Done",
+      amount: analytics.stats.totalLessonsCompleted.toString(),
+      subTitle: "Keep learning!",
+      icon: <BookOpen className="h-5 w-5" />,
       variant: "blue" as const
     },
     {
       title: "Completed Courses",
       amount: analytics.stats.completedCourses.toString(),
-      subTitle: "Last one: React Basic",
-      icon: <BookOpen className="h-5 w-5" />,
+      subTitle: `Out of ${analytics.stats.enrollmentCount} enrolled`,
+      icon: <IconTrophy className="h-5 w-5" />,
       variant: "orange" as const
     },
     {
-      title: "Avg. Score",
-      amount: "92%",
-      subTitle: "Top 5% of students",
-      icon: <Target className="h-5 w-5" />,
+      title: "Sessions Attended",
+      amount: analytics.stats.completedSessions.toString(),
+      subTitle: `${analytics.stats.totalSessionsBooked} booked total`,
+      icon: <IconFlame className="h-5 w-5" />,
       variant: "purple" as const
     }
   ];

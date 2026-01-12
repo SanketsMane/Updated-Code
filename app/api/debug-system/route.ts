@@ -1,0 +1,48 @@
+
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+import nodemailer from "nodemailer";
+
+export async function GET() {
+    const results = {
+        database: { status: "pending", error: null as any },
+        email: { status: "pending", error: null as any },
+        env: {
+            EMAIL_USER: (process.env.EMAIL_USER || "").trim() ? "SET" : "MISSING",
+            EMAIL_PASS: (process.env.EMAIL_PASS || "").trim() ? "SET" : "MISSING",
+            EMAIL_HOST: (process.env.EMAIL_HOST || "").trim(),
+            DATABASE_URL_START: (process.env.DATABASE_URL || "").substring(0, 10) + "...",
+        }
+    };
+
+    // 1. Test Database
+    try {
+        const count = await prisma.user.count();
+        results.database = { status: "success", count } as any;
+    } catch (error: any) {
+        console.error("DB Error:", error);
+        results.database = { status: "error", error: error.message };
+    }
+
+    // 2. Test Email (ACTUAL SEND)
+    try {
+        const { sendEmail } = await import("@/lib/email");
+        const success = await sendEmail({
+            to: (process.env.EMAIL_USER || "").trim(), // Send to self
+            subject: "System Debug Test",
+            html: "<p>If you get this, sending works.</p>"
+        });
+
+        if (success) {
+            results.email = { status: "success", message: "Email Sent Successfully" } as any;
+        } else {
+            results.email = { status: "error", message: "sendEmail returned false (check server logs)" } as any;
+        }
+
+    } catch (error: any) {
+        console.error("Email Error:", error);
+        results.email = { status: "error", error: error.message, stack: error.stack };
+    }
+
+    return NextResponse.json(results, { status: 200 });
+}

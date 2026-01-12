@@ -6,26 +6,21 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 
-export function LiveNowTray() {
-    // Mock data for "Live Now" experience
-    const liveSessions = [
-        {
-            id: "live-1",
-            title: "Advanced React Patterns & Performance",
-            instructor: "Sarah Jenkins",
-            image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
-            viewers: 142,
-            topic: "Programming"
-        },
-        {
-            id: "live-2",
-            title: "Mastering Digital Art: Color Theory",
-            instructor: "David Chen",
-            image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop",
-            viewers: 85,
-            topic: "Design"
-        }
-    ];
+export interface LiveSessionMock {
+    id: string;
+    title: string;
+    instructor: string;
+    image: string;
+    viewers: number;
+    topic: string;
+}
+
+interface LiveNowTrayProps {
+    sessions: LiveSessionMock[];
+}
+
+export function LiveNowTray({ sessions }: LiveNowTrayProps) {
+    if (!sessions || sessions.length === 0) return null;
 
     return (
         <div className="bg-[#011E21] text-white overflow-hidden relative">
@@ -39,7 +34,7 @@ export function LiveNowTray() {
                 </div>
 
                 <div className="flex items-center gap-4 overflow-x-auto no-scrollbar mask-gradient">
-                    {liveSessions.map((session) => (
+                    {sessions.map((session) => (
                         <motion.div
                             key={session.id}
                             initial={{ opacity: 0, x: 20 }}
