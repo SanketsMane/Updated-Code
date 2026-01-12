@@ -23,6 +23,7 @@ interface TeacherCardProps {
         description: string;
         country: string;
         isVerified: boolean;
+        availability?: Record<string, string[]> | object;
     }
 }
 
@@ -52,7 +53,12 @@ export function HorizontalTeacherCard({ teacher }: TeacherCardProps) {
     };
 
     // Mock availability data
-    const nextAvailableSlots = ["Today 2:00 PM", "Tomorrow 10:00 AM", "Wed 3:00 PM"];
+    // Simplified availability mapping from teacher availability or fallback
+    const nextAvailableSlots = teacher.availability
+        ? Object.entries(teacher.availability as Record<string, string[]>).flatMap(([day, slots]) =>
+            slots.map(slot => `${day.charAt(0).toUpperCase() + day.slice(1)} ${slot}`)
+        ).slice(0, 3)
+        : ["Today 2:00 PM", "Tomorrow 10:00 AM", "Wed 3:00 PM"];
 
     return (
         <motion.div

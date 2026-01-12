@@ -20,7 +20,14 @@ export async function getAllCourses() {
       fileKey: true,
       slug: true,
       duration: true,
+
       createdAt: true,
+      user: {
+        select: {
+          name: true,
+          image: true
+        }
+      }
     },
   });
 

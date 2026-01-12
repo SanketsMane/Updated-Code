@@ -131,7 +131,7 @@ export function PublicCourseCard({ data }: iAppProps) {
             <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200">
               <Users className="w-4 h-4 text-gray-500" />
             </div>
-            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">John Doe</span>
+            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">{(data as any).user?.name || "Expert Instructor"}</span>
           </div>
           <span className="text-xl font-bold text-[#011E21] dark:text-white">₹{data.price}</span>
         </div>

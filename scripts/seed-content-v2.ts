@@ -28,9 +28,24 @@ async function main() {
         update: {},
         create: {
             id: "teacher-user",
-            name: "Sarah Wilson",
+            name: "Sarah Jenkins", // Matching the UI provided in screenshots
             email: "teacher@kidokool.com",
             image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop",
+            role: "teacher",
+            emailVerified: true,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        },
+    });
+
+    const teacher2 = await prisma.user.upsert({
+        where: { email: "mike@kidokool.com" },
+        update: {},
+        create: {
+            id: "teacher-mike",
+            name: "Mike Chen",
+            email: "mike@kidokool.com",
+            image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop",
             role: "teacher",
             emailVerified: true,
             createdAt: new Date(),
@@ -57,6 +72,27 @@ async function main() {
                 tuesday: ["09:00-17:00"],
             },
         } as any, // casting as any because some array fields might be strict specific types in recent prisma
+        update: {},
+    });
+
+    await prisma.teacherProfile.upsert({
+        where: { userId: teacher2.id },
+        create: {
+            userId: teacher2.id,
+            bio: "Expert React and Node.js developer with a passion for teaching.",
+            expertise: ["React", "Node.js", "Full Stack"],
+            languages: ["English", "Mandarin"],
+            hourlyRate: 4500,
+            isVerified: true,
+            isApproved: true,
+            rating: 4.8,
+            totalReviews: 89,
+            totalStudents: 800,
+            availability: {
+                wednesday: ["10:00-14:00"],
+                thursday: ["10:00-14:00"],
+            },
+        } as any,
         update: {},
     });
 
