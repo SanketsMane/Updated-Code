@@ -74,7 +74,6 @@ export default function RegisterPage() {
         password: formData.password,
         name: `${formData.firstName} ${formData.lastName}`,
         image: undefined,
-        role: userType,
         callbackURL: userType === "teacher" ? "/teacher" : "/dashboard",
       }, {
         onSuccess: async () => {
