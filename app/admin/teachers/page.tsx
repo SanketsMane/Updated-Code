@@ -3,7 +3,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { IconSchool, IconCheck, IconX, IconClock } from "@tabler/icons-react";
-import { IconSchool, IconCheck, IconX, IconClock } from "@tabler/icons-react";
 import { prisma as db } from "@/lib/db";
 import { TeacherActions } from "./_components/teacher-actions";
 
