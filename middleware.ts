@@ -52,7 +52,7 @@ async function securityMiddleware(request: NextRequest) {
 
 export const config = {
   // Run on all routes except static assets
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|manifest.json).*)"],
 };
 
 export default async function middleware(request: NextRequest) {

@@ -9,32 +9,27 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   try {
     const session = await auth.api.getSession({ headers: await headers() });
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get teacher profile or create one if it doesn't exist
-    let teacherProfile = await prisma.teacherProfile.findUnique({
-      where: { userId: session.user.id }
+    // Get teacher profile or create one if it doesn't exist (using upsert for safety)
+    const teacherProfile = await prisma.teacherProfile.upsert({
+      where: { userId: session.user.id },
+      create: {
+        userId: session.user.id,
+        bio: 'Welcome to teaching!',
+        expertise: ['General'],
+        hourlyRate: 50,
+        isVerified: true,
+        isApproved: true,
+        rating: 5.0,
+        totalEarnings: 0,
+        totalReviews: 0,
+      },
+      update: {},
     });
-
-    if (!teacherProfile) {
-      // Create teacher profile if it doesn't exist
-      teacherProfile = await prisma.teacherProfile.create({
-        data: {
-          userId: session.user.id,
-          bio: 'Welcome to teaching!',
-          expertise: ['General'],
-          hourlyRate: 50,
-          isVerified: true,
-          isApproved: true,
-          rating: 5.0,
-          totalEarnings: 0,
-          totalReviews: 0,
-        }
-      });
-    }
 
     // Get query parameters
     const searchParams = req.nextUrl.searchParams;
@@ -125,11 +120,11 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     console.error("Error fetching teacher sessions:", error);
-    return NextResponse.json({ 
+    return NextResponse.json({
       sessions: [],
       pagination: { page: 1, limit: 20, total: 0, totalPages: 0 },
       stats: { total: 0, upcoming: 0, completed: 0, totalEarnings: 0 },
-      error: "Internal server error" 
+      error: "Internal server error"
     }, { status: 500 });
   }
 }
@@ -138,7 +133,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await auth.api.getSession({ headers: await headers() });
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
