@@ -7,6 +7,9 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Settings, Globe, Database, Mail, Shield, Palette } from "lucide-react";
 
+import { Trash2 } from "lucide-react";
+import { CleanDataButton } from "./_components/clean-data-button";
+
 export const dynamic = "force-dynamic";
 
 export default async function AdminSettingsPage() {
@@ -208,6 +211,17 @@ export default async function AdminSettingsPage() {
             <div className="p-3 bg-muted rounded-lg">
               <p className="text-sm">Last backup: 2 hours ago</p>
               <p className="text-xs text-muted-foreground">Next scheduled: Today at 3:00 AM</p>
+            </div>
+            <Separator />
+            <div className="flex flex-col gap-2">
+              <Label className="text-destructive font-bold">Danger Zone</Label>
+              <div className="flex items-center justify-between p-4 border border-destructive/20 bg-destructive/5 rounded-lg">
+                <div className="space-y-1">
+                  <p className="font-medium text-destructive">Remove Dummy Data</p>
+                  <p className="text-xs text-muted-foreground">Deletes seeded users (Sarah Jenkins, etc.)</p>
+                </div>
+                <CleanDataButton />
+              </div>
             </div>
           </CardContent>
         </Card>
