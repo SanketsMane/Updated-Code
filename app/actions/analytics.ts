@@ -350,25 +350,25 @@ export async function getPlatformAnalytics() {
             }
           }
         ]
-      }
+      }),
     // Live Sessions ("Live Now" or just Active today)
     prisma.liveSession.count({
-        where: {
-          status: "in-progress"
-        }
-      }),
+      where: {
+        status: "in-progress"
+      }
+    }),
 
-      // Total Pending Payouts
-      prisma.payoutRequest.aggregate({
-        where: {
-          status: {
-            in: ["Pending", "UnderReview", "Processing"]
-          }
-        },
-        _sum: {
-          requestedAmount: true
+    // Total Pending Payouts
+    prisma.payoutRequest.aggregate({
+      where: {
+        status: {
+          in: ["Pending", "UnderReview", "Processing"]
         }
-      })
+      },
+      _sum: {
+        requestedAmount: true
+      }
+    })
   ]);
 
   // Get user growth over time
