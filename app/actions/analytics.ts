@@ -66,10 +66,11 @@ export async function getUserAnalytics(userId?: string) {
     // Blog posts authored
     prisma.blogPost.count({
       where: { authorId: targetUserId }
+    }),
     // Certificates count
     prisma.certificate.count({
-        where: { userId: targetUserId }
-      }),
+      where: { userId: targetUserId }
+    }),
   ]);
 
   // Get daily activity for the chart (last 30 days)
