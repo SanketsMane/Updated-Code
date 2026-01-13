@@ -21,6 +21,7 @@ export async function getUserAnalytics(userId?: string) {
     completedSessions,
     messagesCount,
     blogPostsCount,
+    certificatesCount,
   ] = await Promise.all([
     // Enrollment count
     prisma.enrollment.count({
@@ -65,8 +66,43 @@ export async function getUserAnalytics(userId?: string) {
     // Blog posts authored
     prisma.blogPost.count({
       where: { authorId: targetUserId }
-    }),
+    // Certificates count
+    prisma.certificate.count({
+        where: { userId: targetUserId }
+      }),
   ]);
+
+  // Get daily activity for the chart (last 30 days)
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const dailyActivity = await prisma.lessonProgress.findMany({
+    where: {
+      userId: targetUserId,
+      completed: true,
+      updatedAt: { gte: thirtyDaysAgo }
+    },
+    select: { updatedAt: true }
+  });
+
+  // Group by date
+  const activityMap: { [key: string]: number } = {};
+  // Initialize last 30 days with 0
+  for (let i = 0; i < 30; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+    activityMap[dateStr] = 0;
+  }
+
+  dailyActivity.forEach(item => {
+    const dateStr = item.updatedAt.toISOString().split('T')[0];
+    if (activityMap[dateStr] !== undefined) {
+      activityMap[dateStr]++;
+    }
+  });
+
+  const activityData = Object.entries(activityMap)
+    .map(([date, count]) => ({ date, lessons: count }))
+    .sort((a, b) => a.date.localeCompare(b.date));
 
   // Get recent activity
   const recentActivity = await getRecentActivity(targetUserId);
@@ -86,12 +122,14 @@ export async function getUserAnalytics(userId?: string) {
       completedSessions,
       messagesCount,
       blogPostsCount,
+      certificatesCount,
       completionRate: enrollmentCount > 0 ? Math.round((completedCourses / enrollmentCount) * 100) : 0,
       sessionCompletionRate: totalSessionsBooked > 0 ? Math.round((completedSessions / totalSessionsBooked) * 100) : 0,
     },
     recentActivity,
     learningProgress,
     engagementMetrics,
+    activityData
   };
 }
 
@@ -120,6 +158,8 @@ export async function getTeacherAnalytics() {
     studentsCount,
     blogPostsCount,
     topReview,
+    pendingPayouts,
+    upcomingSessions,
   ] = await Promise.all([
     // Courses created
     prisma.course.count({
@@ -201,6 +241,30 @@ export async function getTeacherAnalytics() {
         }
       }
     }),
+
+    // Pending Payouts
+    prisma.payoutRequest.aggregate({
+      where: {
+        teacherId: teacherProfile.id,
+        status: {
+          in: ["Pending", "UnderReview", "Approved", "Processing"]
+        }
+      },
+      _sum: {
+        requestedAmount: true
+      }
+    }),
+
+    // Upcoming Sessions
+    prisma.liveSession.count({
+      where: {
+        teacherId: session.user.id,
+        status: "scheduled",
+        scheduledAt: {
+          gte: new Date()
+        }
+      }
+    })
   ]);
 
   // Get revenue over time
@@ -218,6 +282,8 @@ export async function getTeacherAnalytics() {
       averageRating: averageRating._avg.rating || 0,
       studentsCount: studentsCount.length,
       blogPostsCount,
+      pendingPayouts: pendingPayouts._sum.requestedAmount || 0,
+      upcomingSessions
     },
     revenueData,
     coursePerformance,
@@ -249,6 +315,8 @@ export async function getPlatformAnalytics() {
     totalSessions,
     totalBlogPosts,
     activeUsers,
+    liveSessions,
+    pendingPayouts,
   ] = await Promise.all([
     prisma.user.count(),
     prisma.course.count(),
@@ -282,7 +350,24 @@ export async function getPlatformAnalytics() {
           }
         ]
       }
-    }),
+    // Live Sessions ("Live Now" or just Active today)
+    prisma.liveSession.count({
+        where: {
+          status: "in-progress"
+        }
+      }),
+
+      // Total Pending Payouts
+      prisma.payoutRequest.aggregate({
+        where: {
+          status: {
+            in: ["Pending", "UnderReview", "Processing"]
+          }
+        },
+        _sum: {
+          requestedAmount: true
+        }
+      })
   ]);
 
   // Get user growth over time
@@ -300,6 +385,8 @@ export async function getPlatformAnalytics() {
       totalSessions,
       totalBlogPosts,
       activeUsers,
+      liveSessions,
+      pendingPayouts: pendingPayouts._sum.requestedAmount || 0,
       conversionRate: totalUsers > 0 ? Math.round((totalEnrollments / totalUsers) * 100) : 0,
     },
     userGrowthData,

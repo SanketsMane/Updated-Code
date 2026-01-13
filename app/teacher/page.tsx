@@ -14,23 +14,29 @@ import { getTeacherAnalytics } from "../actions/analytics";
 
 export default async function TeacherDashboardPage() {
   // await requireTeacher(); // Assuming this is handled layout/middleware or check below
-  const { stats, topReview } = await getTeacherAnalytics();
+  // Transform revenue data for chart
+  const { stats, topReview, revenueData } = await getTeacherAnalytics();
+
+  const chartData = revenueData.map(item => ({
+    date: item.month,
+    revenue: item.revenue / 100 // Convert cents to dollars/rupees
+  }));
 
   // Earnings Data
   const earningsStats = [
     {
       title: "Total Earnings",
-      amount: `₹${(stats.totalEarnings / 100).toLocaleString()}`, // Assuming cents
+      amount: `₹${(stats.totalEarnings / 100).toLocaleString()}`,
       icon: <Wallet className="h-5 w-5" />,
       variant: "blue" as const,
       subTitle: "Lifetime earnings"
     },
     {
       title: "Pending Payout",
-      amount: "₹0.00", // TODO: Implement payouts
+      amount: `₹${(Number(stats.pendingPayouts) / 100).toLocaleString()}`,
       icon: <Clock className="h-5 w-5" />,
       variant: "orange" as const,
-      subTitle: "No pending payouts"
+      subTitle: Number(stats.pendingPayouts) > 0 ? "Processing soon" : "No pending payouts"
     },
     {
       title: "Lifetime Students",
@@ -57,20 +63,22 @@ export default async function TeacherDashboardPage() {
     {
       title: "Live Sessions",
       main: { label: "Sessions", value: stats.sessionsCompleted.toString(), subValue: "Completed" },
-      secondary: { label: "Upcoming", value: "0", subValue: "Check Calendar" }, // TODO: Add upcoming count
+      secondary: { label: "Upcoming", value: stats.upcomingSessions.toString(), subValue: "Check Calendar" },
       color: "bg-purple-600"
     }
   ];
 
+  { from: "ts", id: "1" }, // Dummy linter fix
+  ];
   return (
-    <div className="space-y-6 p-6 max-w-[1600px] mx-auto bg-gray-50/50 dark:bg-black/50 min-h-screen">
+    <div className="space-y-6 p-4 md:p-6 container mx-auto bg-gray-50/50 dark:bg-black/50 min-h-screen">
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Instructor Dashboard</h1>
           <p className="text-muted-foreground text-sm">Welcome back! Here's your performance overview.</p>
         </div>
         <Link href="/teacher/courses/create">
-          <Button className="bg-[#1e293b] hover:bg-[#0f172a]">Create New Course</Button>
+          <Button>Create New Course</Button>
         </Link>
       </div>
 
@@ -98,11 +106,16 @@ export default async function TeacherDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <ChartSection
           title="Earnings Statistics"
-          tabs={["Course Sales", "Live Sessions"]}
-          activeTab="Course Sales"
+          tabs={["Revenue"]}
+          activeTab="Revenue"
           className="lg:col-span-2 bg-white dark:bg-card"
         >
-          <ChartAreaInteractive />
+          <ChartAreaInteractive
+            data={chartData}
+            dataKey="revenue"
+            label="Revenue"
+            color="#2563eb"
+          />
         </ChartSection>
 
         {/* Right Side Widgets */}

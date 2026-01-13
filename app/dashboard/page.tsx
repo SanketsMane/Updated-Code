@@ -1,6 +1,6 @@
 import { getSessionWithRole } from "../data/auth/require-roles";
 import { getUserAnalytics } from "../actions/analytics";
-import { StatsCard, ScheduleWidget, ActivityFeed, WalletWidget, QuickActions } from "@/components/dashboard/dashboard-widgets";
+import { StatsCard, ScheduleWidget, ActivityFeed, QuickActions } from "@/components/dashboard/dashboard-widgets";
 import { IconBook, IconTrophy, IconClock, IconFlame, IconSearch, IconSparkles } from "@tabler/icons-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -112,24 +112,36 @@ export default async function DashboardPage() {
           {/* Learning Activity Chart */}
           <ChartSection
             title="Learning Activity"
-            tabs={["Hours", "Lessons"]}
-            activeTab="Hours"
+            tabs={["Lessons"]}
+            activeTab="Lessons"
             className="bg-white dark:bg-card"
           >
-            <ChartAreaInteractive />
+            <ChartAreaInteractive
+              data={analytics.activityData}
+              dataKey="lessons"
+              label="Lessons Completed"
+              color="#3b82f6"
+            />
           </ChartSection>
         </div>
 
         {/* Right Column (Span 1) */}
         <div className="space-y-6">
-          <WalletWidget />
+          {/* Replaced WalletWidget with Enrollment Stats since no wallet exists */}
+          <StatBox
+            title="Overview"
+            mainStat={{ label: "Active Courses", value: enrolledCourses.length.toString(), subValue: "In Progress" }}
+            secondaryStat={{ label: "Total Completed", value: analytics.stats.completedCourses.toString(), subValue: "Lifetime" }}
+            accentColor="bg-green-500"
+          />
+
           <ScheduleWidget items={scheduleItems} />
 
           {/* Quick Stats Box */}
           <StatBox
             title="Achievements"
-            mainStat={{ label: "Certificates", value: "3", subValue: "Latest: React" }}
-            secondaryStat={{ label: "Badges", value: "12", subValue: "Level 4" }}
+            mainStat={{ label: "Certificates", value: analytics.stats.certificatesCount.toString(), subValue: "Earned" }}
+            secondaryStat={{ label: "XP Points", value: (analytics.stats.totalLessonsCompleted * 10).toString(), subValue: "Estimated" }}
             accentColor="bg-yellow-500"
           />
         </div>

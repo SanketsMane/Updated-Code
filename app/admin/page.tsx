@@ -17,13 +17,13 @@ export default async function AdminDashboardPage() {
     },
     {
       title: "Course Sales",
-      amount: `₹${(stats.totalRevenue / 100).toLocaleString()}`, // Using total for now as breakdown is not in stats
+      amount: `₹${(stats.totalRevenue / 100).toLocaleString()}`,
       icon: <MonitorPlay className="h-5 w-5" />,
       variant: "orange" as const
     },
     {
       title: "Pending Payouts",
-      amount: "₹0.00",
+      amount: `₹${(Number(stats.pendingPayouts) / 100).toLocaleString()}`,
       icon: <CreditCard className="h-5 w-5" />,
       variant: "purple" as const
     }
@@ -45,7 +45,7 @@ export default async function AdminDashboardPage() {
     {
       title: "Sessions",
       main: { label: "Total Sessions", value: stats.totalSessions.toString(), subValue: "Scheduled/Done" },
-      secondary: { label: "Live Now", value: "0", subValue: "Active" },
+      secondary: { label: "Live Now", value: stats.liveSessions.toString(), subValue: "Active" },
       color: "bg-purple-600"
     }
   ];
