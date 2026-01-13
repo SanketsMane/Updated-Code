@@ -327,6 +327,7 @@ export async function getPlatformAnalytics() {
     }),
     prisma.liveSession.count(),
     prisma.blogPost.count(),
+
     // Active users (users with activity in last 30 days)
     prisma.user.count({
       where: {
@@ -350,7 +351,9 @@ export async function getPlatformAnalytics() {
             }
           }
         ]
-      }),
+      }
+    }),
+
     // Live Sessions ("Live Now" or just Active today)
     prisma.liveSession.count({
       where: {
