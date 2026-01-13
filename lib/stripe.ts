@@ -4,8 +4,8 @@ import Stripe from "stripe";
 import { env } from "./env";
 
 // Initialize Stripe with fallback for build time
-const stripeKey = process.env.SKIP_ENV_VALIDATION 
-  ? "sk_test_dummy_key_for_build" 
+const stripeKey = process.env.SKIP_ENV_VALIDATION || !env.STRIPE_SECRET_KEY
+  ? "sk_test_dummy_key_for_build_bypass"
   : env.STRIPE_SECRET_KEY;
 
 export const stripe = new Stripe(stripeKey, {
