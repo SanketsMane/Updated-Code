@@ -1,4 +1,4 @@
-# 🎓 KIDOKOOL LMS Marketplace
+# 🎓# KIDOKOOL LMS Marketplace (Live)
 
 > **A Modern Learning Management System & Course Marketplace**  
 > Built with Next.js 15, TypeScript, and cutting-edge technologies for seamless online education, course creation, and marketplace functionality.
