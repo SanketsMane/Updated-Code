@@ -2,7 +2,7 @@ import { getSessionWithRole } from "../data/auth/require-roles";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { FeaturesSectionWithHoverEffects } from "@/components/ui/feature-section-with-hover-effects";
-import { AnimatedTestimonialsDemo } from "@/components/ui/testimonial";
+import { TestimonialsSection } from "@/components/blocks/testimonials-with-marquee";
 import { Logos3 } from "@/components/ui/logos3";
 import { FadeIn } from "@/components/ui/fade-in";
 
@@ -158,7 +158,60 @@ export default async function Home() {
 
 
       {/* --- REVIEWS --- */}
-      <AnimatedTestimonialsDemo />
+      <TestimonialsSection
+        title="Loved by Students & Tutors"
+        description="Join thousands of learners and educators who are transforming their lives with Kidokool."
+        testimonials={[
+          {
+            author: {
+              name: "Priya Sharma",
+              handle: "@priya_learns",
+              avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=150&h=150&fit=crop"
+            },
+            text: "Learning Python on Kidokool has been amazing. The 1-on-1 attention from my tutor helped me land my first internship!",
+          },
+          {
+            author: {
+              name: "Rajesh Kumar",
+              handle: "@rajesh_tutor",
+              avatar: "https://images.unsplash.com/photo-1566492031776-63065f0ad4c6?q=80&w=150&h=150&fit=crop"
+            },
+            text: "As an instructor, the platform tools are top-notch. Managing classes and payments has never been easier.",
+          },
+          {
+            author: {
+              name: "Meera Reddy",
+              handle: "@meera_mom",
+              avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=150&h=150&fit=crop"
+            },
+            text: "I found the perfect Math tutor for my son within minutes. His grades have improved significantly in just two months.",
+          },
+          {
+            author: {
+              name: "Arjun Patel",
+              handle: "@arjun_codes",
+              avatar: "https://images.unsplash.com/photo-1507537297725-24a1c434b6b8?q=80&w=150&h=150&fit=crop"
+            },
+            text: "The interactive live sessions make complex topics easy to understand. Highly recommend for any student!",
+          },
+          {
+            author: {
+              name: "Anjali Gupta",
+              handle: "@anjali_des",
+              avatar: "https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?q=80&w=150&h=150&fit=crop"
+            },
+            text: "Kidokool gave me the flexibility to teach from home and connect with students globally. It's a game changer.",
+          },
+          {
+            author: {
+              name: "Vikram Singh",
+              handle: "@vikram_s",
+              avatar: "https://images.unsplash.com/photo-1556157382-97eda2d62296?q=80&w=150&h=150&fit=crop"
+            },
+            text: "The platform is incredibly user-friendly. I was able to start my learning journey without any technical hassle.",
+          }
+        ]}
+      />
 
 
 
