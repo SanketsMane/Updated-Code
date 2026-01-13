@@ -16,9 +16,42 @@ interface TestimonialsProps {
     reviews: FeaturedReview[];
 }
 
-function Testimonials({ reviews }: TestimonialsProps) {
+// Dummy data for when no real reviews exist
+const DUMMY_TESTIMONIALS: FeaturedReview[] = [
+    {
+        id: "d1",
+        title: "Changed my career path",
+        comment: "The courses here are fantastic. I went from knowing nothing about coding to getting my first job as a junior developer in just 6 months. Highly recommended!",
+        reviewerName: "Alex Johnson",
+        reviewerImage: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=100&h=100",
+        reviewerRole: "Software Developer",
+        rating: 5
+    },
+    {
+        id: "d2",
+        title: "Best investment ever",
+        comment: "I've taken many online courses, but the quality of instruction here is unmatched. The instructors are real industry experts who know what they're teaching.",
+        reviewerName: "Sarah Williams",
+        reviewerImage: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=100&h=100",
+        reviewerRole: "Product Manager",
+        rating: 5
+    },
+    {
+        id: "d3",
+        title: "Flexible and comprehensive",
+        comment: "I love the flexibility of learning at my own pace. The platform is easy to use, and the community support is great. I've learned so much!",
+        reviewerName: "Michael Brown",
+        reviewerImage: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=100&h=100",
+        reviewerRole: "Data Analyst",
+        rating: 4
+    }
+];
+
+function Testimonials({ reviews: propReviews }: TestimonialsProps) {
     const [api, setApi] = useState<CarouselApi>();
     const [current, setCurrent] = useState(0);
+
+    const reviews = propReviews && propReviews.length > 0 ? propReviews : DUMMY_TESTIMONIALS;
 
     useEffect(() => {
         if (!api) {
@@ -36,7 +69,7 @@ function Testimonials({ reviews }: TestimonialsProps) {
         }, 4000);
     }, [api, current]);
 
-    // Fallback if no reviews
+    // Render if we have reviews (real or dummy)
     if (!reviews || reviews.length === 0) return null;
 
     return (
