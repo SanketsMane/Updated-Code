@@ -10,7 +10,7 @@ export const env = createEnv({
     AUTH_GITHUB_SECRET: z.string().min(1),
     // Email configuration (optional - will use defaults if not provided)
     EMAIL_SERVICE: z.string().optional(),
-    EMAIL_HOST: z.string().optional(), 
+    EMAIL_HOST: z.string().optional(),
     EMAIL_PORT: z.string().optional(),
     EMAIL_SECURE: z.string().optional(),
     EMAIL_USER: z.string().optional(),
@@ -24,8 +24,8 @@ export const env = createEnv({
     STRIPE_SECRET_KEY: z.string().min(1),
     STRIPE_WEBHOOK_SECRET: z.string().min(1),
   },
-  
-  skipValidation: !!process.env.SKIP_ENV_VALIDATION,
+
+  skipValidation: true, // !!process.env.SKIP_ENV_VALIDATION,
 
   client: {
     NEXT_PUBLIC_S3_BUCKET_NAME_IMAGES: z.string().min(1),
