@@ -4,6 +4,13 @@ import { getFeaturedMentors } from "@/app/data/marketing/get-marketing-data";
 
 export const dynamic = "force-dynamic";
 
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "Find Expert Tutors - KIDOKOOL",
+    description: "Connect with verified tutors for personalized 1-on-1 learning sessions. Master any subject with expert guidance.",
+};
+
 export default async function FindTeacherPage() {
     const teachers = await prisma.teacherProfile.findMany({
         where: {

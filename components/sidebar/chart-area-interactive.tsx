@@ -63,7 +63,7 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 interface ChartAreaInteractiveProps {
-  data?: { date: string; enrollments: number }[];
+  data?: Record<string, any>[];
 }
 
 export function ChartAreaInteractive({

@@ -98,21 +98,6 @@ const data = {
         },
       ],
     },
-    {
-      title: "Reports",
-      url: "/admin/reports",
-      icon: IconFileText,
-    },
-    {
-      title: "Content Review",
-      url: "/admin/content-review",
-      icon: IconShieldCheck,
-    },
-    {
-      title: "Notifications",
-      url: "/admin/notifications",
-      icon: IconBell,
-    },
   ],
   navSecondary: [
     {

@@ -14,6 +14,13 @@ import { AnimatedCoursesGrid } from "@/components/marketing/AnimatedCoursesGrid"
 
 export const dynamic = "force-dynamic";
 
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Explore Premium Courses - KIDOKOOL",
+  description: "Browse our extensive collection of expert-led courses in Programming, Design, Business, and more. Start learning today.",
+};
+
 interface SearchParams {
   category?: string;
   level?: string;

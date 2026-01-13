@@ -2,6 +2,7 @@ import { requireTeacher } from "../../data/auth/require-roles";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Users, TrendingUp, Book, MonitorPlay, DollarSign, Activity } from "lucide-react";
 import { getTeacherAnalytics } from "@/app/data/teacher/get-teacher-analytics";
+import { ChartAreaInteractive } from "@/components/sidebar/chart-area-interactive";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
@@ -117,43 +118,37 @@ export default async function TeacherAnalyticsPage() {
 
       {/* Charts Section */}
       <div className="grid gap-6 md:grid-cols-2">
-        <Card className="col-span-1 border-dashed bg-gray-50/50 dark:bg-gray-900/50">
+        <Card className="col-span-1">
           <CardHeader>
-            <CardTitle>Course Performance</CardTitle>
+            <CardTitle>Course Revenue</CardTitle>
             <CardDescription>
-              Weekly student progress visualization
+              Earnings over the last 30 days
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
-              <div className="p-4 bg-white dark:bg-gray-800 rounded-full shadow-sm mb-4">
-                <BarChart className="h-8 w-8 text-blue-500" />
-              </div>
-              <p className="font-medium">Data Collection in Progress</p>
-              <p className="text-sm mt-1 max-w-xs text-center">
-                Once enough student data is collected, detailed performance charts will appear here.
-              </p>
-            </div>
+            <ChartAreaInteractive
+              data={analytics.graphData}
+              dataKey="revenue"
+              label="Revenue ($)"
+              color="var(--chart-1)"
+            />
           </CardContent>
         </Card>
 
-        <Card className="col-span-1 border-dashed bg-gray-50/50 dark:bg-gray-900/50">
+        <Card className="col-span-1">
           <CardHeader>
-            <CardTitle>Student Engagement</CardTitle>
+            <CardTitle>Student Enrollments</CardTitle>
             <CardDescription>
-              Daily activity and participation analysis
+              New students over the last 30 days
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
-              <div className="p-4 bg-white dark:bg-gray-800 rounded-full shadow-sm mb-4">
-                <Activity className="h-8 w-8 text-blue-500" />
-              </div>
-              <p className="font-medium">Gathering Activity Metrics</p>
-              <p className="text-sm mt-1 max-w-xs text-center">
-                Engagement trends and activity heatmaps will be generated automatically.
-              </p>
-            </div>
+            <ChartAreaInteractive
+              data={analytics.graphData}
+              dataKey="students"
+              label="New Students"
+              color="var(--chart-2)"
+            />
           </CardContent>
         </Card>
       </div>
