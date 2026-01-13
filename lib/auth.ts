@@ -71,6 +71,6 @@ export const auth = betterAuth({
         }
       },
     }),
-    // admin(),
+    admin(),
   ],
 });
