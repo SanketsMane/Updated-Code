@@ -2,7 +2,7 @@ import { getSessionWithRole } from "../data/auth/require-roles";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { FeaturesSectionWithHoverEffects } from "@/components/ui/feature-section-with-hover-effects";
-import { Testimonials } from "@/components/ui/testimonials";
+import { AnimatedTestimonialsDemo } from "@/components/ui/testimonial";
 import { Logos3 } from "@/components/ui/logos3";
 import { FadeIn } from "@/components/ui/fade-in";
 
@@ -25,7 +25,7 @@ import { FeaturedCourses } from "@/components/marketing/FeaturedCourses";
 import { StatsBar } from "@/components/marketing/StatsBar";
 import { VibeCard } from "@/components/marketing/vibe-card";
 import { getFeaturedCourses } from "../data/courses/get-featured-courses";
-import { getTopCategories, getFeaturedReviews } from "../data/marketing/get-marketing-data";
+import { getTopCategories } from "../data/marketing/get-marketing-data";
 
 const features = [
   {
@@ -85,7 +85,6 @@ export default async function Home() {
 
   const featuredCourses = await getFeaturedCourses();
   const categories = await getTopCategories();
-  const reviews = await getFeaturedReviews();
 
   const stats = [
     { icon: BookOpen, label: "Total Courses", value: `${courseCount}+` },
@@ -159,7 +158,7 @@ export default async function Home() {
 
 
       {/* --- REVIEWS --- */}
-      <Testimonials reviews={reviews} />
+      <AnimatedTestimonialsDemo />
 
 
 
