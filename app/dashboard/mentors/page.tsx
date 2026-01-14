@@ -5,5 +5,5 @@ import { FindTeacherContent } from "@/components/mentors/FindTeacherContent";
 export const dynamic = "force-dynamic";
 
 export default function DashboardMentorsPage() {
-    return <FindTeacherContent />;
+    return <FindTeacherContent teachers={[]} featuredMentors={[]} />;
 }

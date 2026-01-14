@@ -53,6 +53,11 @@ export function FindTeacherContent({ teachers, featuredMentors }: FindTeacherCon
 
     // Filter and search logic
     const filteredTeachers = useMemo(() => {
+        // Handle case when teachers is undefined or null
+        if (!teachers || !Array.isArray(teachers)) {
+            return [];
+        }
+
         return teachers.filter(teacher => {
             // Search filter
             const matchesSearch = searchQuery === "" ||

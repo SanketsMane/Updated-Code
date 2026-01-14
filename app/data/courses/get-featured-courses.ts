@@ -32,21 +32,22 @@ export const getFeaturedCourses = cache(async () => {
             },
         });
 
-        // Serialize Decimal fields to plain numbers/strings for client components
-        const serializedCourses = featuredCourses.map(course => ({
+        // Convert Decimal fields to numbers for client component compatibility
+        // Author: Sanket
+        return featuredCourses.map(course => ({
             ...course,
             user: {
                 ...course.user,
                 teacherProfile: course.user.teacherProfile ? {
                     ...course.user.teacherProfile,
-                    totalEarnings: course.user.teacherProfile.totalEarnings.toNumber()
+                    totalEarnings: course.user.teacherProfile.totalEarnings.toNumber(),
+                    hourlyRate: Number(course.user.teacherProfile.hourlyRate),
                 } : null
             }
         }));
-
-        return serializedCourses;
     } catch (error) {
         console.error("Failed to fetch featured courses:", error);
         return [];
     }
 });
+

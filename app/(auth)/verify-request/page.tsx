@@ -45,7 +45,7 @@ function VerifyRequest() {
             toast.success("Email verified");
             // Get the user role from the response
             const role = ctx.data?.user?.role;
-            
+
             // Redirect based on role
             if (role === "admin") {
               router.push("/admin");
@@ -63,7 +63,7 @@ function VerifyRequest() {
     });
   }
   return (
-    <div className="container flex items-center justify-center min-h-[calc(100vh-200px)]">
+    <div className="fixed inset-0 flex items-center justify-center bg-background">
       <Card className="w-full max-w-sm mx-auto shadow-md">
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Please check your email</CardTitle>
