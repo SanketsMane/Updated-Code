@@ -32,7 +32,19 @@ export const getFeaturedCourses = cache(async () => {
             },
         });
 
-        return featuredCourses;
+        // Serialize Decimal fields to plain numbers/strings for client components
+        const serializedCourses = featuredCourses.map(course => ({
+            ...course,
+            user: {
+                ...course.user,
+                teacherProfile: course.user.teacherProfile ? {
+                    ...course.user.teacherProfile,
+                    totalEarnings: course.user.teacherProfile.totalEarnings.toNumber()
+                } : null
+            }
+        }));
+
+        return serializedCourses;
     } catch (error) {
         console.error("Failed to fetch featured courses:", error);
         return [];

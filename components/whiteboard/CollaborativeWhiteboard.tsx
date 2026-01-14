@@ -136,6 +136,39 @@ export function CollaborativeWhiteboard({
   const [selectedElements, setSelectedElements] = useState<Set<string>>(new Set());
   const [participants, setParticipants] = useState<WhiteboardParticipant[]>([]);
 
+  const {
+    isConnected,
+    sendCursorMove,
+    sendElementAdd,
+    sendElementUpdate,
+    sendElementDelete,
+    sendWhiteboardClear,
+    setEventHandlers
+  } = useWhiteboardWebSocket({ whiteboardId: whiteboardId || 'default' });
+
+  // Handle real-time updates from WebSocket
+  useEffect(() => {
+    setEventHandlers({
+      onElementAdd: (newElement: any) => {
+        setElements(prev => {
+          if (prev.some(el => el.id === newElement.id)) return prev;
+          return [...prev, newElement];
+        });
+      },
+      onElementUpdate: (elementId: string, updates: any) => {
+        setElements(prev => prev.map(el =>
+          el.id === elementId ? { ...el, ...updates } : el
+        ));
+      },
+      onElementDelete: (elementId: string) => {
+        setElements(prev => prev.filter(el => el.id !== elementId));
+      },
+      onWhiteboardClear: () => {
+        setElements([]);
+      }
+    });
+  }, [setEventHandlers]);
+
   // Drawing state
   const [strokeColor, setStrokeColor] = useState('#000000');
   const [fillColor, setFillColor] = useState('#transparent');
@@ -529,6 +562,10 @@ export function CollaborativeWhiteboard({
 
     setIsDrawing(false);
     finishCurrentElement();
+    const lastElement = elements[elements.length - 1];
+    if (lastElement) {
+      sendElementAdd(lastElement);
+    }
     addToHistory();
   };
 
@@ -725,7 +762,7 @@ export function CollaborativeWhiteboard({
   };
 
   const updateCursorPosition = (x: number, y: number) => {
-    // This would normally send cursor position to other participants via WebSocket
+    sendCursorMove(x, y);
   };
 
   const addToHistory = () => {
@@ -751,6 +788,7 @@ export function CollaborativeWhiteboard({
 
   const clearCanvas = () => {
     setElements([]);
+    sendWhiteboardClear();
     addToHistory();
   };
 

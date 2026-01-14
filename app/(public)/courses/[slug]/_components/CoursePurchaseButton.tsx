@@ -20,28 +20,50 @@ export const CoursePurchaseButton = ({
         try {
             setIsLoading(true);
 
-            // Universal Direct Enrollment (Bypass Payment)
-            const response = await fetch("/api/enroll-free", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ courseId }),
-            });
+            if (price === 0) {
+                // Direct Enrollment for Free Courses
+                const response = await fetch("/api/enroll-free", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ courseId }),
+                });
 
-            if (!response.ok) {
-                if (response.status === 401) {
-                    toast.error("Please login to enroll");
-                    window.location.href = "/login";
-                    return;
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        toast.error("Please login to enroll");
+                        window.location.href = "/login";
+                        return;
+                    }
+                    throw new Error("Enrollment failed");
                 }
-                throw new Error("Enrollment failed");
+
+                toast.success("Enrolled successfully! Redirecting...");
+                window.location.reload();
+                return;
+            } else {
+                // Stripe Checkout for Paid Courses
+                const response = await fetch("/api/checkout", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ courseId }),
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        toast.error("Please login to purchase");
+                        window.location.href = "/login";
+                        return;
+                    }
+                    throw new Error("Checkout failed");
+                }
+
+                const data = await response.json();
+                window.location.assign(data.url);
             }
-
-            toast.success("Enrolled successfully! Redirecting...");
-            window.location.reload();
-            return;
-
         } catch {
             toast.error("Something went wrong");
         } finally {

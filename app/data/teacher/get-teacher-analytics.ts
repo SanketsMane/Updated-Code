@@ -16,6 +16,29 @@ export interface TeacherAnalytics {
 }
 
 export async function getTeacherAnalytics(userId: string): Promise<TeacherAnalytics> {
+  // Get teacher profile to access teacherId
+  const teacherProfile = await prisma.teacherProfile.findUnique({
+    where: { userId: userId },
+    select: { id: true }
+  });
+
+  if (!teacherProfile) {
+    // Return empty analytics if no teacher profile exists
+    return {
+      totalStudents: 0,
+      totalCourses: 0,
+      totalRevenue: 0,
+      engagementRate: 0,
+      studentGrowth: 0,
+      courseGrowth: 0,
+      revenueGrowth: 0,
+      engagementGrowth: 0,
+      graphData: []
+    };
+  }
+
+  const teacherId = teacherProfile.id;
+
   // Get teacher's courses
   const teacherCourses = await prisma.course.findMany({
     where: {
@@ -43,13 +66,20 @@ export async function getTeacherAnalytics(userId: string): Promise<TeacherAnalyt
     },
   });
 
-  // Calculate Revenue
-  const totalRevenue = teacherCourses.reduce((acc: number, course) => {
-    return acc + course.enrollment.reduce((sum: number, enrollment) => sum + (enrollment.amount || 0), 0);
-  }, 0);
+  // Calculate Revenue from Commission table (Net Earnings)
+  // Author: Sanket
+  // This uses the Commission table to get the teacher's actual earnings (after platform fee)
+  const totalRevenueResult = await prisma.commission.aggregate({
+    _sum: { amount: true },
+    where: {
+      teacherId: teacherId,
+      amount: { gt: 0 } // Exclude refunded (negative) commissions
+    }
+  });
+
+  const totalRevenue = (totalRevenueResult._sum?.amount ?? 0);
 
   // Calculate Engagement Rate (Average Completion %)
-  // First, get total lessons per course
   const courseLessonCounts = new Map<string, number>();
   teacherCourses.forEach((c: any) => {
     const lessonCount = c.chapter.reduce((sum: number, chapter: any) => sum + chapter.lessons.length, 0);
@@ -70,8 +100,6 @@ export async function getTeacherAnalytics(userId: string): Promise<TeacherAnalyt
     }
   });
 
-  // This is a simplified "Global Engagement" metric: Total Completed Lessons / Total Possible Lessons (Students * CourseLessons)
-  // A more accurate one would be average per student, but this is a good aggregate proxy.
   let totalPossibleLessons = 0;
   teacherCourses.forEach((course: any) => {
     const lessonsInCourse = courseLessonCounts.get(course.id) || 0;
@@ -91,7 +119,8 @@ export async function getTeacherAnalytics(userId: string): Promise<TeacherAnalyt
   const sixtyDaysAgo = new Date();
   sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
 
-  // ... (Growth logic remains similar for counts, adding revenue growth)
+  // Author: Sanket
+  // Updated to use Commission table for revenue calculations
   const [recentEnrollments, previousEnrollments, recentCourses, previousCourses, recentRevenue, previousRevenue] = await Promise.all([
     prisma.enrollment.count({
       where: {
@@ -125,17 +154,19 @@ export async function getTeacherAnalytics(userId: string): Promise<TeacherAnalyt
         },
       },
     }),
-    prisma.enrollment.aggregate({
+    prisma.commission.aggregate({
       _sum: { amount: true },
       where: {
-        courseId: { in: courseIds },
+        teacherId: teacherId,
+        amount: { gt: 0 },
         createdAt: { gte: thirtyDaysAgo },
       }
     }),
-    prisma.enrollment.aggregate({
+    prisma.commission.aggregate({
       _sum: { amount: true },
       where: {
-        courseId: { in: courseIds },
+        teacherId: teacherId,
+        amount: { gt: 0 },
         createdAt: {
           gte: sixtyDaysAgo,
           lt: thirtyDaysAgo,
@@ -152,41 +183,65 @@ export async function getTeacherAnalytics(userId: string): Promise<TeacherAnalyt
     ? ((recentCourses - previousCourses) / previousCourses) * 100
     : 0;
 
-  const recentRev = recentRevenue._sum.amount || 0;
-  const prevRev = previousRevenue._sum.amount || 0;
+  const recentRev = recentRevenue._sum?.amount ?? 0;
+  const prevRev = previousRevenue._sum?.amount ?? 0;
   const revenueGrowth = prevRev > 0
     ? ((recentRev - prevRev) / prevRev) * 100
     : 0;
 
-  // Calculate Graph Data (Last 30 days)
+  // Calculate Graph Data (Last 30 days) using Commission table
+  // Author: Sanket
+  // Fetches daily commission data for accurate revenue visualization
   const graphData: { date: string; revenue: number; students: number }[] = [];
   const today = new Date();
 
   for (let i = 29; i >= 0; i--) {
     const date = new Date(today);
     date.setDate(date.getDate() - i);
+    date.setHours(0, 0, 0, 0);
+
+    const nextDate = new Date(date);
+    nextDate.setDate(nextDate.getDate() + 1);
+
     const dateString = date.toISOString().split('T')[0]; // YYYY-MM-DD
 
-    // Filter enrollments for this day
-    const dayEnrollments = teacherCourses.flatMap(c => c.enrollment).filter((e: any) => {
-      const eDate = new Date(e.createdAt);
-      return eDate.toISOString().split('T')[0] === dateString;
-    });
+    // Get commissions for this day
+    const [dayCommissions, dayEnrollments] = await Promise.all([
+      prisma.commission.aggregate({
+        _sum: { amount: true },
+        where: {
+          teacherId: teacherId,
+          amount: { gt: 0 },
+          createdAt: {
+            gte: date,
+            lt: nextDate
+          }
+        }
+      }),
+      prisma.enrollment.count({
+        where: {
+          courseId: { in: courseIds },
+          createdAt: {
+            gte: date,
+            lt: nextDate
+          }
+        }
+      })
+    ]);
 
-    const dayRevenue = dayEnrollments.reduce((sum: number, e: any) => sum + (e.amount || 0), 0);
-    const dayStudents = dayEnrollments.length;
+    const dayRevenue = dayCommissions._sum?.amount ?? 0;
 
     graphData.push({
       date: dateString,
-      revenue: dayRevenue / 100, // Convert cents to dollars if stored in cents, assuming standard Stripe usage
-      students: dayStudents
+      revenue: dayRevenue / 100, // Convert cents to dollars
+      students: dayEnrollments
     });
   }
 
   return {
     totalStudents,
     totalCourses,
-    totalRevenue,
+    totalRevenue: totalRevenue / 100, // Convert cents to dollars
     engagementRate,
     studentGrowth,
     courseGrowth,

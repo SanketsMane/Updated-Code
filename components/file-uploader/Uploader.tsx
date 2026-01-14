@@ -23,13 +23,13 @@ interface UploaderState {
   isDeleting: boolean;
   error: boolean;
   objectUrl?: string;
-  fileType: "image" | "video";
+  fileType: "image" | "video" | "pdf";
 }
 
 interface iAppProps {
   value?: string;
   onChange?: (value: string) => void;
-  fileTypeAccepted: "image" | "video";
+  fileTypeAccepted: "image" | "video" | "pdf";
 }
 
 export function Uploader({ onChange, value, fileTypeAccepted }: iAppProps) {
@@ -84,7 +84,7 @@ export function Uploader({ onChange, value, fileTypeAccepted }: iAppProps) {
           return;
         }
 
-        // PRESIGNED URL UPLOAD FOR VIDEOS (Direct to S3)
+        // PRESIGNED URL UPLOAD FOR VIDEOS AND PDFS (Direct to S3)
         //1. Get presigned URL
         const presignedResponse = await fetch("/api/s3/upload", {
           method: "POST",
@@ -93,7 +93,7 @@ export function Uploader({ onChange, value, fileTypeAccepted }: iAppProps) {
             fileName: file.name,
             contentType: file.type,
             size: file.size,
-            isImage: false, // Explicitly false since images are handled above and this path is for videos
+            isImage: false, // Explicitly false since images are handled above
           }),
           redirect: "manual",
         });
@@ -195,7 +195,7 @@ export function Uploader({ onChange, value, fileTypeAccepted }: iAppProps) {
           file: file,
           uploading: false,
           progress: 0,
-          objectUrl: URL.createObjectURL(file),
+          objectUrl: URL.createObjectURL(file), // Create object URL for preview (PDFs work too for iframe/embed or icon)
           error: false,
           id: uuidv4(),
           isDeleting: false,
@@ -325,11 +325,17 @@ export function Uploader({ onChange, value, fileTypeAccepted }: iAppProps) {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept:
-      fileTypeAccepted === "video" ? { "video/*": [] } : { "image/*": [] },
+      fileTypeAccepted === "video"
+        ? { "video/*": [] }
+        : fileTypeAccepted === "pdf"
+          ? { "application/pdf": [] }
+          : { "image/*": [] },
     maxFiles: 1,
     multiple: false,
     maxSize:
-      fileTypeAccepted === "image" ? 5 * 1024 * 1024 : 5000 * 1024 * 1024,
+      fileTypeAccepted === "image" ? 5 * 1024 * 1024 :
+        fileTypeAccepted === "pdf" ? 10 * 1024 * 1024 : // 10MB for PDFs
+          5000 * 1024 * 1024, // 5GB for Videos
     onDropRejected: rejectedFiles,
     disabled: fileState.uploading || !!fileState.objectUrl,
   });
@@ -350,3 +356,4 @@ export function Uploader({ onChange, value, fileTypeAccepted }: iAppProps) {
     </Card>
   );
 }
+

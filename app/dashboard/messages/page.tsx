@@ -8,10 +8,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
-import { 
-  MessageCircle, 
-  Send, 
-  Search, 
+import {
+  MessageCircle,
+  Send,
+  Search,
   Plus,
   Paperclip,
   Image,
@@ -21,6 +21,8 @@ import { formatDistanceToNow } from "date-fns";
 // Removed server action imports - using API routes instead
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useChatWebSocket } from "@/hooks/use-chat-websocket";
+import { toast } from "sonner";
 
 export const dynamic = "force-dynamic";
 
@@ -82,6 +84,19 @@ export default function MessagesPage() {
   const [sendingMessage, setSendingMessage] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Helper ref for typing debounce
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const {
+    isConnected,
+    sendChatMessage,
+    setOnMessageReceived,
+    onlineUsers,
+    typingUsers,
+    sendTypingStart,
+    sendTypingStop
+  } = useChatWebSocket();
+
   // Load conversations on mount
   useEffect(() => {
     loadConversations();
@@ -103,6 +118,42 @@ export default function MessagesPage() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Handle incoming real-time messages
+  useEffect(() => {
+    setOnMessageReceived((payload: any) => {
+      // If message belongs to current conversation, add it
+      if (selectedConversation && payload.conversationId === selectedConversation) {
+        setMessages(prev => [...prev, {
+          id: payload.id || Date.now().toString(),
+          content: payload.content,
+          messageType: "Text", // Default for now
+          isRead: false,
+          createdAt: payload.createdAt,
+          sender: payload.sender
+        }]);
+      } else {
+        // Otherwise, update unread count in conversation list
+        setConversations(prev => prev.map(c => {
+          if (c.id === payload.conversationId) {
+            return {
+              ...c,
+              unreadCount: c.unreadCount + 1,
+              lastMessage: {
+                content: payload.content,
+                createdAt: payload.createdAt,
+                sender: payload.sender
+              },
+              lastActivity: payload.createdAt
+            };
+          }
+          return c;
+        }).sort((a, b) => new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime()));
+
+        toast.info(`New message from ${payload.sender.name}`);
+      }
+    });
+  }, [selectedConversation, setOnMessageReceived]);
 
   const loadConversations = async () => {
     try {
@@ -129,17 +180,53 @@ export default function MessagesPage() {
     }
   };
 
+  const handleTyping = (value: string) => {
+    setNewMessage(value);
+
+    if (!selectedConversation || !currentConversation) return;
+
+    // Clear existing timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Send 'start typing' if not already handled (or just send every keypress logic can be refined)
+    // Simple logic: Send start, wait 2s, send stop.
+    // Ideally we debounce the STOP, but throttling the START is also good.
+    // For simplicity: Send START immediately if we haven't recently. 
+    // Actually, just sending START is fine, the receiver UI just needs "is currently in map".
+    // Better: Send START. Debounce STOP.
+
+    sendTypingStart(currentConversation.otherParticipant.id, selectedConversation);
+
+    typingTimeoutRef.current = setTimeout(() => {
+      sendTypingStop(currentConversation.otherParticipant.id, selectedConversation);
+    }, 2000);
+  };
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim() || !selectedConversation || sendingMessage) return;
 
+    // Clear typing status immediately
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    if (currentConversation) sendTypingStop(currentConversation.otherParticipant.id, selectedConversation);
+
     setSendingMessage(true);
     try {
-      await fetch("/api/messages/conversations", {
+      const response = await fetch("/api/messages/conversations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "sendMessage", conversationId: selectedConversation, message: newMessage.trim() })
       });
+
+      const newMsg = await response.json();
+
+      // Send real-time update
+      if (isConnected && currentConversation) {
+        sendChatMessage(currentConversation.otherParticipant.id, newMessage.trim(), selectedConversation, newMsg.id);
+      }
+
       setNewMessage("");
       await loadMessages(selectedConversation);
       await loadConversations(); // Refresh conversations to update last message
@@ -193,6 +280,11 @@ export default function MessagesPage() {
   };
 
   const currentConversation = conversations.find(c => c.id === selectedConversation);
+
+  // Check typing status for current conversation
+  const isTyperTyping = selectedConversation && currentConversation
+    ? typingUsers[selectedConversation]?.includes(currentConversation.otherParticipant.id)
+    : false;
 
   if (loading) {
     return (
@@ -306,21 +398,25 @@ export default function MessagesPage() {
                 {conversations.map((conversation) => (
                   <Card
                     key={conversation.id}
-                    className={`cursor-pointer transition-colors ${
-                      selectedConversation === conversation.id
-                        ? "bg-primary/10 border-primary"
-                        : "hover:bg-muted/50"
-                    }`}
+                    className={`cursor-pointer transition-colors ${selectedConversation === conversation.id
+                      ? "bg-primary/10 border-primary"
+                      : "hover:bg-muted/50"
+                      }`}
                     onClick={() => setSelectedConversation(conversation.id)}
                   >
                     <CardContent className="p-3">
                       <div className="flex items-start space-x-3">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage src={conversation.otherParticipant.image || ""} />
-                          <AvatarFallback>
-                            {conversation.otherParticipant.name.charAt(0).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
+                        <div className="relative">
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage src={conversation.otherParticipant.image || ""} />
+                            <AvatarFallback>
+                              {conversation.otherParticipant.name.charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          {onlineUsers.has(conversation.otherParticipant.id) && (
+                            <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-background" />
+                          )}
+                        </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
                             <p className="font-medium truncate">
@@ -335,7 +431,10 @@ export default function MessagesPage() {
                           {conversation.lastMessage && (
                             <div className="flex items-center justify-between">
                               <p className="text-sm text-muted-foreground truncate">
-                                {conversation.lastMessage.content}
+                                {typingUsers[conversation.id]?.includes(conversation.otherParticipant.id)
+                                  ? <span className="text-primary animate-pulse">Typing...</span>
+                                  : conversation.lastMessage.content
+                                }
                               </p>
                               <p className="text-xs text-muted-foreground">
                                 {formatDistanceToNow(new Date(conversation.lastMessage.createdAt), { addSuffix: true })}
@@ -360,15 +459,22 @@ export default function MessagesPage() {
             {/* Chat Header */}
             <div className="p-4 border-b bg-background">
               <div className="flex items-center space-x-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={currentConversation.otherParticipant.image || ""} />
-                  <AvatarFallback>
-                    {currentConversation.otherParticipant.name.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
+                <div className="relative">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={currentConversation.otherParticipant.image || ""} />
+                    <AvatarFallback>
+                      {currentConversation.otherParticipant.name.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  {onlineUsers.has(currentConversation.otherParticipant.id) && (
+                    <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-background" />
+                  )}
+                </div>
                 <div className="flex-1">
                   <h3 className="font-medium">{currentConversation.otherParticipant.name}</h3>
-                  <p className="text-sm text-muted-foreground">Active now</p>
+                  <p className="text-sm text-muted-foreground">
+                    {onlineUsers.has(currentConversation.otherParticipant.id) ? 'Online' : 'Offline'}
+                  </p>
                 </div>
                 <Button variant="ghost" size="sm">
                   <MoreVertical className="h-4 w-4" />
@@ -381,15 +487,14 @@ export default function MessagesPage() {
               <div className="space-y-4">
                 {messages.map((message, index) => {
                   const isOwn = message.sender.id === currentConversation.otherParticipant.id ? false : true;
-                  const showAvatar = index === messages.length - 1 || 
+                  const showAvatar = index === messages.length - 1 ||
                     messages[index + 1]?.sender.id !== message.sender.id;
 
                   return (
                     <div
                       key={message.id}
-                      className={`flex ${isOwn ? "justify-end" : "justify-start"} ${
-                        showAvatar ? "mb-4" : "mb-1"
-                      }`}
+                      className={`flex ${isOwn ? "justify-end" : "justify-start"} ${showAvatar ? "mb-4" : "mb-1"
+                        }`}
                     >
                       <div className={`flex ${isOwn ? "flex-row-reverse" : "flex-row"} items-end space-x-2 max-w-[70%]`}>
                         {showAvatar && !isOwn && (
@@ -401,16 +506,14 @@ export default function MessagesPage() {
                           </Avatar>
                         )}
                         <div
-                          className={`rounded-lg px-3 py-2 ${
-                            isOwn
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-muted"
-                          }`}
+                          className={`rounded-lg px-3 py-2 ${isOwn
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted"
+                            }`}
                         >
                           <p className="text-sm">{message.content}</p>
-                          <p className={`text-xs mt-1 ${
-                            isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
-                          }`}>
+                          <p className={`text-xs mt-1 ${isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
+                            }`}>
                             {formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}
                           </p>
                         </div>
@@ -419,6 +522,28 @@ export default function MessagesPage() {
                     </div>
                   );
                 })}
+
+                {/* Typing Indicator inside Chat Bubble */}
+                {isTyperTyping && (
+                  <div className="flex justify-start mb-4">
+                    <div className="flex flex-row items-end space-x-2">
+                      <Avatar className="h-6 w-6">
+                        <AvatarImage src={currentConversation.otherParticipant.image || ""} />
+                        <AvatarFallback className="text-xs">
+                          {currentConversation.otherParticipant.name.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="bg-muted rounded-lg px-3 py-2">
+                        <div className="flex space-x-1">
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div ref={messagesEndRef} />
               </div>
             </ScrollArea>
@@ -429,7 +554,7 @@ export default function MessagesPage() {
                 <div className="flex-1">
                   <Input
                     value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
+                    onChange={(e) => handleTyping(e.target.value)}
                     placeholder="Type a message..."
                     disabled={sendingMessage}
                   />

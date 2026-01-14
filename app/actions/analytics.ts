@@ -67,6 +67,7 @@ export async function getUserAnalytics(userId?: string) {
     prisma.blogPost.count({
       where: { authorId: targetUserId }
     }),
+
     // Certificates count
     prisma.certificate.count({
       where: { userId: targetUserId }
@@ -327,7 +328,6 @@ export async function getPlatformAnalytics() {
     }),
     prisma.liveSession.count(),
     prisma.blogPost.count(),
-
     // Active users (users with activity in last 30 days)
     prisma.user.count({
       where: {
@@ -357,7 +357,7 @@ export async function getPlatformAnalytics() {
     // Live Sessions ("Live Now" or just Active today)
     prisma.liveSession.count({
       where: {
-        status: "in-progress"
+        status: "in_progress"
       }
     }),
 

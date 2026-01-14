@@ -52,12 +52,14 @@ export function RenderUploadedState({
   previewUrl: string;
   isDeleting: boolean;
   handleRemoveFile: () => void;
-  fileType: "image" | "video";
+  fileType: "image" | "video" | "pdf";
 }) {
   return (
     <div className="relative group w-full h-full flex items-center justify-center">
       {fileType === "video" ? (
         <video src={previewUrl} controls className="rounded-md w-full h-full" />
+      ) : fileType === "pdf" ? (
+        <iframe src={previewUrl} className="rounded-md w-full h-full border-none" />
       ) : (
         <Image
           src={previewUrl}

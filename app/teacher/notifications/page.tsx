@@ -1,9 +1,7 @@
-import { redirect } from "next/navigation";
-
+/**
+ * Teacher Notifications Page
+ * Author: Sanket
+ * Uses the shared notification system from /dashboard/notifications
+ */
+export { default } from "@/app/dashboard/notifications/page";
 export const dynamic = "force-dynamic";
-
-export default function TeacherNotificationsPage() {
-  // For now, redirect to the main notifications page
-  // TODO: Create teacher-specific notifications interface
-  redirect("/dashboard/notifications");
-}
