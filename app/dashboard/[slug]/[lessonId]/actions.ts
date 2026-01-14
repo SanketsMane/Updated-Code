@@ -29,13 +29,34 @@ export async function markLessonComplete(
       },
     });
 
+    // Check if course is fully completed
+    const lesson = await prisma.lesson.findUnique({
+      where: { id: lessonId },
+      include: { Chapter: { select: { courseId: true } } }
+    });
+
+    let certificateData = null;
+
+    if (lesson?.Chapter?.courseId) {
+      const { generateCertificate } = await import("@/app/actions/certificates");
+      const certResult = await generateCertificate(lesson.Chapter.courseId);
+
+      if (certResult.status === "success") {
+        certificateData = certResult;
+      }
+    }
+
     revalidatePath(`/dashboard/${slug}`);
 
     return {
       status: "success",
-      message: "Progress updated",
+      message: certificateData?.status === "success"
+        ? "Course Completed! Certificate Generated."
+        : "Progress updated",
+      data: certificateData
     };
-  } catch {
+  } catch (e) {
+    console.error(e);
     return {
       status: "error",
       message: "Failed to mark lesson as complete",

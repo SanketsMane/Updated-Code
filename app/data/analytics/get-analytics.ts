@@ -44,6 +44,9 @@ export async function getAnalyticsOverview(): Promise<AnalyticsOverview> {
     enrollmentsPrevious30Days,
     coursesLast30Days,
     coursesPrevious30Days,
+    totalRevenueResult,
+    revenueLast30DaysResult,
+    revenuePrevious30DaysResult
   ] = await Promise.all([
     // Total students (users with enrollments)
     prisma.user.count({
@@ -100,45 +103,70 @@ export async function getAnalyticsOverview(): Promise<AnalyticsOverview> {
         },
       },
     }),
+
+    // Total Revenue (GMV)
+    prisma.commission.aggregate({
+      _sum: {
+        amount: true
+      }
+    }),
+
+    // Revenue Last 30 Days
+    prisma.commission.aggregate({
+      _sum: { amount: true },
+      where: {
+        createdAt: { gte: subDays(new Date(), 30) }
+      }
+    }),
+
+    // Revenue Previous 30 Days
+    prisma.commission.aggregate({
+      _sum: { amount: true },
+      where: {
+        createdAt: {
+          gte: subDays(new Date(), 60),
+          lt: subDays(new Date(), 30)
+        }
+      }
+    })
   ]);
 
   // Calculate growth percentages
-  const studentGrowth = enrollmentsPrevious30Days > 0 
-    ? ((enrollmentsLast30Days - enrollmentsPrevious30Days) / enrollmentsPrevious30Days) * 100 
+  const studentGrowth = enrollmentsPrevious30Days > 0
+    ? ((enrollmentsLast30Days - enrollmentsPrevious30Days) / enrollmentsPrevious30Days) * 100
     : 0;
 
-  const courseGrowth = coursesPrevious30Days > 0 
-    ? ((coursesLast30Days - coursesPrevious30Days) / coursesPrevious30Days) * 100 
+  const courseGrowth = coursesPrevious30Days > 0
+    ? ((coursesLast30Days - coursesPrevious30Days) / coursesPrevious30Days) * 100
     : 0;
 
-  // Get completion rate (simplified calculation)
-  const completionData = await prisma.enrollment.aggregate({
-    _avg: {
-      amount: true,
-    },
-    where: {
-      amount: {
-        gt: 0,
-      },
-    },
-  });
+  const revenueLast30 = revenueLast30DaysResult._sum.amount || 0;
+  const revenuePrevious30 = revenuePrevious30DaysResult._sum.amount || 0;
+  const revenueGrowth = revenuePrevious30 > 0
+    ? ((revenueLast30 - revenuePrevious30) / revenuePrevious30) * 100
+    : 0;
 
-  const averageCompletion = completionData._avg?.amount || 0;
+  const totalRevenue = totalRevenueResult._sum.amount || 0;
+
+  // Get completion rate
+  // This is still tricky without a dedicated "CompletedCourse" model or complex query
+  // For now, we'll keep the averageCompletion simple or 0 if no data
+  const averageCompletion = 0;
 
   return {
     totalStudents,
     totalCourses,
-    totalRevenue: 0, // TODO: Implement when payment system is active
+    totalRevenue,
     averageCompletion,
     studentGrowth,
     courseGrowth,
-    revenueGrowth: 0, // TODO: Implement when payment system is active
-    completionGrowth: 0, // TODO: Calculate based on historical data
+    revenueGrowth,
+    completionGrowth: 0,
   };
 }
 
 export async function getEnrollmentTrends(): Promise<EnrollmentTrend[]> {
-  const dates = Array.from({ length: 30 }, (_, i) => 
+  const dates = Array.from({ length: 30 }, (_, i) =>
     subDays(new Date(), 29 - i)
   );
 
@@ -146,23 +174,34 @@ export async function getEnrollmentTrends(): Promise<EnrollmentTrend[]> {
     dates.map(async (date) => {
       const startOfDay = new Date(date);
       startOfDay.setHours(0, 0, 0, 0);
-      
+
       const endOfDay = new Date(date);
       endOfDay.setHours(23, 59, 59, 999);
 
-      const enrollments = await prisma.enrollment.count({
-        where: {
-          createdAt: {
-            gte: startOfDay,
-            lte: endOfDay,
+      const [enrollments, revenueResult] = await Promise.all([
+        prisma.enrollment.count({
+          where: {
+            createdAt: {
+              gte: startOfDay,
+              lte: endOfDay,
+            },
           },
-        },
-      });
+        }),
+        prisma.commission.aggregate({
+          _sum: { amount: true },
+          where: {
+            createdAt: {
+              gte: startOfDay,
+              lte: endOfDay
+            }
+          }
+        })
+      ]);
 
       return {
         date: format(date, 'yyyy-MM-dd'),
         enrollments,
-        revenue: 0, // TODO: Implement when payment system is active
+        revenue: revenueResult._sum.amount || 0,
       };
     })
   );
@@ -191,33 +230,41 @@ export async function getCoursePerformance(): Promise<CoursePerformance[]> {
           enrollment: true,
         },
       },
+      // We can't easily aggregate revenue inside findMany without raw query or separate call
+      // So we will fetch basic info and then map
     },
     orderBy: {
       enrollment: {
         _count: "desc",
       },
     },
-    take: 10, // Top 10 performing courses
+    take: 10,
   });
 
-  return courses.map((course) => {
-    const totalEnrollments = course._count?.enrollment || 0;
-    const completedEnrollments = 0; // Will be calculated differently
+  const coursesWithRevenue = await Promise.all(courses.map(async (course) => {
+    const revenueResult = await prisma.commission.aggregate({
+      _sum: { amount: true },
+      where: { courseId: course.id }
+    });
 
-    const completionRate = totalEnrollments > 0 
-      ? (completedEnrollments / totalEnrollments) * 100 
-      : 0;
+    const totalEnrollments = course._count?.enrollment || 0;
+
+    // Calculate completion rate based on 'completed' status in lessonProgress (hard to do here effeciently)
+    // or just assume active for now.
+    const completionRate = 0;
 
     return {
       id: course.id,
       title: course.title,
       enrollments: totalEnrollments,
       completionRate,
-      averageRating: 0, // TODO: Implement when rating system is active
-      revenue: 0, // TODO: Implement when payment system is active
+      averageRating: 0,
+      revenue: revenueResult._sum.amount || 0,
       category: course.category,
     };
-  });
+  }));
+
+  return coursesWithRevenue;
 }
 
 export async function getAnalyticsData(): Promise<AnalyticsData> {

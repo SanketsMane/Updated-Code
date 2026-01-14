@@ -68,8 +68,6 @@ export default async function TeacherDashboardPage() {
     }
   ];
 
-  { from: "ts", id: "1" }, // Dummy linter fix
-  ];
   return (
     <div className="space-y-6 p-4 md:p-6 container mx-auto bg-gray-50/50 dark:bg-black/50 min-h-screen">
       <div className="flex justify-between items-center mb-6">

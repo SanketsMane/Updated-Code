@@ -129,7 +129,7 @@ export async function updateSessionStatus(sessionId: string, status: "in_progres
     where: { id: sessionId },
     data: {
       status,
-      ...(status === "InProgress" && { actualStartTime: new Date() }),
+      ...(status === "in_progress" && { actualStartTime: new Date() }),
       ...(status === "completed" && { actualEndTime: new Date() }),
     },
   });
@@ -138,18 +138,44 @@ export async function updateSessionStatus(sessionId: string, status: "in_progres
   return { success: true };
 }
 
-// Generate Agora token (simplified - in production you'd call your token server)
+// Generate Agora token
 export async function generateAgoraToken(channelName: string, userId: string) {
-  // This is a simplified version. In production, you'd have a separate service
-  // that generates tokens using your Agora App ID and App Certificate
+  const appId = process.env.NEXT_PUBLIC_AGORA_APP_ID; // Usually public ID is needed for client? No, server uses App ID + Cert.
+  const appCertificate = process.env.AGORA_APP_CERTIFICATE;
 
-  const token = `agora_token_${channelName}_${userId}_${Date.now()}`;
+  if (!appId || !appCertificate) {
+    console.warn("Agora credentials missing in .env");
+    // Return mock for development if missing
+    return {
+      token: "mock-token",
+      channelName,
+      userId,
+      appId: appId || "mock-app-id"
+    };
+  }
+
+  // Dynamic import to avoid build issues if package missing/server-only
+  const { RtcTokenBuilder, RtcRole } = await import('agora-access-token');
+
+  const role = RtcRole.PUBLISHER;
+  const expirationTimeInSeconds = 3600;
+  const currentTimestamp = Math.floor(Date.now() / 1000);
+  const privilegeExpiredTs = currentTimestamp + expirationTimeInSeconds;
+
+  const token = RtcTokenBuilder.buildTokenWithAccount(
+    appId,
+    appCertificate,
+    channelName,
+    userId,
+    role,
+    privilegeExpiredTs
+  );
 
   return {
     token,
     channelName,
     userId,
-    appId: process.env.AGORA_APP_ID || "demo_app_id",
+    appId,
   };
 }
 

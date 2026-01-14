@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 export async function getTeacherPayoutData() {
     const session = await auth.api.getSession({ headers: await headers() });
@@ -37,30 +38,30 @@ export async function getTeacherPayoutData() {
         };
     }
 
-    // 1. Calculate Earnings
-    // For now, we rely on the `totalEarnings` field in TeacherProfile which should be updated on enrollment/payment
-    // If logical gaps exist in data seeding, this might be 0, but it removes "dummy" non-zero values.
-    const totalEarnings = Number(teacher.totalEarnings) || 0;
-
-    // 2. Calculate Payouts
-    const allPayouts = await prisma.payoutRequest.findMany({
+    // 1. Calculate Earnings from Commissions (SSOT)
+    const commissions = await prisma.commission.findMany({
         where: { teacherId: teacher.id }
     });
 
-    const processedPayouts = allPayouts
-        .filter(p => ["Completed", "Paid", "Processed"].includes(p.status))
-        .reduce((sum, p) => sum + Number(p.requestedAmount), 0);
+    const totalEarningsCents = commissions.reduce((sum, c) => sum + c.netAmount, 0);
+    const availableCents = commissions
+        .filter(c => c.status === "Pending")
+        .reduce((sum, c) => sum + c.netAmount, 0);
+
+    const totalEarnings = totalEarningsCents / 100.0;
+    const availableForPayout = availableCents / 100.0;
+
+    // 2. Calculate Payouts
+    const allPayouts = await prisma.payoutRequest.findMany({
+        where: { teacherId: teacher.id },
+        orderBy: { createdAt: "desc" }
+    });
 
     const pendingPayouts = allPayouts
         .filter(p => ["Pending", "UnderReview", "Approved", "Processing"].includes(p.status))
         .reduce((sum, p) => sum + Number(p.requestedAmount), 0);
 
-    // 3. Available Balance
-    // Available = Total Earned - (Already Paid + Currently Pending)
-    // Ensure we don't show negative if data is slightly out of sync
-    const availableForPayout = Math.max(0, totalEarnings - processedPayouts - pendingPayouts);
-
-    // 4. Session Stats
+    // 3. Session Stats
     const totalSessions = teacher.liveSessions.length;
     // Use simple division if sessions exist, otherwise 0
     const averageSessionEarning = totalSessions > 0
@@ -81,4 +82,79 @@ export async function getTeacherPayoutData() {
             processedAt: p.processedAt ? p.processedAt.toISOString().split('T')[0] : undefined
         }))
     };
+}
+
+export async function requestPayout() {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session?.user?.id) {
+        throw new Error("Unauthorized");
+    }
+
+    const teacherProfile = await prisma.teacherProfile.findUnique({
+        where: { userId: session.user.id },
+        include: {
+            verification: true // Correct relation name
+        }
+    });
+
+    if (!teacherProfile) throw new Error("Teacher profile not found");
+
+    const { verification } = teacherProfile;
+    if (!verification || !verification.bankAccountNumber) {
+        throw new Error("Bank details not configured. Please complete verification settings.");
+    }
+
+    // Calculate Available Balance
+    const pendingCommissions = await prisma.commission.findMany({
+        where: {
+            teacherId: teacherProfile.id,
+            status: "Pending"
+        }
+    });
+
+    const totalCents = pendingCommissions.reduce((sum: number, c: any) => sum + c.netAmount, 0);
+    const MIN_PAYOUT_CENTS = 5000; // $50.00
+    if (totalCents < MIN_PAYOUT_CENTS) {
+        throw new Error(`Minimum payout amount is $50.00. Current balance: $${(totalCents / 100).toFixed(2)}`);
+    }
+
+    const requestedAmountDecimal = totalCents / 100.0;
+
+    try {
+        await prisma.$transaction(async (tx: any) => {
+            const payoutRequest = await tx.payoutRequest.create({
+                data: {
+                    teacherId: teacherProfile.id,
+                    requestedAmount: requestedAmountDecimal,
+                    currency: "USD",
+                    status: "Pending",
+                    bankAccountName: verification.bankAccountName || "Unknown",
+                    bankAccountNumber: verification.bankAccountNumber!,
+                    bankRoutingNumber: verification.bankRoutingNumber,
+                    adminNotes: "Auto-generated request via Action"
+                }
+            });
+
+            for (const comm of pendingCommissions) {
+                await tx.payoutCommission.create({
+                    data: {
+                        payoutRequestId: payoutRequest.id,
+                        commissionId: comm.id,
+                        amount: comm.netAmount / 100.0
+                    }
+                });
+
+                await tx.commission.update({
+                    where: { id: comm.id },
+                    data: { status: "Processing" }
+                });
+            }
+        });
+
+        revalidatePath("/teacher/payouts");
+        return { success: true };
+    } catch (e: any) {
+        console.error("Payout Transaction Failed", e);
+        throw new Error("Failed to process payout request");
+    }
 }

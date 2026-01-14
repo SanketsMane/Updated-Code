@@ -64,12 +64,12 @@ interface UseWhiteboardWebSocketReturn {
   isConnected: boolean;
   isConnecting: boolean;
   error: string | null;
-  
+
   // Participants
   participants: WhiteboardParticipant[];
   cursors: WhiteboardCursor[];
   userRole: string | null;
-  
+
   // Actions
   sendCursorMove: (x: number, y: number) => void;
   sendElementAdd: (element: Partial<WhiteboardElement>) => void;
@@ -77,7 +77,7 @@ interface UseWhiteboardWebSocketReturn {
   sendElementDelete: (elementId: string) => void;
   sendWhiteboardClear: () => void;
   requestSync: () => void;
-  
+
   // Event handlers (set these to handle real-time updates)
   onElementAdd?: (element: WhiteboardElement) => void;
   onElementUpdate?: (elementId: string, updates: Partial<WhiteboardElement>) => void;
@@ -85,11 +85,20 @@ interface UseWhiteboardWebSocketReturn {
   onWhiteboardClear?: () => void;
   onUserJoined?: (user: WhiteboardUser) => void;
   onUserLeft?: (user: WhiteboardUser) => void;
+
+  setEventHandlers: (handlers: {
+    onElementAdd?: (element: WhiteboardElement) => void;
+    onElementUpdate?: (elementId: string, updates: Partial<WhiteboardElement>) => void;
+    onElementDelete?: (elementId: string) => void;
+    onWhiteboardClear?: () => void;
+    onUserJoined?: (user: WhiteboardUser) => void;
+    onUserLeft?: (user: WhiteboardUser) => void;
+  }) => void;
 }
 
-export const useWhiteboardWebSocket = ({ 
-  whiteboardId, 
-  enabled = true 
+export const useWhiteboardWebSocket = ({
+  whiteboardId,
+  enabled = true
 }: UseWhiteboardWebSocketProps): UseWhiteboardWebSocketReturn => {
   const { data: session } = useAuth();
   const [isConnected, setIsConnected] = useState(false);
@@ -98,7 +107,7 @@ export const useWhiteboardWebSocket = ({
   const [participants, setParticipants] = useState<WhiteboardParticipant[]>([]);
   const [cursors, setCursors] = useState<WhiteboardCursor[]>([]);
   const [userRole, setUserRole] = useState<string | null>(null);
-  
+
   const wsRef = useRef<WebSocket | null>(null);
   const eventHandlersRef = useRef<{
     onElementAdd?: (element: WhiteboardElement) => void;
@@ -151,19 +160,19 @@ export const useWhiteboardWebSocket = ({
   // Connect to WebSocket
   const connect = useCallback(async () => {
     if (!session?.user || !whiteboardId || !enabled) return;
-    
+
     setIsConnecting(true);
     setError(null);
 
     try {
       const wsUrl = getWebSocketUrl();
       const ws = new WebSocket(wsUrl);
-      
+
       ws.onopen = () => {
         console.log('WebSocket connected');
         setIsConnected(true);
         setIsConnecting(false);
-        
+
         // Join whiteboard
         const token = (session as any)?.token || 'anonymous';
         sendMessage(MESSAGE_TYPES.JOIN_WHITEBOARD, {
@@ -175,7 +184,7 @@ export const useWhiteboardWebSocket = ({
       ws.onmessage = (event) => {
         try {
           const { type, payload } = JSON.parse(event.data);
-          
+
           switch (type) {
             case MESSAGE_TYPES.SYNC_RESPONSE:
               setParticipants(payload.participants || []);
@@ -195,10 +204,10 @@ export const useWhiteboardWebSocket = ({
               break;
 
             case MESSAGE_TYPES.USER_LEFT:
-              setParticipants(prev => 
+              setParticipants(prev =>
                 prev.filter(p => p.user.id !== payload.user.id)
               );
-              setCursors(prev => 
+              setCursors(prev =>
                 prev.filter(c => c.userId !== payload.user.id)
               );
               eventHandlersRef.current.onUserLeft?.(payload.user);
@@ -251,7 +260,7 @@ export const useWhiteboardWebSocket = ({
         setIsConnected(false);
         setIsConnecting(false);
         wsRef.current = null;
-        
+
         // Auto-reconnect after 3 seconds
         setTimeout(() => {
           if (enabled) {
@@ -267,7 +276,7 @@ export const useWhiteboardWebSocket = ({
       };
 
       wsRef.current = ws;
-      
+
     } catch (err) {
       console.error('Error connecting to WebSocket:', err);
       setError('Failed to connect to WebSocket');
@@ -312,7 +321,7 @@ export const useWhiteboardWebSocket = ({
   useEffect(() => {
     const interval = setInterval(() => {
       const now = Date.now();
-      setCursors(prev => 
+      setCursors(prev =>
         prev.filter(cursor => now - cursor.timestamp < 5000)
       );
     }, 1000);
@@ -325,12 +334,12 @@ export const useWhiteboardWebSocket = ({
     isConnected,
     isConnecting,
     error,
-    
+
     // Participants
     participants,
     cursors,
     userRole,
-    
+
     // Actions
     sendCursorMove,
     sendElementAdd,
@@ -338,7 +347,7 @@ export const useWhiteboardWebSocket = ({
     sendElementDelete,
     sendWhiteboardClear,
     requestSync,
-    
+
     // Event handler setters
     setEventHandlers: (handlers: typeof eventHandlersRef.current) => {
       eventHandlersRef.current = { ...eventHandlersRef.current, ...handlers };

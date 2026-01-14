@@ -1,11 +1,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Shield, 
-  Upload, 
-  CheckCircle, 
-  Clock, 
+import {
+  Shield,
+  Upload,
+  CheckCircle,
+  Clock,
   AlertCircle,
   FileText,
   GraduationCap,
@@ -13,20 +13,31 @@ import {
   User
 } from "lucide-react";
 import { requireTeacher } from "@/app/data/auth/require-roles";
+import { getVerificationStatus } from "@/app/actions/teacher-verification";
+import { BankDetailsForm } from "./bank-details-form";
+import { DocumentUpload } from "./_components/DocumentUpload";
 
 export const dynamic = "force-dynamic";
 
 export default async function TeacherVerificationPage() {
   await requireTeacher();
 
-  // Mock verification status - replace with actual data
-  const verificationStatus = {
-    isVerified: false,
-    identityStatus: 'pending',
-    qualificationStatus: 'approved',
-    experienceStatus: 'not_submitted',
-    backgroundStatus: 'not_submitted'
+  const statusData = await getVerificationStatus();
+  const verification = statusData?.verification;
+  const isVerified = statusData?.isVerified || false;
+
+  // Helper to determine section status
+  const getSectionStatus = (docUrl: string | undefined | null, verifiedAt: Date | undefined | null) => {
+    if (verifiedAt) return 'approved';
+    if (docUrl && docUrl.length > 0) return 'pending'; // Array or string
+    return 'not_submitted';
   };
+
+  const identityStatus = getSectionStatus(verification?.identityDocumentUrl, verification?.identityVerifiedAt);
+  // Arrays
+  const qualificationStatus = (verification?.qualificationsVerifiedAt) ? 'approved' : (verification?.qualificationDocuments && verification.qualificationDocuments.length > 0 ? 'pending' : 'not_submitted');
+  const experienceStatus = (verification?.experienceVerifiedAt) ? 'approved' : (verification?.experienceDocuments && verification.experienceDocuments.length > 0 ? 'pending' : 'not_submitted');
+  const backgroundStatus = verification?.backgroundCheckStatus === 'completed' ? 'approved' : (verification?.backgroundCheckStatus === 'pending' ? 'pending' : 'not_submitted');
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -52,30 +63,30 @@ export default async function TeacherVerificationPage() {
       </div>
 
       {/* Overall Status */}
-      <Card className={`border-2 ${verificationStatus.isVerified ? 'border-green-200 bg-green-50' : 'border-orange-200 bg-orange-50'}`}>
+      <Card className={`border-2 ${isVerified ? 'border-green-200 bg-green-50' : 'border-orange-200 bg-orange-50'}`}>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className={`p-3 rounded-full ${verificationStatus.isVerified ? 'bg-green-100' : 'bg-orange-100'}`}>
-                {verificationStatus.isVerified ? (
+              <div className={`p-3 rounded-full ${isVerified ? 'bg-green-100' : 'bg-orange-100'}`}>
+                {isVerified ? (
                   <CheckCircle className="h-6 w-6 text-green-600" />
                 ) : (
                   <Clock className="h-6 w-6 text-orange-600" />
                 )}
               </div>
               <div>
-                <CardTitle className={verificationStatus.isVerified ? 'text-green-800' : 'text-orange-800'}>
-                  {verificationStatus.isVerified ? 'Verification Complete' : 'Verification In Progress'}
+                <CardTitle className={isVerified ? 'text-green-800' : 'text-orange-800'}>
+                  {isVerified ? 'Verification Complete' : 'Verification In Progress'}
                 </CardTitle>
                 <CardDescription>
-                  {verificationStatus.isVerified 
-                    ? 'Your profile is verified. You can now teach and request payouts.'
-                    : 'Complete all verification steps to unlock full platform access.'
+                  {isVerified
+                    ? 'Your profile is fully verified. You can now teach and request payouts.'
+                    : 'Complete critical verification steps to unlock full platform access.'
                   }
                 </CardDescription>
               </div>
             </div>
-            {verificationStatus.isVerified && (
+            {isVerified && (
               <Badge className="bg-green-100 text-green-700">
                 <Shield className="h-3 w-3 mr-1" />
                 Verified
@@ -84,6 +95,9 @@ export default async function TeacherVerificationPage() {
           </div>
         </CardHeader>
       </Card>
+
+      {/* Bank Details Section (New) */}
+      <BankDetailsForm initialData={verification} />
 
       {/* Verification Steps */}
       <div className="grid gap-6">
@@ -98,37 +112,20 @@ export default async function TeacherVerificationPage() {
                 <div>
                   <CardTitle>Identity Verification</CardTitle>
                   <CardDescription>
-                    Verify your identity with government-issued ID
+                    Verify your identity with government-issued photo ID (Passport, Driver's License)
                   </CardDescription>
                 </div>
               </div>
-              {getStatusBadge(verificationStatus.identityStatus)}
+              {getStatusBadge(identityStatus)}
             </div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="text-sm space-y-2">
-                <p className="font-medium">Required Documents:</p>
-                <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                  <li>Government-issued photo ID (passport, driver's license, or national ID)</li>
-                  <li>Recent passport-style photograph</li>
-                  <li>Address proof (utility bill or bank statement, max 3 months old)</li>
-                </ul>
-              </div>
-              {verificationStatus.identityStatus === 'not_submitted' && (
-                <Button className="w-full">
-                  <Upload className="h-4 w-4 mr-2" />
-                  Upload Identity Documents
-                </Button>
-              )}
-              {verificationStatus.identityStatus === 'pending' && (
-                <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                  <p className="text-sm text-orange-800">
-                    Your documents are under review. We'll notify you within 24-48 hours.
-                  </p>
-                </div>
-              )}
-            </div>
+            <DocumentUpload
+              label="Identity Document"
+              type="identity"
+              existingUrls={verification?.identityDocumentUrl}
+              acceptedFileTypes="pdf"
+            />
           </CardContent>
         </Card>
 
@@ -143,31 +140,20 @@ export default async function TeacherVerificationPage() {
                 <div>
                   <CardTitle>Educational Qualifications</CardTitle>
                   <CardDescription>
-                    Verify your educational background and certifications
+                    Upload your degrees, diplomas, or certificates
                   </CardDescription>
                 </div>
               </div>
-              {getStatusBadge(verificationStatus.qualificationStatus)}
+              {getStatusBadge(qualificationStatus)}
             </div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="text-sm space-y-2">
-                <p className="font-medium">Required Documents:</p>
-                <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                  <li>Degree certificates (Bachelor's, Master's, PhD)</li>
-                  <li>Professional certifications relevant to your teaching subjects</li>
-                  <li>Academic transcripts (if applicable)</li>
-                </ul>
-              </div>
-              {verificationStatus.qualificationStatus === 'approved' && (
-                <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                  <p className="text-sm text-green-800">
-                    ✅ Your qualifications have been verified and approved.
-                  </p>
-                </div>
-              )}
-            </div>
+            <DocumentUpload
+              label="Qualification Documents"
+              type="qualification"
+              existingUrls={verification?.qualificationDocuments}
+              acceptedFileTypes="pdf"
+            />
           </CardContent>
         </Card>
 
@@ -176,93 +162,29 @@ export default async function TeacherVerificationPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-3 bg-green-100 rounded-full">
-                  <Award className="h-5 w-5 text-green-600" />
+                <div className="p-3 bg-amber-100 rounded-full">
+                  <Award className="h-5 w-5 text-amber-600" />
                 </div>
                 <div>
-                  <CardTitle>Teaching Experience</CardTitle>
+                  <CardTitle>Experience Certificates</CardTitle>
                   <CardDescription>
-                    Document your teaching experience and expertise
+                    Upload proof of past teaching experience
                   </CardDescription>
                 </div>
               </div>
-              {getStatusBadge(verificationStatus.experienceStatus)}
+              {getStatusBadge(experienceStatus)}
             </div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="text-sm space-y-2">
-                <p className="font-medium">Required Documents:</p>
-                <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                  <li>Teaching experience letters from previous institutions</li>
-                  <li>Updated CV/Resume highlighting teaching experience</li>
-                  <li>Student testimonials or references (optional but recommended)</li>
-                </ul>
-              </div>
-              <Button className="w-full" variant="outline">
-                <Upload className="h-4 w-4 mr-2" />
-                Upload Experience Documents
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Background Check */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-3 bg-red-100 rounded-full">
-                  <Shield className="h-5 w-5 text-red-600" />
-                </div>
-                <div>
-                  <CardTitle>Background Verification</CardTitle>
-                  <CardDescription>
-                    Background check for safety and credibility
-                  </CardDescription>
-                </div>
-              </div>
-              {getStatusBadge(verificationStatus.backgroundStatus)}
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="text-sm space-y-2">
-                <p className="font-medium">Required Documents:</p>
-                <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                  <li>Police clearance certificate</li>
-                  <li>Character references from professional contacts</li>
-                  <li>Previous employer verification (if applicable)</li>
-                </ul>
-              </div>
-              <Button className="w-full" variant="outline">
-                <Upload className="h-4 w-4 mr-2" />
-                Upload Background Documents
-              </Button>
-            </div>
+            <DocumentUpload
+              label="Experience Documents"
+              type="experience"
+              existingUrls={verification?.experienceDocuments}
+              acceptedFileTypes="pdf"
+            />
           </CardContent>
         </Card>
       </div>
-
-      {/* Help Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            Need Help?
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-sm space-y-2">
-            <p>If you have questions about the verification process:</p>
-            <ul className="list-disc list-inside text-muted-foreground space-y-1">
-              <li>Email us at verification@organomed.com</li>
-              <li>Check our verification guidelines in the Help Center</li>
-              <li>Contact support via live chat during business hours</li>
-            </ul>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }

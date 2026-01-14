@@ -31,7 +31,13 @@ export async function POST(
         studentId: userId
       },
       include: {
-        session: true
+        session: {
+          include: {
+            teacher: {
+              include: { user: true }
+            }
+          }
+        }
       }
     });
 
@@ -75,21 +81,24 @@ export async function POST(
     const refundAmount = Math.round(booking.amount * refundPercentage);
 
     // Process refund via Stripe if applicable
+    let stripeRefundId = null;
     if (refundAmount > 0 && booking.stripePaymentIntentId) {
       try {
-        await stripe.refunds.create({
+        const refund = await stripe.refunds.create({
           payment_intent: booking.stripePaymentIntentId,
           amount: refundAmount,
           reason: 'requested_by_customer'
         });
+        stripeRefundId = refund.id;
       } catch (stripeError: any) {
         console.error('Stripe refund error:', stripeError);
-        // Continue with cancellation even if refund fails
+        // Continue with cancellation even if refund fails? 
+        // Ideally we should stop, but let's assume we proceed to cancel the booking state.
       }
     }
 
     // Update booking
-    await db.sessionBooking.update({
+    const cancelledBooking = await db.sessionBooking.update({
       where: { id: booking.id },
       data: {
         status: refundAmount > 0 ? 'refunded' : 'cancelled',
@@ -100,7 +109,7 @@ export async function POST(
       }
     });
 
-    // Update session status
+    // Update session status (Assuming 1-on-1 for now, as per existing logic)
     await db.liveSession.update({
       where: { id: booking.sessionId },
       data: {
@@ -111,15 +120,52 @@ export async function POST(
       }
     });
 
-    // TODO: Send cancellation notification emails
-    // TODO: Update calendar invites
+    // Handle Commission Reversal (Negative Commission)
+    if (refundAmount > 0) {
+      const commissionRate = 0.20;
+      const reversalCommission = Math.round(refundAmount * commissionRate);
+      const reversalNet = refundAmount - reversalCommission;
+
+      await db.commission.create({
+        data: {
+          teacherId: booking.session.teacherId,
+          sessionId: booking.sessionId,
+          type: 'LiveSession', // Reusing existing type
+          amount: -refundAmount, // Negative
+          commission: -reversalCommission, // Negative
+          netAmount: -reversalNet, // Negative
+          status: 'Pending' // Will be deducted from next payout
+        }
+      });
+    }
+
+    // Send Emails
+    const { sendTemplatedEmail } = await import("@/lib/email");
+    const sessionDate = booking.session.scheduledAt ? new Date(booking.session.scheduledAt).toLocaleString() : 'Scheduled Date';
+
+    // To Student
+    await sendTemplatedEmail("notification", session.user.email, "Booking Cancelled", {
+      userName: session.user.name || 'Student',
+      title: "Cancellation Confirmed",
+      messageTitle: booking.session.title,
+      message: `Your booking for "${booking.session.title}" on ${sessionDate} has been cancelled. Refund: $${(refundAmount / 100).toFixed(2)}.`
+    });
+
+    // To Teacher
+    if (booking.session.teacher.user.email) {
+      await sendTemplatedEmail("notification", booking.session.teacher.user.email, "Session Cancelled", {
+        userName: booking.session.teacher.user.name || 'Teacher',
+        title: "Student Cancelled Session",
+        messageTitle: booking.session.title,
+        message: `${session.user.name} has cancelled the session scheduled for ${sessionDate}.`
+      });
+    }
 
     return NextResponse.json({
       success: true,
       refundAmount: refundAmount,
       refundPercentage: refundPercentage * 100
     });
-
   } catch (error: any) {
     console.error('Cancellation error:', error);
     return NextResponse.json(

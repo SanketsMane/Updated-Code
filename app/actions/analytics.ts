@@ -66,10 +66,12 @@ export async function getUserAnalytics(userId?: string) {
     // Blog posts authored
     prisma.blogPost.count({
       where: { authorId: targetUserId }
+    }),
+
     // Certificates count
     prisma.certificate.count({
-        where: { userId: targetUserId }
-      }),
+      where: { userId: targetUserId }
+    }),
   ]);
 
   // Get daily activity for the chart (last 30 days)
@@ -350,24 +352,26 @@ export async function getPlatformAnalytics() {
           }
         ]
       }
+    }),
+
     // Live Sessions ("Live Now" or just Active today)
     prisma.liveSession.count({
-        where: {
-          status: "in-progress"
-        }
-      }),
+      where: {
+        status: "in_progress"
+      }
+    }),
 
-      // Total Pending Payouts
-      prisma.payoutRequest.aggregate({
-        where: {
-          status: {
-            in: ["Pending", "UnderReview", "Processing"]
-          }
-        },
-        _sum: {
-          requestedAmount: true
+    // Total Pending Payouts
+    prisma.payoutRequest.aggregate({
+      where: {
+        status: {
+          in: ["Pending", "UnderReview", "Processing"]
         }
-      })
+      },
+      _sum: {
+        requestedAmount: true
+      }
+    })
   ]);
 
   // Get user growth over time
