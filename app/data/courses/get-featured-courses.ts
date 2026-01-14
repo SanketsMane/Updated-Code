@@ -32,9 +32,22 @@ export const getFeaturedCourses = cache(async () => {
             },
         });
 
-        return featuredCourses;
+        // Convert Decimal fields to numbers for client component compatibility
+        // Author: Sanket
+        return featuredCourses.map(course => ({
+            ...course,
+            user: {
+                ...course.user,
+                teacherProfile: course.user.teacherProfile ? {
+                    ...course.user.teacherProfile,
+                    totalEarnings: Number(course.user.teacherProfile.totalEarnings),
+                    hourlyRate: Number(course.user.teacherProfile.hourlyRate),
+                } : null
+            }
+        }));
     } catch (error) {
         console.error("Failed to fetch featured courses:", error);
         return [];
     }
 });
+
