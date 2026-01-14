@@ -29,19 +29,26 @@ interface iAppProps {
 
 export function AdminCourseCard({ data }: iAppProps) {
   const thumbnailUrl = useConstructUrl(data.fileKey);
+
   return (
     <Card className="group relative py-0 gap-0">
       {/* absolute dropdrown */}
       <div className="absolute top-2 right-2 z-10">
         <CourseActions courseId={data.id} slug={data.slug} />
       </div>
-      <Image
-        src={thumbnailUrl}
-        alt="Thumbnail Url"
-        width={600}
-        height={400}
-        className="w-full rounded-t-lg aspect-video h-full object-cover"
-      />
+      {thumbnailUrl ? (
+        <Image
+          src={thumbnailUrl}
+          alt="Thumbnail Url"
+          width={600}
+          height={400}
+          className="w-full rounded-t-lg aspect-video h-full object-cover"
+        />
+      ) : (
+        <div className="w-full rounded-t-lg aspect-video bg-muted flex items-center justify-center">
+          <p className="text-muted-foreground">No thumbnail</p>
+        </div>
+      )}
 
       <CardContent className="p-4">
         <Link
