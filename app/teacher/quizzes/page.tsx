@@ -66,10 +66,13 @@ import {
   Share2,
   Settings,
   Play,
-  Pause
+  Pause,
+  Maximize2,
+  Minimize2
 } from "lucide-react";
 import { toast } from "sonner";
 import { QuizBuilder } from "@/components/quiz/QuizBuilder";
+import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -119,6 +122,7 @@ export default function QuizManagementPage() {
   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [quizToDelete, setQuizToDelete] = useState<Quiz | null>(null);
+  const [isMaximized, setIsMaximized] = useState(false);
 
   useEffect(() => {
     fetchQuizzes();
@@ -261,7 +265,7 @@ export default function QuizManagementPage() {
   const filteredQuizzes = quizzes.filter(quiz => {
     const matchesSearch = quiz.title.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCourse = selectedCourse === "all" || quiz.courseId === selectedCourse;
-    const matchesStatus = statusFilter === "all" || 
+    const matchesStatus = statusFilter === "all" ||
       (statusFilter === "published" && quiz.isPublished) ||
       (statusFilter === "draft" && !quiz.isPublished) ||
       (statusFilter === "active" && quiz.isActive) ||
@@ -316,7 +320,7 @@ export default function QuizManagementPage() {
             Create and manage interactive quizzes for your courses
           </p>
         </div>
-        
+
         <Button
           onClick={() => setShowCreateDialog(true)}
           className="flex items-center gap-2"
@@ -339,7 +343,7 @@ export default function QuizManagementPage() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
@@ -353,7 +357,7 @@ export default function QuizManagementPage() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
@@ -367,7 +371,7 @@ export default function QuizManagementPage() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
@@ -396,7 +400,7 @@ export default function QuizManagementPage() {
                 className="w-64"
               />
             </div>
-            
+
             <Select value={selectedCourse} onValueChange={setSelectedCourse}>
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Select course" />
@@ -410,7 +414,7 @@ export default function QuizManagementPage() {
                 ))}
               </SelectContent>
             </Select>
-            
+
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-32">
                 <SelectValue placeholder="Status" />
@@ -423,7 +427,7 @@ export default function QuizManagementPage() {
                 <SelectItem value="inactive">Inactive</SelectItem>
               </SelectContent>
             </Select>
-            
+
             <Badge variant="secondary" className="ml-auto">
               {filteredQuizzes.length} of {quizzes.length} quizzes
             </Badge>
@@ -440,8 +444,8 @@ export default function QuizManagementPage() {
               <div>
                 <h3 className="font-semibold text-lg">No quizzes found</h3>
                 <p className="text-muted-foreground mb-4">
-                  {searchTerm || selectedCourse !== "all" || statusFilter !== "all" 
-                    ? "Try adjusting your filters" 
+                  {searchTerm || selectedCourse !== "all" || statusFilter !== "all"
+                    ? "Try adjusting your filters"
                     : "Create your first quiz to get started"}
                 </p>
                 {!searchTerm && selectedCourse === "all" && statusFilter === "all" && (
@@ -472,13 +476,13 @@ export default function QuizManagementPage() {
                         </Badge>
                       )}
                     </div>
-                    
+
                     {quiz.description && (
                       <p className="text-muted-foreground mb-3 line-clamp-2">
                         {quiz.description}
                       </p>
                     )}
-                    
+
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <BookOpen className="h-4 w-4" />
@@ -486,26 +490,26 @@ export default function QuizManagementPage() {
                           {quiz.course?.title || quiz.chapter?.title || quiz.lesson?.title || "Standalone"}
                         </span>
                       </div>
-                      
+
                       <div className="flex items-center gap-1">
                         <Target className="h-4 w-4" />
                         <span>{quiz.questions.length} questions</span>
                       </div>
-                      
+
                       {quiz.timeLimit && (
                         <div className="flex items-center gap-1">
                           <Clock className="h-4 w-4" />
                           <span>{quiz.timeLimit} min</span>
                         </div>
                       )}
-                      
+
                       <div className="flex items-center gap-1">
                         <Calendar className="h-4 w-4" />
                         <span>Created {formatDate(quiz.createdAt)}</span>
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-2 ml-4">
                     {/* Quick Actions */}
                     <Button
@@ -520,7 +524,7 @@ export default function QuizManagementPage() {
                         <Play className="h-4 w-4" />
                       )}
                     </Button>
-                    
+
                     <Button
                       variant="ghost"
                       size="sm"
@@ -528,7 +532,7 @@ export default function QuizManagementPage() {
                     >
                       <BarChart3 className="h-4 w-4" />
                     </Button>
-                    
+
                     {/* More Actions */}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -541,18 +545,18 @@ export default function QuizManagementPage() {
                           <Edit className="h-4 w-4 mr-2" />
                           Edit Quiz
                         </DropdownMenuItem>
-                        
+
                         <DropdownMenuItem onClick={() => window.open(`/quiz/${quiz.id}/preview`, '_blank')}>
                           <Eye className="h-4 w-4 mr-2" />
                           Preview
                         </DropdownMenuItem>
-                        
+
                         <DropdownMenuItem onClick={() => handleDuplicateQuiz(quiz)}>
                           <Copy className="h-4 w-4 mr-2" />
                           Duplicate
                         </DropdownMenuItem>
-                        
-                        <DropdownMenuItem 
+
+                        <DropdownMenuItem
                           onClick={() => handleToggleStatus(quiz, 'isPublished')}
                         >
                           {quiz.isPublished ? (
@@ -567,26 +571,26 @@ export default function QuizManagementPage() {
                             </>
                           )}
                         </DropdownMenuItem>
-                        
+
                         <DropdownMenuSeparator />
-                        
+
                         <DropdownMenuItem onClick={() => window.open(`/quiz/${quiz.id}/results`, '_blank')}>
                           <Users className="h-4 w-4 mr-2" />
                           View Results
                         </DropdownMenuItem>
-                        
+
                         <DropdownMenuItem>
                           <Download className="h-4 w-4 mr-2" />
                           Export Data
                         </DropdownMenuItem>
-                        
+
                         <DropdownMenuItem>
                           <Share2 className="h-4 w-4 mr-2" />
                           Share Quiz
                         </DropdownMenuItem>
-                        
+
                         <DropdownMenuSeparator />
-                        
+
                         <DropdownMenuItem
                           onClick={() => {
                             setQuizToDelete(quiz);
@@ -609,15 +613,36 @@ export default function QuizManagementPage() {
       )}
 
       {/* Create Quiz Dialog */}
-      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+      <Dialog
+        open={showCreateDialog}
+        onOpenChange={(open) => {
+          setShowCreateDialog(open);
+          if (!open) setIsMaximized(false);
+        }}
+      >
+        <DialogContent
+          className={cn(
+            "overflow-y-auto transition-all duration-200 block",
+            isMaximized
+              ? "!max-w-[100vw] !w-[100vw] !h-[100vh] !max-h-[100vh] !rounded-none !border-none !top-0 !left-0 !translate-x-0 !translate-y-0 !m-0"
+              : "max-w-6xl max-h-[90vh]"
+          )}
+        >
           <DialogHeader>
             <DialogTitle>Create New Quiz</DialogTitle>
             <DialogDescription>
               Create an interactive quiz with multiple question types and advanced settings
             </DialogDescription>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-12 top-4"
+              onClick={() => setIsMaximized(!isMaximized)}
+            >
+              {isMaximized ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+            </Button>
           </DialogHeader>
-          
+
           <QuizBuilder
             onSave={handleCreateQuiz}
             onCancel={() => setShowCreateDialog(false)}
@@ -626,15 +651,38 @@ export default function QuizManagementPage() {
       </Dialog>
 
       {/* Edit Quiz Dialog */}
-      <Dialog open={!!selectedQuiz} onOpenChange={(open) => !open && setSelectedQuiz(null)}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+      <Dialog
+        open={!!selectedQuiz}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectedQuiz(null);
+            setIsMaximized(false);
+          }
+        }}
+      >
+        <DialogContent
+          className={cn(
+            "overflow-y-auto transition-all duration-200 block",
+            isMaximized
+              ? "!max-w-[100vw] !w-[100vw] !h-[100vh] !max-h-[100vh] !rounded-none !border-none !top-0 !left-0 !translate-x-0 !translate-y-0 !m-0"
+              : "max-w-6xl max-h-[90vh]"
+          )}
+        >
           <DialogHeader>
             <DialogTitle>Edit Quiz</DialogTitle>
             <DialogDescription>
               Modify your quiz settings and questions
             </DialogDescription>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-12 top-4"
+              onClick={() => setIsMaximized(!isMaximized)}
+            >
+              {isMaximized ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+            </Button>
           </DialogHeader>
-          
+
           {selectedQuiz && (
             <QuizBuilder
               initialData={selectedQuiz}

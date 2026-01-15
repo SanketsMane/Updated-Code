@@ -42,7 +42,7 @@ const data = {
     },
     {
       title: "Find a Mentor",
-      url: "/dashboard/mentors",
+      url: "/find-teacher",
       icon: IconSearch,
     },
     {
@@ -74,6 +74,11 @@ const data = {
       title: "Calendar",
       url: "/dashboard/calendar",
       icon: IconCalendar,
+    },
+    {
+      title: "Certificates",
+      url: "/dashboard/certificates",
+      icon: IconSchool, // Using IconSchool as placeholder for certificate/award or verify IconAward availability
     },
   ],
   navSecondary: [

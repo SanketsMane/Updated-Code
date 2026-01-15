@@ -57,7 +57,7 @@ export function TeacherActions({ userId, isApproved, isVerified }: TeacherAction
             <Button
                 variant="outline"
                 size="sm"
-                onClick={() => router.push(`/teachers/profile/${userId}`)}
+                onClick={() => router.push(`/admin/teachers/${userId}`)}
             >
                 <Eye className="w-4 h-4 mr-1" /> View
             </Button>

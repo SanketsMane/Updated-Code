@@ -177,7 +177,7 @@ export function MobileNavbar() {
                     {/* User Actions */}
                     <div className="space-y-1">
                       <Link
-                        href="/profile"
+                        href={session.user.role === "teacher" ? "/teacher/profile" : "/dashboard/settings"}
                         onClick={() => setIsOpen(false)}
                         className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors"
                       >
@@ -240,7 +240,11 @@ export function MobileBottomNavigation() {
     { name: "Courses", href: "/courses", icon: BookOpen },
     { name: "Sessions", href: "/dashboard/sessions", icon: Video },
     { name: "Messages", href: "/dashboard/messages", icon: MessageSquare },
-    { name: "Profile", href: "/profile", icon: User },
+    {
+      name: "Profile",
+      href: session.user.role === "teacher" ? "/teacher/profile" : "/dashboard/settings",
+      icon: User
+    },
   ];
 
   return (

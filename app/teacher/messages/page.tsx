@@ -19,6 +19,7 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { toast } from "sonner";
 
 export const dynamic = "force-dynamic";
 
@@ -79,6 +80,7 @@ export default function TeacherMessagesPage() {
   const [loading, setLoading] = useState(true);
   const [sendingMessage, setSendingMessage] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load conversations on mount
   useEffect(() => {
@@ -145,6 +147,51 @@ export default function TeacherMessagesPage() {
       console.error("Error sending message:", error);
     } finally {
       setSendingMessage(false);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !selectedConversation) return;
+
+    setSendingMessage(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      // Upload file
+      const uploadRes = await fetch("/api/upload/proxy", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadRes.ok) throw new Error("Upload failed");
+      const { url } = await uploadRes.json();
+
+      // Determine message type
+      const messageType = file.type.startsWith("image/") ? "Image" : "File";
+
+      // Send message with URL
+      await fetch("/api/messages/conversations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "sendMessage",
+          conversationId: selectedConversation,
+          message: url,
+          messageType
+        })
+      });
+
+      await loadMessages(selectedConversation);
+      await loadConversations();
+    } catch (error) {
+      console.error("Error sending attachment:", error);
+      toast.error("Failed to send attachment");
+    } finally {
+      setSendingMessage(false);
+      // Reset input
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
@@ -302,8 +349,8 @@ export default function TeacherMessagesPage() {
                   <Card
                     key={conversation.id}
                     className={`cursor-pointer transition-colors border-0 shadow-none ${selectedConversation === conversation.id
-                        ? "bg-primary/10 text-primary-900 dark:text-primary-100"
-                        : "hover:bg-muted/50 bg-transparent"
+                      ? "bg-primary/10 text-primary-900 dark:text-primary-100"
+                      : "hover:bg-muted/50 bg-transparent"
                       }`}
                     onClick={() => setSelectedConversation(conversation.id)}
                   >
@@ -398,11 +445,19 @@ export default function TeacherMessagesPage() {
                         )}
                         <div
                           className={`rounded-2xl px-4 py-2 ${isOwn
-                              ? "bg-primary text-primary-foreground rounded-br-none"
-                              : "bg-muted rounded-bl-none"
+                            ? "bg-primary text-primary-foreground rounded-br-none"
+                            : "bg-muted rounded-bl-none"
                             }`}
                         >
-                          <p className="text-sm">{message.content}</p>
+                          {message.messageType === "Image" ? (
+                            <img src={message.content} alt="Attachment" className="max-w-full rounded-lg" />
+                          ) : message.messageType === "File" ? (
+                            <a href={message.content} target="_blank" rel="noopener noreferrer" className="underline break-all">
+                              📎 Attachment
+                            </a>
+                          ) : (
+                            <p className="text-sm">{message.content}</p>
+                          )}
                           <p className={`text-[10px] mt-1 text-right ${isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
                             }`}>
                             {formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}
@@ -419,11 +474,19 @@ export default function TeacherMessagesPage() {
             {/* Message Input */}
             <div className="p-4 border-t">
               <form onSubmit={handleSendMessage} className="flex items-end space-x-2">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  onChange={handleFileUpload}
+                />
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
                   className="shrink-0"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={sendingMessage}
                 >
                   <Paperclip className="h-5 w-5 text-muted-foreground" />
                 </Button>

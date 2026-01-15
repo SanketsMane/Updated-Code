@@ -59,16 +59,6 @@ export async function GET(req: NextRequest) {
               email: true,
               image: true
             }
-          },
-          teacher: {
-            include: {
-              user: {
-                select: {
-                  name: true,
-                  image: true
-                }
-              }
-            }
           }
         },
         orderBy: {

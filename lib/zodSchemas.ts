@@ -7,7 +7,7 @@ export const courseStatus = ["Draft", "Published", "Archived"] as const;
 export const courseCategories = [
   "Development",
   "Business",
-  "Finance", 
+  "Finance",
   "IT & Software",
   "Office Productivity",
   "Personal Development",
@@ -23,7 +23,7 @@ export const courseCategories = [
 
 export const languages = [
   "English",
-  "Spanish", 
+  "Spanish",
   "French",
   "German",
   "Italian",
@@ -94,11 +94,8 @@ export const teacherProfileSchema = z.object({
   expertise: z.array(z.string()).min(1, { message: "At least one expertise area is required" }),
   languages: z.array(z.string()).min(1, { message: "At least one language is required" }),
   hourlyRate: z.coerce.number().min(5, { message: "Hourly rate must be at least $5" }).optional(),
+  experience: z.coerce.number().min(0, { message: "Years of experience must be 0 or greater" }).optional(),
   timezone: z.string().optional(),
-  website: z.string().url().optional().or(z.literal("")),
-  linkedin: z.string().url().optional().or(z.literal("")),
-  twitter: z.string().url().optional().or(z.literal("")),
-  youtube: z.string().url().optional().or(z.literal("")),
   qualifications: z.array(z.string()).optional(),
   certifications: z.array(z.string()).optional(),
 });
@@ -115,7 +112,7 @@ export const liveSessionSchema = z.object({
   teacherId: z.string().min(1, { message: "Teacher is required" }),
   title: z.string().min(3, { message: "Title must be at least 3 characters" }),
   description: z.string().optional(),
-  subject: z.string().optional(), 
+  subject: z.string().optional(),
   scheduledAt: z.date({ message: "Scheduled time is required" }),
   duration: z.coerce.number().min(15, { message: "Duration must be at least 15 minutes" }).max(480, { message: "Duration must be at most 8 hours" }),
   price: z.coerce.number().min(5, { message: "Price must be at least $5" }),
@@ -141,6 +138,7 @@ export const lessonSchema = z.object({
 
   videoKey: z.string().optional(),
   thumbnailKey: z.string().optional(),
+  videoUrl: z.string().url().optional().or(z.literal("")),
 });
 
 export type CourseSchemaType = z.infer<typeof courseSchema>;

@@ -148,7 +148,9 @@ export async function getTeacherAnalytics() {
   });
 
   if (!teacherProfile) {
-    throw new Error("Teacher profile not found");
+    // Redirect to complete teacher profile
+    // Author: Sanket
+    redirect("/register/teacher");
   }
 
   const [
@@ -269,11 +271,11 @@ export async function getTeacherAnalytics() {
     })
   ]);
 
-  // Get revenue over time
-  const revenueData = await getRevenueOverTime(session.user.id);
-
-  // Get course performance
-  const coursePerformance = await getCoursePerformance(session.user.id);
+  // Execute helpers in parallel
+  const [revenueData, coursePerformance] = await Promise.all([
+    getRevenueOverTime(session.user.id),
+    getCoursePerformance(session.user.id)
+  ]);
 
   return {
     stats: {
@@ -522,7 +524,7 @@ async function getEngagementMetrics(userId: string) {
 }
 
 async function getRevenueOverTime(teacherId: string) {
-  // This would typically be more sophisticated with proper date grouping
+  // Optimized: Select only necessary fields
   const enrollments = await prisma.enrollment.findMany({
     where: {
       Course: { userId: teacherId }
@@ -549,34 +551,52 @@ async function getRevenueOverTime(teacherId: string) {
 }
 
 async function getCoursePerformance(teacherId: string) {
+  // Optimized: Fetch courses and aggregated stats separately to avoid loading all reviews
   const courses = await prisma.course.findMany({
     where: { userId: teacherId },
-    include: {
-      enrollment: {
-        select: { amount: true }
-      },
-      _count: {
-        select: {
-          enrollment: true,
-          reviews: true
-        }
-      },
-      reviews: {
-        select: { rating: true }
-      }
-    }
+    select: { id: true, title: true }
   });
 
-  return courses.map(course => ({
-    id: course.id,
-    title: course.title,
-    enrollments: course._count.enrollment,
-    reviews: course._count.reviews,
-    averageRating: course.reviews.length > 0
-      ? course.reviews.reduce((sum, review) => sum + review.rating, 0) / course.reviews.length
-      : 0,
-    revenue: course.enrollment?.reduce((sum: number, enrollment: any) => sum + (enrollment.amount || 0), 0) || 0,
-  }));
+  if (courses.length === 0) return [];
+
+  const courseIds = courses.map(c => c.id);
+
+  const [enrollmentStats, reviewStats] = await Promise.all([
+    prisma.enrollment.groupBy({
+      by: ['courseId'],
+      where: {
+        courseId: { in: courseIds }
+      },
+      _count: { _all: true },
+      _sum: { amount: true }
+    }),
+    prisma.review.groupBy({
+      by: ['courseId'],
+      where: {
+        courseId: { in: courseIds }
+      },
+      _count: { _all: true },
+      _avg: { rating: true }
+    })
+  ]);
+
+  // Map stats for O(1) lookup
+  const enrollmentMap = new Map(enrollmentStats.map(s => [s.courseId, s]));
+  const reviewMap = new Map(reviewStats.map(s => [s.courseId, s]));
+
+  return courses.map(course => {
+    const eStat = enrollmentMap.get(course.id);
+    const rStat = reviewMap.get(course.id);
+
+    return {
+      id: course.id,
+      title: course.title,
+      enrollments: eStat?._count?._all || 0,
+      reviews: rStat?._count?._all || 0,
+      averageRating: rStat?._avg?.rating || 0,
+      revenue: eStat?._sum?.amount || 0,
+    };
+  });
 }
 
 async function getUserGrowthData() {

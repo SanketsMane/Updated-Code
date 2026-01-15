@@ -33,11 +33,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { action, conversationId, message, query, userId } = await request.json();
+    const { action, conversationId, message, messageType, query, userId } = await request.json();
 
     switch (action) {
       case "sendMessage":
-        await sendMessage(conversationId, message);
+        await sendMessage(conversationId, message, messageType);
         return NextResponse.json({ success: true });
 
       case "markAsRead":

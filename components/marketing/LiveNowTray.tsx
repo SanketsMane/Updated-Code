@@ -64,7 +64,7 @@ export function LiveNowTray({ sessions }: LiveNowTrayProps) {
                     ))}
                 </div>
 
-                <Link href="/live-sessions/all" className="hidden lg:flex text-xs font-bold items-center gap-1 text-primary hover:text-white transition-colors">
+                <Link href="#upcoming" className="hidden lg:flex text-xs font-bold items-center gap-1 text-primary hover:text-white transition-colors">
                     View All <ArrowRight className="w-3 h-3" />
                 </Link>
             </div>

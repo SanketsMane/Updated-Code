@@ -88,8 +88,9 @@ export default function RegisterPage() {
           }
           toast.success("Account created successfully!");
           if (userType === "teacher") {
-            // Force a hard refresh to ensure the session updates with the new role
-            window.location.href = "/teacher/profile";
+            // Redirect to teacher registration form to complete profile
+            // Author: Sanket
+            window.location.href = "/register/teacher";
           } else {
             router.push("/dashboard");
           }

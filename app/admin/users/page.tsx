@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { IconUsers, IconSearch, IconUserPlus, IconShield, IconSchool, IconUser } from "@tabler/icons-react";
 import { prisma as db } from "@/lib/db";
 import { UserActions } from "./_components/user-actions";
+import { AddUserDialog } from "./_components/add-user-dialog";
+import { BulkImportDialog } from "./_components/bulk-import-dialog";
 
 export const dynamic = "force-dynamic";
 
@@ -34,10 +36,10 @@ export default async function UsersManagementPage() {
           </h1>
           <p className="text-muted-foreground">Manage all platform users</p>
         </div>
-        <Button>
-          <IconUserPlus className="h-4 w-4 mr-2" />
-          Add User
-        </Button>
+        <div className="flex gap-2">
+          <BulkImportDialog />
+          <AddUserDialog />
+        </div>
       </div>
 
       {/* Stats */}

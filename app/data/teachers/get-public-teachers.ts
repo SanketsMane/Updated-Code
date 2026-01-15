@@ -15,10 +15,7 @@ export interface Teacher {
   responseTime: string;
   verified: boolean;
   bio?: string;
-  website?: string;
-  linkedin?: string;
-  twitter?: string;
-  youtube?: string;
+
 }
 
 export async function getPublicTeachers(): Promise<Teacher[]> {
@@ -64,10 +61,7 @@ export async function getPublicTeachers(): Promise<Teacher[]> {
       responseTime: "Usually responds within 2 hours",
       verified: teacher.isVerified,
       bio: teacher.bio || undefined,
-      website: teacher.website || undefined,
-      linkedin: teacher.linkedin || undefined,
-      twitter: teacher.twitter || undefined,
-      youtube: teacher.youtube || undefined,
+
     }));
   } catch (error) {
     console.error("Error fetching teachers:", error);

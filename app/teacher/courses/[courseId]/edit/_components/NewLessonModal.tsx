@@ -101,6 +101,19 @@ export function NewLessonModal({
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="videoUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>YouTube/Video Link (Optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="https://youtube.com/..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <DialogFooter>
               <Button disabled={pending} type="submit">

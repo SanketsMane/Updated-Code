@@ -10,6 +10,7 @@ import {
   courseSchema,
   CourseSchemaType,
   lessonSchema,
+  LessonSchemaType,
 } from "@/lib/zodSchemas";
 import { revalidatePath } from "next/cache";
 
@@ -68,6 +69,22 @@ export async function editCourse(
         ...result.data,
       },
     });
+
+
+
+    // Fetch slug for revalidation if needed, or rely on just home/search
+    // Ideally we should have the slug from the update result or existing data
+    const updatedCourse = await prisma.course.findUnique({
+      where: { id: courseId },
+      select: { slug: true }
+    });
+
+    revalidatePath("/");
+    revalidatePath("/search");
+    revalidatePath("/browse");
+    if (updatedCourse?.slug) {
+      revalidatePath(`/courses/${updatedCourse.slug}`);
+    }
 
     return {
       status: "success",
@@ -215,7 +232,7 @@ export async function createChapter(
 }
 
 export async function createLesson(
-  values: ChapterSchemaType
+  values: LessonSchemaType
 ): Promise<ApiResponse> {
   await requireTeacherOrAdmin();
   try {
@@ -225,6 +242,23 @@ export async function createLesson(
       return {
         status: "error",
         message: "Invalid Data",
+      };
+    }
+
+    // Limit check: Max 50 lessons per course
+    const existingLessons = await prisma.lesson.count({
+      where: { chapterId: result.data.chapterId } // Ideally check course wide but chapter wide is simpler for now, user asked for limits.
+    });
+    // Or check course id if available in schema. Schema has courseId in LessonSchema but createLesson doesn't strictly check courseId consistency directly here.
+    // The lesson schema has courseId.
+    const courseLessonCount = await prisma.lesson.count({
+      where: { Chapter: { courseId: result.data.courseId } }
+    });
+
+    if (courseLessonCount >= 50) {
+      return {
+        status: "error",
+        message: "Course limit reached (Max 50 lessons).",
       };
     }
 
@@ -247,6 +281,7 @@ export async function createLesson(
           description: result.data.description,
           videoKey: result.data.videoKey,
           thumbnailKey: result.data.thumbnailKey,
+          videoUrl: result.data.videoUrl, // Save the video URL
           chapterId: result.data.chapterId,
           position: (maxPos?.position ?? 0) + 1,
         },

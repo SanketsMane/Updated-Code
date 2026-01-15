@@ -252,7 +252,7 @@ export function CreateSessionForm() {
       </div>
 
       {/* Date and Time (only for specific sessions) */}
-      {sessionType === "specific" && (
+      {sessionType === "specific" ? (
         <div className="grid md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>Date *</Label>
@@ -300,6 +300,25 @@ export function CreateSessionForm() {
             </Select>
           </div>
         </div>
+      ) : (
+        <div className="rounded-lg border bg-blue-50/50 dark:bg-blue-950/20 p-6 text-center space-y-4">
+          <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-full w-fit mx-auto">
+            <CalendarIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-lg">Set Recurring Availability</h3>
+            <p className="text-muted-foreground max-w-sm mx-auto mt-1">
+              To let students book sessions anytime, set up your weekly recurring schedule.
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="default"
+            onClick={() => router.push("/teacher/sessions/availability")}
+          >
+            Manage Weekly Schedule
+          </Button>
+        </div>
       )}
 
       {/* Duration and Price */}
@@ -327,18 +346,18 @@ export function CreateSessionForm() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="price">Price (USD) *</Label>
+          <Label htmlFor="price">Price (INR) *</Label>
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-              $
+              ₹
             </span>
             <Input
               id="price"
               type="number"
-              min="5"
+              min="100"
               step="1"
               className="pl-7"
-              placeholder="50"
+              placeholder="500"
               {...register("price", { valueAsNumber: true })}
             />
           </div>
@@ -361,9 +380,9 @@ export function CreateSessionForm() {
             <span className="font-medium">${watchedPrice || 0}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">You'll receive (after 15% fee):</span>
+            <span className="text-muted-foreground">You&apos;ll receive (after 15% fee):</span>
             <span className="font-semibold text-green-600">
-              ${((watchedPrice || 0) * 0.85).toFixed(2)}
+              ₹{((watchedPrice || 0) * 0.85).toFixed(2)}
             </span>
           </div>
         </div>
@@ -393,26 +412,27 @@ export function CreateSessionForm() {
         </Select>
       </div>
 
-      {/* Submit */}
-      <div className="flex gap-3">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => router.back()}
-          disabled={loading}
-          className="flex-1"
-        >
-          Cancel
-        </Button>
-        <Button
-          type="submit"
-          disabled={loading}
-          className="flex-1"
-        >
-          {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Create Session
-        </Button>
-      </div>
+      {sessionType === "specific" && (
+        <div className="flex gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.back()}
+            disabled={loading}
+            className="flex-1"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            disabled={loading}
+            className="flex-1"
+          >
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Create Session
+          </Button>
+        </div>
+      )}
     </form>
   );
 }

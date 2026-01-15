@@ -16,7 +16,7 @@ interface RevenueCardProps {
 export function RevenueCard({
     title,
     amount,
-    subTitle = "This month $0.00",
+    subTitle = "This month ₹0.00",
     icon,
     variant = "blue",
     className,

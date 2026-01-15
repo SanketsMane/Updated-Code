@@ -90,6 +90,9 @@ export function TeacherCourseCard({ data }: iAppProps) {
                         <p className="text-sm text-muted-foreground">{data.level}</p>
                     </div>
                 </div>
+                <div className="mt-2 text-lg font-semibold text-primary">
+                    ₹{data.price}
+                </div>
 
                 <Link
                     className={buttonVariants({

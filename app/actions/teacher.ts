@@ -10,6 +10,7 @@ export async function approveTeacher(profileId: string) {
             data: { isVerified: true, isApproved: true },
         });
         revalidatePath("/admin/team");
+        revalidatePath("/admin/verification");
         return { success: true };
     } catch (error) {
         console.error("Failed to approve teacher:", error);
@@ -33,6 +34,7 @@ export async function rejectTeacher(profileId: string, userId: string) {
         });
 
         revalidatePath("/admin/team");
+        revalidatePath("/admin/verification");
         return { success: true };
     } catch (error) {
         console.error("Failed to reject teacher:", error);

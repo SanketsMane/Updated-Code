@@ -23,7 +23,8 @@ export default async function DashboardPage() {
 
   if (session) {
     if (session.user.role === "admin") redirect("/admin");
-    if (session.user.role === "teacher") redirect("/teacher");
+    if (session.user.role === "admin") redirect("/admin");
+    // if (session.user.role === "teacher") redirect("/teacher"); // Allow teachers to view student dashboard
   }
 
   const userId = session?.user?.id || '';
@@ -60,7 +61,7 @@ export default async function DashboardPage() {
   ];
 
   return (
-    <div className="space-y-6 p-6 max-w-[1600px] mx-auto bg-gray-50/50 dark:bg-black/50 min-h-screen">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
         <div>

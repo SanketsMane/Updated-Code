@@ -24,6 +24,7 @@ export default async function LiveSessionsPage() {
   const sessions = rawSessions.map(session => ({
     ...session,
     price: Number(session.price),
+    scheduledAt: session.scheduledAt.toISOString(), // Serialize for client component
     teacher: {
       ...session.teacher,
       hourlyRate: Number(session.teacher.hourlyRate),
@@ -91,7 +92,7 @@ export default async function LiveSessionsPage() {
             <h2 className="text-3xl font-bold tracking-tight mb-2 text-[#011E21] dark:text-white">Upcoming Sessions</h2>
             <p className="text-muted-foreground text-lg">Book your spot before they fill up</p>
           </div>
-          <Link href="/live-sessions/all" className="text-primary font-bold hover:underline flex items-center gap-1">
+          <Link href="#upcoming" className="text-primary font-bold hover:underline flex items-center gap-1">
             View Calendar
           </Link>
         </div>

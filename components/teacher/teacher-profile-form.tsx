@@ -66,11 +66,8 @@ export function TeacherProfileForm({ existingProfile, onSave }: TeacherProfileFo
       expertise: existingProfile?.expertise || [],
       languages: existingProfile?.languages || [],
       hourlyRate: existingProfile?.hourlyRate || undefined,
+      experience: existingProfile?.experience || undefined,
       timezone: existingProfile?.timezone || "",
-      website: existingProfile?.website || "",
-      linkedin: existingProfile?.linkedin || "",
-      twitter: existingProfile?.twitter || "",
-      youtube: existingProfile?.youtube || "",
       qualifications: existingProfile?.qualifications || [],
       certifications: existingProfile?.certifications || [],
     },
@@ -267,26 +264,49 @@ export function TeacherProfileForm({ existingProfile, onSave }: TeacherProfileFo
               <FormMessage />
             </FormItem>
 
-            {/* Hourly Rate & Timezone */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Hourly Rate & Timezone & Experience */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <FormField
                 control={form.control}
                 name="hourlyRate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Hourly Rate (USD)</FormLabel>
+                    <FormLabel>Hourly Rate (INR)</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
                         type="number"
-                        placeholder="25"
+                        placeholder="2500"
                         min="5"
                         step="0.01"
                         value={field.value || ""}
                         onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
                       />
                     </FormControl>
-                    <FormDescription>Your rate for 1-on-1 tutoring sessions</FormDescription>
+                    <FormDescription>For 1-on-1 sessions</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="experience"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Experience (Years)</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="number"
+                        placeholder="5"
+                        min="0"
+                        step="1"
+                        value={field.value || ""}
+                        onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                      />
+                    </FormControl>
+                    <FormDescription>Teaching Experience</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -301,7 +321,7 @@ export function TeacherProfileForm({ existingProfile, onSave }: TeacherProfileFo
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select your timezone" />
+                          <SelectValue placeholder="Select timezone" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -316,68 +336,6 @@ export function TeacherProfileForm({ existingProfile, onSave }: TeacherProfileFo
                   </FormItem>
                 )}
               />
-            </div>
-
-            {/* Social Links */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Social Links & Portfolio</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="website"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Website</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="url" placeholder="https://yourwebsite.com" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="linkedin"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>LinkedIn</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="url" placeholder="https://linkedin.com/in/yourprofile" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="twitter"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Twitter</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="url" placeholder="https://twitter.com/yourusername" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="youtube"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>YouTube</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="url" placeholder="https://youtube.com/c/yourchannel" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
             </div>
 
             {/* Qualifications */}

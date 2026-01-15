@@ -24,7 +24,7 @@ export default async function CertificatesPage() {
             {/* Header */}
             <div className="space-y-2">
                 <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-amber-900 to-amber-600 dark:from-white dark:to-amber-100 bg-clip-text text-transparent">
-                    My Certificates
+                    Certificates & Awards
                 </h1>
                 <p className="text-muted-foreground">
                     View and download your earned course completion certificates

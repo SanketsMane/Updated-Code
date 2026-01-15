@@ -30,7 +30,7 @@ export function SessionStats() {
     try {
       const response = await fetch('/api/teacher/sessions?limit=1');
       if (!response.ok) throw new Error('Failed to fetch stats');
-      
+
       const data = await response.json();
       setStats(data.stats);
     } catch (error) {
@@ -57,7 +57,7 @@ export function SessionStats() {
   const formatCurrency = (cents: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'INR'
     }).format(cents / 100);
   };
 
@@ -107,9 +107,8 @@ export function SessionStats() {
                 <div className="flex items-baseline gap-2">
                   <h3 className="text-2xl font-bold">{stat.value}</h3>
                   {stat.change !== undefined && stat.change !== 0 && (
-                    <span className={`text-xs font-medium flex items-center gap-1 ${
-                      stat.change > 0 ? 'text-green-600' : 'text-red-600'
-                    }`}>
+                    <span className={`text-xs font-medium flex items-center gap-1 ${stat.change > 0 ? 'text-green-600' : 'text-red-600'
+                      }`}>
                       {stat.change > 0 ? (
                         <TrendingUp className="h-3 w-3" />
                       ) : (

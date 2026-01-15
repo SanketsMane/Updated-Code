@@ -5,6 +5,7 @@ import { IconUsers, IconMail, IconEye } from "@tabler/icons-react";
 import { prisma } from "@/lib/db";
 import { getSessionWithRole } from "@/app/data/auth/require-roles";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { SendAnnouncementDialog } from "./_components/SendAnnouncementDialog";
 
 export const dynamic = "force-dynamic";
 
@@ -105,10 +106,7 @@ export default async function TeacherStudentsPage() {
             Manage and track your students&apos; progress
           </p>
         </div>
-        <Button>
-          <IconMail className="h-4 w-4 mr-2" />
-          Send Announcement
-        </Button>
+        <SendAnnouncementDialog />
       </div>
 
       {/* Students Overview */}

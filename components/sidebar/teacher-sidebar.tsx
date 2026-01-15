@@ -120,11 +120,6 @@ const teacherData = {
       url: "/teacher/help",
       icon: IconHelp,
     },
-    {
-      title: "Search",
-      url: "#",
-      icon: IconSearch,
-    },
   ],
 };
 

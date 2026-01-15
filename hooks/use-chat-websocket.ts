@@ -32,7 +32,7 @@ export const useChatWebSocket = () => {
         if (!session?.user) return;
 
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const host = process.env.NEXT_PUBLIC_WS_HOST || 'localhost:8089';
+        const host = process.env.NEXT_PUBLIC_WS_HOST || 'localhost:8080';
         const wsUrl = `${protocol}//${host}`;
 
         const ws = new WebSocket(wsUrl);

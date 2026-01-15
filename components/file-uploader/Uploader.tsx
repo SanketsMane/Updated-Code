@@ -337,7 +337,7 @@ export function Uploader({ onChange, value, fileTypeAccepted }: iAppProps) {
         fileTypeAccepted === "pdf" ? 10 * 1024 * 1024 : // 10MB for PDFs
           5000 * 1024 * 1024, // 5GB for Videos
     onDropRejected: rejectedFiles,
-    disabled: fileState.uploading || !!fileState.objectUrl,
+    disabled: fileState.uploading,
   });
   return (
     <Card

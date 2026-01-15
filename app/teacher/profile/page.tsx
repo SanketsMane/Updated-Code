@@ -22,7 +22,8 @@ import {
   TrendingUp,
   Award,
   CheckCircle2,
-  GraduationCap
+  GraduationCap,
+  Briefcase
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -44,6 +45,7 @@ interface TeacherProfile {
   youtube?: string;
   qualifications?: string[];
   certifications?: string[];
+  experience?: number;
   totalEarnings: number;
   avgRating: number | null;
   totalStudents: number;
@@ -126,13 +128,6 @@ export default function TeacherProfilePage() {
       </div>
     );
   }
-
-  const socialLinks = [
-    { icon: Globe, url: profile.website, label: "Website", color: "text-blue-500" },
-    { icon: Linkedin, url: profile.linkedin, label: "LinkedIn", color: "text-blue-700" },
-    { icon: Twitter, url: profile.twitter, label: "Twitter", color: "text-sky-500" },
-    { icon: Youtube, url: profile.youtube, label: "YouTube", color: "text-red-600" },
-  ].filter(link => link.url);
 
   return (
     <div className="container mx-auto py-2 px-1 space-y-8">
@@ -336,6 +331,19 @@ export default function TeacherProfilePage() {
                   </span>
                 </div>
               )}
+              {profile.experience !== undefined && (
+                <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/10 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-white dark:bg-green-900/30 rounded-full text-green-600">
+                      <Briefcase className="h-5 w-5" />
+                    </div>
+                    <span className="text-sm font-medium">Experience</span>
+                  </div>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">
+                    {profile.experience} years
+                  </span>
+                </div>
+              )}
               {profile.timezone && (
                 <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <div className="flex items-center gap-3">
@@ -351,34 +359,6 @@ export default function TeacherProfilePage() {
               )}
             </CardContent>
           </Card>
-
-          {/* Social Links */}
-          {socialLinks.length > 0 && (
-            <Card className="shadow-md">
-              <CardHeader className="bg-gray-50 dark:bg-gray-900 border-b">
-                <CardTitle className="text-lg">Connect</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4">
-                <div className="flex flex-col gap-2">
-                  {socialLinks.map((link, index) => (
-                    <a
-                      key={index}
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
-                    >
-                      <div className="flex items-center gap-3">
-                        <link.icon className={`h-5 w-5 ${link.color}`} />
-                        <span className="font-medium">{link.label}</span>
-                      </div>
-                      <Globe className="h-4 w-4 text-gray-300 group-hover:text-blue-500 transition-colors" />
-                    </a>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
 
           {/* Profile Completion */}
           <Card className="bg-gradient-to-br from-blue-400 to-red-600 text-white border-0 shadow-lg">
@@ -441,7 +421,6 @@ function calculateProfileCompletion(profile: TeacherProfile): number {
     profile.timezone,
     (profile.qualifications?.length ?? 0) > 0,
     (profile.certifications?.length ?? 0) > 0,
-    profile.website || profile.linkedin || profile.twitter || profile.youtube,
   ];
 
   const completed = fields.filter(Boolean).length;

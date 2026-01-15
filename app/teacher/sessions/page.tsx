@@ -176,11 +176,9 @@ export default async function TeacherSessionsPage() {
                 can book sessions that fit their schedule. You'll receive notifications for new bookings.
               </p>
               <div className="flex gap-2">
-                <Link href="/teacher/help/live-sessions">
-                  <Button variant="outline" size="sm">
-                    View Guide
-                  </Button>
-                </Link>
+                <Button variant="outline" size="sm" disabled className="opacity-50 cursor-not-allowed" title="Coming Soon">
+                  View Guide
+                </Button>
                 <Link href="/teacher/sessions/create?tutorial=true">
                   <Button variant="outline" size="sm">
                     Take Tutorial

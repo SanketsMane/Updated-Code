@@ -43,7 +43,7 @@ export function FindTeacherContent({ teachers, featuredMentors }: FindTeacherCon
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
     const [selectedAvailability, setSelectedAvailability] = useState<string[]>([]);
-    const [priceRange, setPriceRange] = useState<[number, number]>([500, 5000]);
+    const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
     const [sortBy, setSortBy] = useState("popularity");
     const [showScrollTop, setShowScrollTop] = useState(false);
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);

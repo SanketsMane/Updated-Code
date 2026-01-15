@@ -11,7 +11,7 @@ const createQuizSchema = z.object({
   description: z.string().optional(),
   instructions: z.string().optional(),
   courseId: z.string().optional(),
-  chapterId: z.string().optional(), 
+  chapterId: z.string().optional(),
   lessonId: z.string().optional(),
   timeLimit: z.number().optional(),
   passingScore: z.number().min(0).max(100),
@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching quizzes:', error);
     return NextResponse.json(
-      { error: "Internal server error" }, 
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
@@ -121,6 +121,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    console.log("DEBUG: POST /api/quiz body:", JSON.stringify(body, null, 2));
+
     const validatedData = createQuizSchema.parse(body);
 
     const quiz = await prisma.quiz.create({
@@ -151,7 +153,7 @@ export async function POST(request: NextRequest) {
             points: q.points,
             difficulty: q.difficulty,
             position: q.position,
-            questionData: q.questionData,
+            questionData: q.questionData ?? {},
             isRequired: q.isRequired,
             partialCredit: q.partialCredit
           }))
@@ -168,7 +170,7 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Error creating quiz:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Validation error", details: error.errors },
@@ -177,7 +179,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: "Internal server error" }, 
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

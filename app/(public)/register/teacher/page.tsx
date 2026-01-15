@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Users, Award, IndianRupee, Globe, ArrowLeft, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
 
 export const dynamic = "force-dynamic";
 
@@ -32,17 +33,24 @@ const expertise = [
 export default function TeacherRegisterPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { data: session } = authClient.useSession();
+
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    passwordConfirmation: "",
     bio: "",
     expertiseAreas: [] as string[],
     languages: [] as string[],
     hourlyRate: "",
-    experience: "",
   });
+
+  useEffect(() => {
+    // Check if user is already authenticated
+    if (session) {
+      setIsAuthenticated(true);
+    }
+    setIsCheckingAuth(false);
+  }, [session]);
 
   const handleExpertiseToggle = (area: string) => {
     setFormData(prev => ({
@@ -74,35 +82,51 @@ export default function TeacherRegisterPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/teacher/register", {
+      // For authenticated users, create teacher profile
+      // Author: Sanket
+      const response = await fetch("/api/teacher/profile", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          bio: formData.bio,
+          expertise: formData.expertiseAreas,
+          languages: formData.languages,
+          hourlyRate: parseInt(formData.hourlyRate),
+        }),
       });
 
       const result = await response.json();
 
       if (!response.ok) {
-        if (result.details && Array.isArray(result.details)) {
-          // Construct a detailed error message from Zod errors
-          const errorDetails = result.details.map((err: any) => err.message).join(", ");
-          throw new Error(errorDetails);
-        }
-        throw new Error(result.error || "Registration failed");
+        throw new Error(result.error || "Failed to create teacher profile");
       }
 
-      toast.success("Registration successful! Please check your email to verify your account.");
-      router.push("/login?message=teacher-registered");
+      toast.success("Teacher profile created successfully!");
+      router.push("/teacher");
 
     } catch (error) {
-      console.error("Registration error:", error);
-      toast.error(error instanceof Error ? error.message : "Registration failed. Please try again.");
+      console.error("Profile creation error:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to create profile. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    // Redirect to register if not authenticated
+    router.push("/register");
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
@@ -171,62 +195,12 @@ export default function TeacherRegisterPage() {
 
                 <CardContent className="p-6">
                   <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Basic Information */}
+                    {/* Professional Bio */}
                     <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">Basic Information</h3>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="name">Full Name *</Label>
-                          <Input
-                            id="name"
-                            type="text"
-                            required
-                            value={formData.name}
-                            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                            placeholder="Your full name"
-                          />
-                        </div>
-
-                        <div>
-                          <Label htmlFor="email">Email Address *</Label>
-                          <Input
-                            id="email"
-                            type="email"
-                            required
-                            value={formData.email}
-                            onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                            placeholder="your@email.com"
-                          />
-                        </div>
-
-                        <div>
-                          <Label htmlFor="password">Password *</Label>
-                          <Input
-                            id="password"
-                            type="password"
-                            required
-                            value={formData.password}
-                            onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                            placeholder="••••••••"
-                          />
-                        </div>
-
-                        <div>
-                          <Label htmlFor="passwordConfirmation">Confirm Password *</Label>
-                          <Input
-                            id="passwordConfirmation"
-                            type="password"
-                            required
-                            value={formData.passwordConfirmation}
-                            onChange={(e) => setFormData(prev => ({ ...prev, passwordConfirmation: e.target.value }))}
-                            placeholder="••••••••"
-                          />
-                        </div>
-                      </div>
+                      <h3 className="text-lg font-semibold">Professional Bio</h3>
 
                       <div>
-                        <Label htmlFor="bio">Professional Bio *</Label>
+                        <Label htmlFor="bio">Tell us about yourself *</Label>
                         <Textarea
                           id="bio"
                           required
@@ -265,38 +239,24 @@ export default function TeacherRegisterPage() {
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold">Teaching Details</h3>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="hourlyRate">Hourly Rate (INR, ₹) *</Label>
-                          <Input
-                            id="hourlyRate"
-                            type="number"
-                            min="100"
-                            max="50000"
-                            required
-                            value={formData.hourlyRate}
-                            onChange={(e) => setFormData(prev => ({ ...prev, hourlyRate: e.target.value }))}
-                            placeholder="1000"
-                          />
-                          <p className="text-xs text-gray-500 mt-1">Recommended: ₹500-5000/hour</p>
-                        </div>
-
-                        <div>
-                          <Label htmlFor="experience">Years of Experience *</Label>
-                          <Input
-                            id="experience"
-                            type="number"
-                            min="0"
-                            required
-                            value={formData.experience}
-                            onChange={(e) => setFormData(prev => ({ ...prev, experience: e.target.value }))}
-                            placeholder="3"
-                          />
-                        </div>
+                      <div>
+                        <Label htmlFor="hourlyRate">Hourly Rate (INR, ₹) *</Label>
+                        <Input
+                          id="hourlyRate"
+                          type="number"
+                          min="100"
+                          max="50000"
+                          required
+                          value={formData.hourlyRate}
+                          onChange={(e) => setFormData(prev => ({ ...prev, hourlyRate: e.target.value }))}
+                          placeholder="1000"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Recommended: ₹500-5000/hour</p>
                       </div>
 
                       <div>
-                        <Label htmlFor="languages">Languages You Speak</Label>
+                        <Label htmlFor="languages">Languages You Speak *</Label>
+                        <p className="text-xs text-gray-500">Add at least one language you can teach in</p>
                         <div className="space-y-2">
                           <Input
                             placeholder="Add a language (press Enter)"
@@ -325,7 +285,7 @@ export default function TeacherRegisterPage() {
                     <div className="space-y-4">
                       <Button
                         type="submit"
-                        disabled={isLoading || formData.expertiseAreas.length === 0}
+                        disabled={isLoading || formData.expertiseAreas.length === 0 || formData.languages.length === 0}
                         className="w-full bg-blue-600 hover:bg-blue-700"
                         size="lg"
                       >

@@ -18,6 +18,7 @@ import {
   IconBell,
   IconCalendar,
   IconVideo,
+  IconSpeakerphone,
   IconShieldCheck as IconVerification,
   IconUserCheck,
   IconWallet,
@@ -80,6 +81,31 @@ const data = {
       title: "Analytics",
       url: "/admin/analytics",
       icon: IconChartBar,
+    },
+    {
+      title: "Category",
+      url: "/admin/categories",
+      icon: IconFolder,
+    },
+    {
+      title: "CMS Pages",
+      url: "/admin/pages",
+      icon: IconFileText,
+    },
+    {
+      title: "Testimonials",
+      url: "/admin/testimonials",
+      icon: IconUsers,
+    },
+    {
+      title: "Blog",
+      url: "/admin/blog",
+      icon: IconFileText,
+    },
+    {
+      title: "Messages",
+      url: "/admin/messages",
+      icon: IconSpeakerphone,
     },
     {
       title: "Verification Center",

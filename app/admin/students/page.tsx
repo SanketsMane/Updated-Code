@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { IconUserCircle, IconBook, IconTrendingUp } from "@tabler/icons-react";
 import { prisma as db } from "@/lib/db";
+import { MessageDialog } from "./_components/message-dialog";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -84,8 +86,10 @@ export default async function StudentsPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge>Active</Badge>
-                  <Button variant="outline" size="sm">View Details</Button>
-                  <Button variant="outline" size="sm">Send Message</Button>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href={`/admin/students/${student.id}`}>View Details</Link>
+                  </Button>
+                  <MessageDialog recipientId={student.id} recipientName={student.name || "Student"} />
                 </div>
               </div>
             ))}

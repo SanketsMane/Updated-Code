@@ -61,7 +61,6 @@ function calculateProfileCompletion(teacher: any): number {
     teacher.timezone,
     teacher.qualifications?.length > 0,
     teacher.certifications?.length > 0,
-    teacher.website || teacher.linkedin || teacher.twitter || teacher.youtube,
   ];
 
   const completed = fields.filter(Boolean).length;
