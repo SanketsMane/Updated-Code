@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import Link from "next/link";
 
 const tabs = [
     {
@@ -19,6 +20,7 @@ const tabs = [
         ],
         image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070&auto=format&fit=crop", // Student with laptop
         color: "bg-rose-500",
+        link: "/courses"
     },
     {
         id: "live",
@@ -32,6 +34,7 @@ const tabs = [
         ],
         image: "https://images.unsplash.com/photo-1590650046871-92c887180603?q=80&w=2070&auto=format&fit=crop", // Video call
         color: "bg-blue-500",
+        link: "/find-teacher"
     },
     {
         id: "group",
@@ -45,6 +48,7 @@ const tabs = [
         ],
         image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2070&auto=format&fit=crop", // Group study
         color: "bg-amber-500",
+        link: "/live-sessions"
     },
 ];
 
@@ -165,8 +169,10 @@ export function ServicesSection() {
                                         ))}
                                     </ul>
 
-                                    <Button size="lg" className="rounded-full px-6 h-11 text-sm font-bold bg-[#4FB5C6] hover:bg-[#3ca0b0] text-white">
-                                        View All {activeContent.label.split(' ')[0]} <ArrowRight className="ml-2 w-4 h-4" />
+                                    <Button size="lg" className="rounded-full px-6 h-11 text-sm font-bold bg-[#4FB5C6] hover:bg-[#3ca0b0] text-white" asChild>
+                                        <Link href={(activeContent as any).link || "/"}>
+                                            View All {activeContent.label.split(' ')[0]} <ArrowRight className="ml-2 w-4 h-4" />
+                                        </Link>
                                     </Button>
                                 </div>
                             </motion.div>

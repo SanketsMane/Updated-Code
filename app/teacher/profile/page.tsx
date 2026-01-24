@@ -15,9 +15,6 @@ import {
   Users,
   BookOpen,
   Globe,
-  Linkedin,
-  Twitter,
-  Youtube,
   Edit,
   TrendingUp,
   Award,
@@ -39,10 +36,6 @@ interface TeacherProfile {
   languages: string[];
   hourlyRate?: number;
   timezone?: string;
-  website?: string;
-  linkedin?: string;
-  twitter?: string;
-  youtube?: string;
   qualifications?: string[];
   certifications?: string[];
   experience?: number;

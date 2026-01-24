@@ -68,9 +68,16 @@ export async function POST(request: Request) {
             throw s3Error;
         });
 
+        let url = `https://${env.NEXT_PUBLIC_S3_BUCKET_NAME_IMAGES}.s3.${env.AWS_REGION}.amazonaws.com/${uniqueKey}`;
+
+        // Support for Tigris or other S3-compatible endpoints if explicitly set
+        if (env.AWS_ENDPOINT_URL_S3?.includes("tigris") || env.AWS_ENDPOINT_URL_S3?.includes("fly")) {
+            url = `https://${env.NEXT_PUBLIC_S3_BUCKET_NAME_IMAGES}.fly.storage.tigris.dev/${uniqueKey}`;
+        }
+
         return NextResponse.json({
             key: uniqueKey,
-            url: `https://${env.NEXT_PUBLIC_S3_BUCKET_NAME_IMAGES}.fly.storage.tigris.dev/${uniqueKey}` // Constructing URL manually or returning key
+            url: url
         });
 
     } catch (error: any) {

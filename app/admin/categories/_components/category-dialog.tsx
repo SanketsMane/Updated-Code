@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useActionState } from "react";
+// import { useActionState } from "react"; // Removed as we handle state manually for image
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,8 @@ import { Plus, Edit } from "lucide-react";
 import { createCategory, updateCategory } from "@/app/actions/categories";
 import { toast } from "sonner";
 import { Category } from "@prisma/client";
+import { FileUpload } from "@/components/ui/file-upload";
+import { useRouter } from "next/navigation";
 
 interface CategoryDialogProps {
     category?: Category;
@@ -21,20 +23,52 @@ interface CategoryDialogProps {
 
 export function CategoryDialog({ category, parentCategories = [], trigger }: CategoryDialogProps) {
     const [open, setOpen] = useState(false);
+    const [imageUrl, setImageUrl] = useState(category?.image || "");
+    const [loading, setLoading] = useState(false);
+    const router = useRouter();
 
-    // Choose action based on whether we are editing or creating
-    const action = category ? updateCategory : createCategory;
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setLoading(true);
 
-    const [state, formAction, isPending] = useActionState(action, {});
-
-    useEffect(() => {
-        if (state.success) {
-            setOpen(false);
-            toast.success(category ? "Category updated" : "Category created");
-        } else if (state.error) {
-            toast.error(state.error);
+        const formData = new FormData(e.currentTarget);
+        // Append image URL if it exists
+        if (imageUrl) {
+            formData.set("image", imageUrl);
         }
-    }, [state, category]);
+
+        try {
+            const action = category ? updateCategory : createCategory;
+            // We need to match the signature of the server action or call it directly since we aren't using useActionState anymore to simplify state
+            // Let's assume we can call it. But actions return ActionState.
+
+            // Re-wrapping for direct call usage since useActionState is great but complex with dynamic inputs sometimes
+            // To keep it simple, let's just call it.
+            const result = await action({}, formData);
+
+            if (result.success) {
+                setOpen(false);
+                toast.success(category ? "Category updated" : "Category created");
+                setImageUrl(""); // Reset
+                router.refresh();
+            } else if (result.error) {
+                toast.error(result.error);
+            }
+        } catch (error) {
+            toast.error("Something went wrong");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Reset image when dialog opens/closes or category changes
+    useEffect(() => {
+        if (category) {
+            setImageUrl(category.image || "");
+        } else {
+            setImageUrl("");
+        }
+    }, [category, open]);
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -45,7 +79,7 @@ export function CategoryDialog({ category, parentCategories = [], trigger }: Cat
                     </Button>
                 )}
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>{category ? "Edit Category" : "Add New Category"}</DialogTitle>
                     <DialogDescription>
@@ -53,8 +87,17 @@ export function CategoryDialog({ category, parentCategories = [], trigger }: Cat
                     </DialogDescription>
                 </DialogHeader>
 
-                <form action={formAction} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-4">
                     {category && <input type="hidden" name="id" value={category.id} />}
+
+                    <div className="space-y-2">
+                        <Label>Category Image</Label>
+                        <FileUpload
+                            value={imageUrl}
+                            onChange={setImageUrl}
+                            label="Upload Category Image"
+                        />
+                    </div>
 
                     <div className="space-y-2">
                         <Label htmlFor="name">Name</Label>
@@ -92,8 +135,8 @@ export function CategoryDialog({ category, parentCategories = [], trigger }: Cat
 
                     <DialogFooter>
                         <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-                        <Button type="submit" disabled={isPending}>
-                            {isPending ? "Saving..." : (category ? "Update" : "Create")}
+                        <Button type="submit" disabled={loading}>
+                            {loading ? "Saving..." : (category ? "Update" : "Create")}
                         </Button>
                     </DialogFooter>
                 </form>

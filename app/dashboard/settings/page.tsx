@@ -95,7 +95,7 @@ export default function SettingsPage() {
                   id="bio"
                   name="bio"
                   placeholder="Tell us a little about yourself"
-                // defaultValue={session.user.bio} // Need to extend session type or fetch separate
+                  defaultValue={session.user.bio || ""}
                 />
               </div>
 
@@ -105,7 +105,7 @@ export default function SettingsPage() {
                   id="education"
                   name="education"
                   placeholder="Enter your education details..."
-                // defaultValue={session.user.education} 
+                  defaultValue={session.user.education || ""}
                 />
               </div>
 

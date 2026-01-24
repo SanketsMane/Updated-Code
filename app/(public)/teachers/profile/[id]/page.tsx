@@ -57,6 +57,12 @@ export default async function TeacherProfilePage({ params }: Props) {
                                     <span>{teacher.rating?.toFixed(1) || "5.0"}</span>
                                     <span className="text-slate-400 font-normal">({teacher.totalReviews})</span>
                                 </div>
+                                {teacher.experience && (
+                                    <div className="flex items-center gap-1 bg-green-50 dark:bg-green-900/20 text-green-600 px-3 py-1 rounded-full text-sm font-semibold">
+                                        <IconVideo className="w-4 h-4" />
+                                        <span>{teacher.experience} Yrs Exp.</span>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="grid grid-cols-2 gap-4 border-t border-slate-100 dark:border-slate-700 pt-4 mb-6">

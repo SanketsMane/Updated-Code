@@ -28,7 +28,10 @@ export default function CoursesPage() {
   );
 }
 
+import { requireTeacherOrAdmin } from "@/app/data/auth/require-roles";
+
 async function RenderCourses() {
+  const session = await requireTeacherOrAdmin();
   const data = await adminGetCourses();
 
   return (
@@ -43,7 +46,7 @@ async function RenderCourses() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 gap-7">
           {data.map((course) => (
-            <AdminCourseCard key={course.id} data={course} />
+            <AdminCourseCard key={course.id} data={course} userRole={session.user?.role} />
           ))}
         </div>
       )}

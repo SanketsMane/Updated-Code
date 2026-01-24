@@ -34,19 +34,33 @@ export async function createUser(prevState: any, formData: FormData) {
 
         const hashedPassword = await hash(password, 10);
 
-        await prisma.user.create({
-            data: {
-                name,
-                email,
-                password: hashedPassword,
-                role: role as any,
-                emailVerified: true, // Auto-verify manually created users
-            },
+        await prisma.$transaction(async (tx) => {
+            const user = await tx.user.create({
+                data: {
+                    name,
+                    email,
+                    role: role as any,
+                    emailVerified: true, // Auto-verify manually created users
+                },
+            });
+
+            await tx.account.create({
+                data: {
+                    userId: user.id,
+                    accountId: user.id,
+                    providerId: "credential",
+                    password: hashedPassword,
+                    // better-auth might expect these timestamps
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                }
+            });
         });
 
         revalidatePath("/admin/users");
         return { success: true, message: "User created successfully" };
     } catch (error: any) {
+        console.error("Create User Error:", error);
         return { error: error.message };
     }
 }
@@ -72,15 +86,28 @@ export async function bulkImportUsers(users: any[]) {
 
                 const hashedPassword = await hash(user.password, 10);
 
-                await prisma.user.create({
-                    data: {
-                        name: user.name,
-                        email: user.email,
-                        password: hashedPassword,
-                        role: user.role.toLowerCase(), // Ensure lowercase role
-                        emailVerified: true
-                    }
+                await prisma.$transaction(async (tx) => {
+                    const newUser = await tx.user.create({
+                        data: {
+                            name: user.name,
+                            email: user.email,
+                            role: user.role.toLowerCase(),
+                            emailVerified: true
+                        }
+                    });
+
+                    await tx.account.create({
+                        data: {
+                            userId: newUser.id,
+                            accountId: newUser.id,
+                            providerId: "credential",
+                            password: hashedPassword,
+                            createdAt: new Date(),
+                            updatedAt: new Date(),
+                        }
+                    });
                 });
+
                 successCount++;
             } catch (err: any) {
                 errorCount++;

@@ -39,6 +39,7 @@ export async function createCategory(prevState: ActionState, formData: FormData)
         const description = formData.get("description") as string;
         const parentId = formData.get("parentId") as string;
         const icon = formData.get("icon") as string;
+        const image = formData.get("image") as string;
 
         if (!name) {
             return { error: "Name is required" };
@@ -61,7 +62,8 @@ export async function createCategory(prevState: ActionState, formData: FormData)
                 slug,
                 description,
                 icon,
-                parentId: parentId || null,
+                image,
+                parentId: parentId && parentId !== "null" ? parentId : null,
             },
         });
 
@@ -81,6 +83,7 @@ export async function updateCategory(prevState: ActionState, formData: FormData)
         const description = formData.get("description") as string;
         const parentId = formData.get("parentId") as string;
         const icon = formData.get("icon") as string;
+        const image = formData.get("image") as string;
 
         if (!id || !name) {
             return { error: "ID and Name are required" };
@@ -107,7 +110,8 @@ export async function updateCategory(prevState: ActionState, formData: FormData)
                 slug,
                 description,
                 icon,
-                parentId: parentId || null,
+                image,
+                parentId: parentId && parentId !== "null" ? parentId : null,
             },
         });
 

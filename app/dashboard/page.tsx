@@ -23,7 +23,7 @@ export default async function DashboardPage() {
 
   if (session) {
     if (session.user.role === "admin") redirect("/admin");
-    if (session.user.role === "admin") redirect("/admin");
+
     // if (session.user.role === "teacher") redirect("/teacher"); // Allow teachers to view student dashboard
   }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,9 +9,16 @@ import { updateSiteSettings } from "@/app/actions/settings";
 import { toast } from "sonner";
 import { Globe, Phone, Share2 } from "lucide-react";
 import { SiteSettings } from "@prisma/client";
+import { FileUpload } from "@/components/ui/file-upload";
 
 export function SettingsForm({ settings }: { settings: SiteSettings | null }) {
-    const [state, formAction, isPending] = useActionState(updateSiteSettings, {});
+    const [state, formAction, isPending] = useActionState(updateSiteSettings, {
+        message: "",
+        success: false
+    });
+
+    // Initialize logo URL state from settings or empty string
+    const [logoUrl, setLogoUrl] = useState(settings?.logo || "");
 
     useEffect(() => {
         if (state?.success) {
@@ -42,9 +49,14 @@ export function SettingsForm({ settings }: { settings: SiteSettings | null }) {
                         <Input id="siteUrl" name="siteUrl" defaultValue={settings?.siteUrl || ""} placeholder="https://kidokool.com" />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="logo">Logo URL</Label>
-                        <Input id="logo" name="logo" defaultValue={settings?.logo || ""} placeholder="https://..." />
-                        {/* TODO: Add File Upload */}
+                        <Label>Logo</Label>
+                        <input type="hidden" name="logo" value={logoUrl} />
+                        <FileUpload
+                            value={logoUrl}
+                            onChange={setLogoUrl}
+                            label="Upload Site Logo"
+                        />
+                        <p className="text-xs text-muted-foreground">Recommended size: 200x50px transparent PNG</p>
                     </div>
                 </CardContent>
             </Card>

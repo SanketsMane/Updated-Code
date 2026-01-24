@@ -85,6 +85,11 @@ export default async function Home() {
 
   const featuredCourses = await getFeaturedCourses();
   const categories = await getTopCategories();
+  const testimonials = await prisma.testimonial.findMany({
+    where: { isActive: true, isFeatured: true },
+    orderBy: { createdAt: 'desc' },
+    take: 9
+  });
 
   const stats = [
     { icon: BookOpen, label: "Total Courses", value: `${courseCount}+` },
@@ -94,7 +99,7 @@ export default async function Home() {
 
   return (
     <AnimationWrapper className="min-h-screen bg-background font-sans">
-      {/* --- HERO SECTION --- */}
+      {/* ... Hero Section ... */}
       <HeroSection
         title={
           <>
@@ -138,13 +143,13 @@ export default async function Home() {
         ]}
       />
 
-      {/* --- STATS BAR (Interactive) --- */}
+      {/* ... Stats Bar ... */}
       <StatsBar />
 
-      {/* --- VIBE CARD SECTION --- */}
+      {/* ... Vibe Card ... */}
       <VibeCard />
 
-      {/* --- NEW SECTIONS --- */}
+      {/* ... Features ... */}
       <FeaturesGrid />
 
       <FeaturedCourses courses={featuredCourses} />
@@ -155,10 +160,8 @@ export default async function Home() {
 
       <ServicesSection />
 
-
-
       {/* --- REVIEWS --- */}
-      <TestimonialsSectionV2 />
+      <TestimonialsSectionV2 testimonials={testimonials} />
 
 
 

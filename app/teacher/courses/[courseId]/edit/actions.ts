@@ -63,10 +63,20 @@ export async function editCourse(
       whereClause.userId = session.user.id;
     }
 
+    // Approval Logic: If teacher tries to Publish, set to Pending unless Admin
+    let statusToSave = result.data.status;
+    let message = "Course updated successfully";
+
+    if (session.user.role === "teacher" && result.data.status === "Published") {
+      statusToSave = "Pending";
+      message = "Course submitted for approval";
+    }
+
     await prisma.course.update({
       where: whereClause,
       data: {
         ...result.data,
+        status: statusToSave as any,
       },
     });
 
@@ -88,7 +98,7 @@ export async function editCourse(
 
     return {
       status: "success",
-      message: "Course updated successfully",
+      message: message,
     };
   } catch {
     return {

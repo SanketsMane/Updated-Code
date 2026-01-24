@@ -23,26 +23,41 @@ import Image from "next/image";
 import Link from "next/link";
 import { CourseActions } from "./course-actions";
 
+import { Badge } from "@/components/ui/badge";
+import { CourseApprovalActions } from "./CourseApprovalActions";
+
 interface iAppProps {
   data: AdminCourseType;
+  userRole?: string;
 }
 
-export function AdminCourseCard({ data }: iAppProps) {
+export function AdminCourseCard({ data, userRole }: iAppProps) {
   const thumbnailUrl = useConstructUrl(data.fileKey);
 
   return (
-    <Card className="group relative py-0 gap-0">
+    <Card className="group relative py-0 gap-0 h-full flex flex-col">
       {/* absolute dropdrown */}
       <div className="absolute top-2 right-2 z-10">
         <CourseActions courseId={data.id} slug={data.slug} />
       </div>
+
+      <div className="absolute top-2 left-2 z-10">
+        <Badge className={
+          data.status === "Published" ? "bg-green-500 hover:bg-green-600" :
+            (data.status as string) === "Pending" ? "bg-yellow-500 hover:bg-yellow-600 text-black" :
+              "bg-secondary hover:bg-secondary/80"
+        }>
+          {data.status}
+        </Badge>
+      </div>
+
       {thumbnailUrl ? (
         <Image
           src={thumbnailUrl}
           alt="Thumbnail Url"
           width={600}
           height={400}
-          className="w-full rounded-t-lg aspect-video h-full object-cover"
+          className="w-full rounded-t-lg aspect-video object-cover"
         />
       ) : (
         <div className="w-full rounded-t-lg aspect-video bg-muted flex items-center justify-center">
@@ -50,7 +65,7 @@ export function AdminCourseCard({ data }: iAppProps) {
         </div>
       )}
 
-      <CardContent className="p-4">
+      <CardContent className="p-4 flex flex-col flex-1">
         <Link
           href={`/admin/courses/${data.id}/edit`}
           className="font-medium text-lg line-clamp-2 hover:underline group-hover:text-primary transition-colors"
@@ -58,7 +73,7 @@ export function AdminCourseCard({ data }: iAppProps) {
           {data.title}
         </Link>
 
-        <p className="line-clamp-2 text-sm text-muted-foreground leading-tight mt-2">
+        <p className="line-clamp-2 text-sm text-muted-foreground leading-tight mt-2 mb-auto">
           {data.smallDescription}
         </p>
 
@@ -73,14 +88,18 @@ export function AdminCourseCard({ data }: iAppProps) {
           </div>
         </div>
 
-        <Link
-          className={buttonVariants({
-            className: "w-full mt-4",
-          })}
-          href={`/admin/courses/${data.id}/edit`}
-        >
-          Edit Course <ArrowRight className="size-4" />
-        </Link>
+        {(data.status as string) === "Pending" && userRole === "admin" ? (
+          <CourseApprovalActions courseId={data.id} />
+        ) : (
+          <Link
+            className={buttonVariants({
+              className: "w-full mt-4",
+            })}
+            href={`/admin/courses/${data.id}/edit`}
+          >
+            Edit Course <ArrowRight className="size-4 ml-2" />
+          </Link>
+        )}
       </CardContent>
     </Card>
   );

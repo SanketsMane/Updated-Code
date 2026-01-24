@@ -4,74 +4,17 @@ import React from 'react';
 import { motion } from "framer-motion";
 
 // --- Types ---
-interface Testimonial {
-    text: string;
-    image: string;
+export interface Testimonial {
+    id?: string;
+    content: string;
+    image?: string | null;
     name: string;
     role: string;
 }
 
-// --- Data ---
-const testimonials: Testimonial[] = [
-    {
-        text: "Learning Python on Kidokool has been amazing. The 1-on-1 attention from my tutor helped me land my first internship!",
-        image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=150&h=150&fit=crop",
-        name: "Priya Sharma",
-        role: "Student",
-    },
-    {
-        text: "As an instructor, the platform tools are top-notch. Managing classes and payments has never been easier.",
-        image: "https://images.unsplash.com/photo-1566492031776-63065f0ad4c6?q=80&w=150&h=150&fit=crop",
-        name: "Rajesh Kumar",
-        role: "Mathematics Tutor",
-    },
-    {
-        text: "I found the perfect Math tutor for my son within minutes. His grades have improved significantly in just two months.",
-        image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=150&h=150&fit=crop",
-        name: "Meera Reddy",
-        role: "Parent",
-    },
-    {
-        text: "The interactive live sessions make complex topics easy to understand. Highly recommend for any student!",
-        image: "https://images.unsplash.com/photo-1507537297725-24a1c434b6b8?q=80&w=150&h=150&fit=crop",
-        name: "Arjun Patel",
-        role: "Grade 10 Student",
-    },
-    {
-        text: "Kidokool gave me the flexibility to teach from home and connect with students globally. It's a game changer.",
-        image: "https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?q=80&w=150&h=150&fit=crop",
-        name: "Anjali Gupta",
-        role: "Senior Tutor",
-    },
-    {
-        text: "The platform is incredibly user-friendly. I was able to start my learning journey without any technical hassle.",
-        image: "https://images.unsplash.com/photo-1556157382-97eda2d62296?q=80&w=150&h=150&fit=crop",
-        name: "Vikram Singh",
-        role: "Lifelong Learner",
-    },
-    {
-        text: "Great community and resources. I've learned so much more here than in my college classes.",
-        image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150&h=150",
-        name: "Sana Khan",
-        role: "Design Student",
-    },
-    {
-        text: "Teaching here has been a fulfilling experience. The students are eager and the support team is great.",
-        image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=150&h=150",
-        name: "Amit Verma",
-        role: "Physics Tutor",
-    },
-    {
-        text: "Best investment for my child's education. The progress tracking specifically helps me stay updated.",
-        image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=150&h=150",
-        name: "Neha Kapoor",
-        role: "Parent",
-    }
-];
-
-const firstColumn = testimonials.slice(0, 3);
-const secondColumn = testimonials.slice(3, 6);
-const thirdColumn = testimonials.slice(6, 9);
+interface TestimonialSectionProps {
+    testimonials?: Testimonial[];
+}
 
 // --- Sub-Components ---
 const TestimonialsColumn = (props: {
@@ -96,7 +39,7 @@ const TestimonialsColumn = (props: {
                 {[
                     ...new Array(2).fill(0).map((_, index) => (
                         <React.Fragment key={index}>
-                            {props.testimonials.map(({ text, image, name, role }, i) => (
+                            {props.testimonials.map(({ content, image, name, role }, i) => (
                                 <motion.li
                                     key={`${index}-${i}`}
                                     aria-hidden={index === 1 ? "true" : "false"}
@@ -117,13 +60,13 @@ const TestimonialsColumn = (props: {
                                 >
                                     <blockquote className="m-0 p-0">
                                         <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed font-normal m-0 transition-colors duration-300">
-                                            {text}
+                                            {content}
                                         </p>
                                         <footer className="flex items-center gap-3 mt-6">
                                             <img
                                                 width={40}
                                                 height={40}
-                                                src={image}
+                                                src={image || `https://ui-avatars.com/api/?name=${name}&background=random`}
                                                 alt={`Avatar of ${name}`}
                                                 className="h-10 w-10 rounded-full object-cover ring-2 ring-neutral-100 dark:ring-neutral-800 group-hover:ring-primary/30 transition-all duration-300 ease-in-out"
                                             />
@@ -147,7 +90,13 @@ const TestimonialsColumn = (props: {
     );
 };
 
-export const TestimonialsSectionV2 = () => {
+export const TestimonialsSectionV2 = ({ testimonials = [] }: TestimonialSectionProps) => {
+    if (!testimonials || testimonials.length === 0) return null;
+
+    const firstColumn = testimonials.slice(0, 3);
+    const secondColumn = testimonials.slice(3, 6);
+    const thirdColumn = testimonials.slice(6, 9);
+
     return (
         <section
             aria-labelledby="testimonials-heading"

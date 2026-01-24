@@ -1071,6 +1071,7 @@ enum CourseLevel {
 
 enum CourseStatus {
   Draft
+  Pending
   Published
   Archived
 }

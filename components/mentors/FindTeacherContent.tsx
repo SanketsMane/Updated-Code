@@ -4,6 +4,7 @@ import { MotionWrapper } from "@/components/ui/motion-wrapper";
 import { MentorMatchWizard } from "@/components/marketing/MentorMatchWizard";
 import { HorizontalTeacherCard } from "@/components/marketing/HorizontalTeacherCard";
 import { ShieldCheck, Search, SlidersHorizontal, ChevronDown, X, ArrowUp, Filter, Star } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
 
 
 import Link from "next/link";
@@ -76,7 +77,28 @@ export function FindTeacherContent({ teachers, featuredMentors }: FindTeacherCon
 
             return matchesSearch && matchesLanguage && matchesPrice;
         });
-    }, [searchQuery, selectedLanguages, priceRange]);
+
+        // Sorting Logic
+        return filtered.sort((a, b) => {
+            switch (sortBy) {
+                case "price-low":
+                    return a.hourlyRate - b.hourlyRate;
+                case "price-high":
+                    return b.hourlyRate - a.hourlyRate;
+                case "rating":
+                    return b.rating - a.rating;
+                case "newest":
+                    // Assuming higher ID or another field proxies for newest if createdAt isn't available
+                    // If we had createdAt in the interface we would use it. 
+                    // For now, let's assume standard ID sort or just keep original order if not available.
+                    // The interface doesn't have createdAt. Let's fallback to original order (often by db id).
+                    return 0;
+                case "popularity":
+                default:
+                    return b.reviewCount - a.reviewCount; // Popularity by review count
+            }
+        });
+    }, [searchQuery, selectedLanguages, priceRange, sortBy, teachers]);
 
     // Scroll detection
     useEffect(() => {
@@ -328,11 +350,19 @@ export function FindTeacherContent({ teachers, featuredMentors }: FindTeacherCon
                                     <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
                                         Hourly Rate <ChevronDown className="w-4 h-4 text-slate-400" />
                                     </h4>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2 mb-4">
                                         <div className="bg-slate-50 dark:bg-slate-800 p-2 rounded-lg text-sm flex-1 text-center font-medium">₹{priceRange[0]}</div>
                                         <span className="text-slate-400">-</span>
                                         <div className="bg-slate-50 dark:bg-slate-800 p-2 rounded-lg text-sm flex-1 text-center font-medium">₹{priceRange[1]}+</div>
                                     </div>
+                                    <Slider
+                                        defaultValue={[0, 10000]}
+                                        max={10000}
+                                        step={100}
+                                        value={priceRange}
+                                        onValueChange={(val) => setPriceRange(val as [number, number])}
+                                        className="py-4"
+                                    />
                                 </div>
 
                                 <div className="h-px bg-slate-100 dark:bg-slate-800" />

@@ -35,6 +35,14 @@ export const auth = betterAuth({
       role: {
         type: "string",
       },
+      bio: {
+        type: "string",
+        required: false,
+      },
+      education: {
+        type: "string",
+        required: false,
+      },
     },
   },
   plugins: [

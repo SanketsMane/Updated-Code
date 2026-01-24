@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const courseLevels = ["Beginner", "Intermediate", "Advanced"] as const;
 
-export const courseStatus = ["Draft", "Published", "Archived"] as const;
+export const courseStatus = ["Draft", "Pending", "Published", "Archived"] as const;
 
 export const courseCategories = [
   "Development",
