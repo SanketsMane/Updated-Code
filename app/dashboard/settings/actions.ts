@@ -8,8 +8,11 @@ import { z } from "zod";
 const profileSchema = z.object({
     name: z.string().min(2, "Name is required"),
     bio: z.string().optional(),
-    education: z.string().optional(), // Could be JSON later, text for now
+    education: z.string().optional(),
     image: z.string().optional(),
+    categories: z.array(z.string()).optional(),
+    goals: z.string().optional(),
+    notifications: z.boolean().optional(),
 });
 
 export async function updateProfile(prevState: any, formData: FormData) {
@@ -20,6 +23,9 @@ export async function updateProfile(prevState: any, formData: FormData) {
         bio: formData.get("bio") as string,
         education: formData.get("education") as string,
         image: formData.get("image") as string,
+        categories: formData.getAll("categories") as string[],
+        goals: formData.get("goals") as string,
+        notifications: formData.get("notifications") === "on",
     };
 
     const validation = profileSchema.safeParse(data);
@@ -32,24 +38,46 @@ export async function updateProfile(prevState: any, formData: FormData) {
     }
 
     try {
-        await prisma.user.update({
-            where: { id: user.id },
-            data: {
-                name: validation.data.name,
-                bio: validation.data.bio,
-                education: validation.data.education,
-                image: validation.data.image,
-            },
-        });
+        // Split goals by comma and trim
+        const goalsArray = validation.data.goals
+            ? validation.data.goals.split(",").map(g => g.trim()).filter(g => g !== "")
+            : [];
+
+        await prisma.$transaction([
+            prisma.user.update({
+                where: { id: user.id },
+                data: {
+                    name: validation.data.name,
+                    bio: validation.data.bio,
+                    education: validation.data.education,
+                    image: validation.data.image,
+                },
+            }),
+            prisma.userPreferences.upsert({
+                where: { userId: user.id },
+                create: {
+                    userId: user.id,
+                    categories: validation.data.categories || [],
+                    goals: goalsArray,
+                    notifications: validation.data.notifications ?? true,
+                },
+                update: {
+                    categories: validation.data.categories || [],
+                    goals: goalsArray,
+                    notifications: validation.data.notifications ?? true,
+                },
+            }),
+        ]);
 
         revalidatePath("/dashboard/settings");
         revalidatePath("/dashboard");
 
         return {
             status: "success",
-            message: "Profile updated successfully",
+            message: "Profile and preferences updated successfully",
         };
     } catch (error) {
+        console.error("Update profile error:", error);
         return {
             status: "error",
             message: "Failed to update profile",

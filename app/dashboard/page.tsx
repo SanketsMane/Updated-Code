@@ -4,6 +4,8 @@ import { StatsCard, ScheduleWidget, ActivityFeed, QuickActions } from "@/compone
 import { IconBook, IconTrophy, IconClock, IconFlame, IconSearch, IconSparkles } from "@tabler/icons-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { getEnrolledCourses } from "../data/user/get-enrolled-courses";
 import { CourseProgressCard } from "./_components/CourseProgressCard";
@@ -59,6 +61,22 @@ export default async function DashboardPage() {
       variant: "purple" as const
     }
   ];
+
+  // Fetch current user with preferences for completion logic
+  const userData = await prisma.user.findUnique({
+    where: { id: userId },
+    include: { preferences: true }
+  });
+
+  const profileFields = [
+    { label: "Avatar", value: !!userData?.image },
+    { label: "Bio", value: !!userData?.bio },
+    { label: "Education", value: !!userData?.education },
+    { label: "Interests", value: (userData?.preferences?.categories?.length ?? 0) > 0 },
+  ];
+
+  const completedFields = profileFields.filter(f => f.value).length;
+  const completionPercentage = Math.round((completedFields / profileFields.length) * 100);
 
   return (
     <div className="space-y-6">
@@ -128,6 +146,42 @@ export default async function DashboardPage() {
 
         {/* Right Column (Span 1) */}
         <div className="space-y-6">
+          {/* Profile Completion Widget */}
+          <div className="bg-white dark:bg-card rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-bold text-sm">Profile Status</h3>
+              <Badge variant={completionPercentage === 100 ? "default" : "secondary"} className="text-[10px] px-2 py-0">
+                {completionPercentage}% Complete
+              </Badge>
+            </div>
+
+            <div className="space-y-3">
+              <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5">
+                <div
+                  className="bg-blue-600 h-1.5 rounded-full transition-all duration-500"
+                  style={{ width: `${completionPercentage}%` }}
+                />
+              </div>
+
+              <div className="flex flex-wrap gap-x-4 gap-y-2">
+                {profileFields.map((field, i) => (
+                  <div key={i} className="flex items-center gap-1.5">
+                    <div className={`w-1.5 h-1.5 rounded-full ${field.value ? "bg-green-500" : "bg-slate-300"}`} />
+                    <span className="text-[11px] text-muted-foreground">{field.label}</span>
+                  </div>
+                ))}
+              </div>
+
+              {completionPercentage < 100 && (
+                <Link href="/dashboard/settings" className="block mt-2">
+                  <Button variant="outline" size="sm" className="w-full text-xs h-8 border-dashed border-blue-200 hover:border-blue-400 text-blue-600 hover:bg-blue-50">
+                    Complete Profile
+                  </Button>
+                </Link>
+              )}
+            </div>
+          </div>
+
           {/* Replaced WalletWidget with Enrollment Stats since no wallet exists */}
           <StatBox
             title="Overview"

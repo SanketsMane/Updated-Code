@@ -2,6 +2,7 @@ import { requireTeacher } from "../../data/auth/require-roles";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { IconUsers, IconMail, IconEye } from "@tabler/icons-react";
+import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getSessionWithRole } from "@/app/data/auth/require-roles";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -191,10 +192,12 @@ export default async function TeacherStudentsPage() {
                       <p className="text-sm font-medium">{new Date(student.lastActive).toLocaleDateString()}</p>
                       <p className="text-xs text-muted-foreground">Last Update</p>
                     </div>
-                    <Button variant="outline" size="sm">
-                      <IconEye className="h-4 w-4 mr-2" />
-                      Profile
-                    </Button>
+                    <Link href={`/teacher/students/${student.id}`}>
+                      <Button variant="outline" size="sm">
+                        <IconEye className="h-4 w-4 mr-2" />
+                        Profile
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               ))}
