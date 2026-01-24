@@ -84,7 +84,11 @@ export default function CourseCreationPage() {
                 toast.success(result.message);
                 triggerConfetti();
                 form.reset();
-                router.push("/teacher"); // Redirect to teacher dashboard
+                if (result.data && result.data.id) {
+                    router.push(`/teacher/courses/${result.data.id}/edit?tab=course-structure`);
+                } else {
+                    router.push("/teacher");
+                }
             } else if (result.status === "error") {
                 toast.error(result.message);
             }

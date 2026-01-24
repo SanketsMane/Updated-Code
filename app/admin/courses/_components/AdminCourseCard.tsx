@@ -35,7 +35,7 @@ export function AdminCourseCard({ data, userRole }: iAppProps) {
   const thumbnailUrl = useConstructUrl(data.fileKey);
 
   return (
-    <Card className="group relative py-0 gap-0 h-full flex flex-col">
+    <Card className="group relative py-0 gap-0 h-full flex flex-col overflow-hidden hover:shadow-lg transition-all duration-300">
       {/* absolute dropdrown */}
       <div className="absolute top-2 right-2 z-10">
         <CourseActions courseId={data.id} slug={data.slug} />
@@ -43,48 +43,52 @@ export function AdminCourseCard({ data, userRole }: iAppProps) {
 
       <div className="absolute top-2 left-2 z-10">
         <Badge className={
-          data.status === "Published" ? "bg-green-500 hover:bg-green-600" :
-            (data.status as string) === "Pending" ? "bg-yellow-500 hover:bg-yellow-600 text-black" :
-              "bg-secondary hover:bg-secondary/80"
+          data.status === "Published" ? "bg-green-500 hover:bg-green-600 shadow-sm" :
+            (data.status as string) === "Pending" ? "bg-yellow-500 hover:bg-yellow-600 text-black shadow-sm" :
+              "bg-secondary hover:bg-secondary/80 shadow-sm"
         }>
           {data.status}
         </Badge>
       </div>
 
-      {thumbnailUrl ? (
-        <Image
-          src={thumbnailUrl}
-          alt="Thumbnail Url"
-          width={600}
-          height={400}
-          className="w-full rounded-t-lg aspect-video object-cover"
-        />
-      ) : (
-        <div className="w-full rounded-t-lg aspect-video bg-muted flex items-center justify-center">
-          <p className="text-muted-foreground">No thumbnail</p>
-        </div>
-      )}
+      <div className="w-full aspect-video relative">
+        {thumbnailUrl ? (
+          <Image
+            src={thumbnailUrl}
+            alt={data.title}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <div className="w-full h-full bg-muted flex flex-col items-center justify-center text-muted-foreground">
+            <School className="size-8 opacity-20 mb-2" />
+            <p className="text-xs">No thumbnail</p>
+          </div>
+        )}
+      </div>
 
       <CardContent className="p-4 flex flex-col flex-1">
         <Link
           href={`/admin/courses/${data.id}/edit`}
-          className="font-medium text-lg line-clamp-2 hover:underline group-hover:text-primary transition-colors"
+          className="font-bold text-lg line-clamp-1 hover:text-primary transition-colors"
         >
           {data.title}
         </Link>
 
-        <p className="line-clamp-2 text-sm text-muted-foreground leading-tight mt-2 mb-auto">
-          {data.smallDescription}
+        {/* Instructor info could go here if available */}
+
+        <p className="line-clamp-2 text-sm text-muted-foreground leading-relaxed mt-2 mb-auto">
+          {data.smallDescription || "No description provided."}
         </p>
 
-        <div className="mt-4 flex items-center gap-x-5">
-          <div className="flex items-center gap-x-2">
-            <TimerIcon className="size-6 p-1 rounded-md text-primary bg-primary/10" />
-            <p className="text-sm text-muted-foreground">{data.duration}h</p>
+        <div className="mt-4 flex items-center justify-between border-t pt-4">
+          <div className="flex items-center gap-x-2 text-muted-foreground">
+            <TimerIcon className="size-4" />
+            <span className="text-xs font-medium">{data.duration}h</span>
           </div>
-          <div className="flex items-center gap-x-2">
-            <School className="size-6 p-1 rounded-md text-primary bg-primary/10" />
-            <p className="text-sm text-muted-foreground">{data.level}</p>
+          <div className="flex items-center gap-x-2 text-muted-foreground">
+            <School className="size-4" />
+            <span className="text-xs font-medium">{data.level}</span>
           </div>
         </div>
 

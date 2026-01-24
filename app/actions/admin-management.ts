@@ -109,12 +109,27 @@ export async function approveTeacher(teacherId: string) {
     }
 }
 
-export async function rejectTeacher(teacherId: string) {
+export async function rejectTeacher(teacherUserId: string, reason: string) {
     try {
         await prisma.teacherProfile.updateMany({
-            where: { userId: teacherId },
+            where: { userId: teacherUserId },
             data: { isApproved: false }
         });
+
+        const teacher = await prisma.teacherProfile.findUnique({ where: { userId: teacherUserId } });
+        if (teacher) {
+            await prisma.teacherVerification.update({
+                where: { teacherId: teacher.id },
+                data: {
+                    status: 'Rejected',
+                    rejectionReason: reason,
+                    rejectedAt: new Date(),
+                }
+            });
+
+            // Optionally send email here to notify teacher
+        }
+
         revalidatePath("/admin/teachers");
         return { success: true, message: "Teacher rejected/unapproved" };
     } catch (error) {

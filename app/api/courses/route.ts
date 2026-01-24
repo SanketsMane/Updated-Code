@@ -21,6 +21,17 @@ export async function POST(req: NextRequest) {
             return new NextResponse("Unauthorized", { status: 401 });
         }
 
+        // Check if teacher is approved
+        if (session.user.role === "teacher") {
+            const teacherProfile = await prisma.teacherProfile.findUnique({
+                where: { userId: session.user.id }
+            });
+
+            if (!teacherProfile?.isApproved) {
+                return new NextResponse("Teacher profile not approved. Please complete verification.", { status: 403 });
+            }
+        }
+
         const body = await req.json();
         const validatedData = createCourseSchema.parse(body);
 

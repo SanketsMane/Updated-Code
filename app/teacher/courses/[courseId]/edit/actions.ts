@@ -13,6 +13,8 @@ import {
   LessonSchemaType,
 } from "@/lib/zodSchemas";
 import { revalidatePath } from "next/cache";
+import { createSystemNotification } from "@/app/actions/notifications";
+import { sendCourseSubmissionEmail } from "@/lib/email-notifications";
 
 export async function editCourse(
   data: CourseSchemaType,
@@ -70,6 +72,37 @@ export async function editCourse(
     if (session.user.role === "teacher" && result.data.status === "Published") {
       statusToSave = "Pending";
       message = "Course submitted for approval";
+
+      // Notify Admins
+      const admins = await prisma.user.findMany({
+        where: { role: "admin" },
+        select: { id: true }
+      });
+
+      const courseTitle = result.data.title || "A course"; // Title might not be in payload if not updating it, need to handle that.
+      // Wait, result.data is partial? courseSchema.safeParse(data). 
+      // strict() is not on z.object usually unless specified. 
+      // If title is missing in update data, we might need to fetch it or just say "A course".
+      // But usually edit page sends full data? let's check schema.
+
+      // Better to fetch course title if not in data, but let's assume valid data for now or generic message.
+      // actually, let's just say "A new course has been submitted".
+      // Or better, fetch the course to get the title if needed, but we are updating it.
+      // If title is in result.data, use it. If not, fetch it.
+
+      // Let's keep it simple for now to avoid extra DB calls if possible, but for notification quality we want title.
+      // We are updating the course, so result.data might have it. 
+      // If not, we can use "New Course Submission".
+
+      for (const admin of admins) {
+        await createSystemNotification(
+          admin.id,
+          "New Course Submission",
+          `Teacher ${session.user.name || "Unknown"} has submitted a course for review.`,
+          "Course",
+          { courseId: courseId, action: "submission" }
+        );
+      }
     }
 
     await prisma.course.update({
@@ -462,5 +495,67 @@ export async function deleteChapter({
       status: "error",
       message: "Failed to delete chapter",
     };
+  }
+}
+
+export async function publishCourse(courseId: string): Promise<ApiResponse> {
+  const session = await requireTeacherOrAdmin();
+  try {
+    const course = await prisma.course.findUnique({
+      where: { id: courseId },
+      select: { userId: true, title: true }
+    });
+
+    if (!course) {
+      return { status: "error", message: "Course not found" };
+    }
+
+    if (session.user.role === "teacher" && course.userId !== session.user.id) {
+      return { status: "error", message: "Unauthorized" };
+    }
+
+    // Logic: Teachers go to Pending, Admins go to Published
+    const newStatus = session.user.role === "admin" ? "Published" : "Pending";
+    const message = session.user.role === "admin" ? "Course Published" : "Submitted for Review";
+
+    await prisma.course.update({
+      where: { id: courseId },
+      data: { status: newStatus as any }
+    });
+
+    if (newStatus === "Pending") {
+      // Notify Admins
+      const admins = await prisma.user.findMany({
+        where: { role: "admin" },
+        select: { id: true, email: true }
+      });
+
+      for (const admin of admins) {
+        await createSystemNotification(
+          admin.id,
+          "New Course Submission",
+          `Teacher ${session.user.name || "Unknown"} has submitted "${course.title}" for review.`,
+          "Course",
+          { courseId: courseId, action: "submission" }
+        );
+
+        // Send Email
+        if (admin.email) {
+          await sendCourseSubmissionEmail(
+            admin.email,
+            course.title,
+            session.user.name || "Unknown",
+            session.user.email || "No Email",
+            courseId
+          );
+        }
+      }
+    }
+
+    revalidatePath(`/teacher/courses/${courseId}/edit`);
+    return { status: "success", message };
+
+  } catch (error) {
+    return { status: "error", message: "Failed to update status" };
   }
 }

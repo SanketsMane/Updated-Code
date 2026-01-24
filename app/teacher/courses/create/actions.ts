@@ -55,7 +55,7 @@ export async function CreateCourse(
             // Proceed without stripe ID for dev/testing. Unique constraint allows multiple nulls.
         }
 
-        await prisma.course.create({
+        const course = await prisma.course.create({
             data: {
                 ...validation.data,
                 user: {
@@ -70,6 +70,7 @@ export async function CreateCourse(
         return {
             status: "success",
             message: "Course created succesfully",
+            data: { id: course.id }
         };
     } catch (error: any) {
         console.error("Course creation error:", error);

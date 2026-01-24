@@ -21,7 +21,7 @@ import {
   CheckCircle2,
   Quote
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
@@ -55,6 +55,18 @@ const testimonials = [
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { data: session } = authClient.useSession();
+
+  if (session) {
+    // Avoid redirect loop if already on dashboard or teacher page?
+    // Actually register page should redirect if session exists.
+  }
+
+  useEffect(() => {
+    if (session) {
+      router.push("/dashboard");
+    }
+  }, [session, router]);
   const [isLoading, setIsLoading] = useState(false);
   const [userType, setUserType] = useState<"student" | "teacher">("student");
   const [formData, setFormData] = useState({

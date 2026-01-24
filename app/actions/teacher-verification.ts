@@ -4,6 +4,8 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { sendTeacherVerificationSubmissionEmail } from "@/lib/email-notifications";
+import { env } from "@/lib/env";
 
 export async function saveBankDetails(data: {
     bankAccountName: string;
@@ -49,6 +51,7 @@ export async function getVerificationStatus() {
 
     return {
         isVerified: teacher.isVerified,
+        isApproved: teacher.isApproved,
         verification: teacher.verification
     };
 }
@@ -105,7 +108,89 @@ export async function saveVerificationDocument(type: 'identity' | 'qualification
     });
 
     revalidatePath("/teacher/verification");
+
+    // Emails are now sent via submitVerification action, not on every save.
+    // This prevents spamming admins with 3 emails for 3 uploads.
+
     return { success: true };
+}
+
+export async function submitVerification() {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session?.user?.id) throw new Error("Unauthorized");
+
+    const teacher = await prisma.teacherProfile.findUnique({
+        where: { userId: session.user.id },
+        include: { verification: true }
+    });
+
+    if (!teacher || !teacher.verification) throw new Error("Teacher profile or verification data not found");
+
+    // Validate required fields
+    if (!teacher.verification.identityDocumentUrl) {
+        throw new Error("Identity document is required");
+    }
+
+    const verification = teacher.verification;
+
+    // Update submitted status and time
+    await prisma.teacherVerification.update({
+        where: { id: verification.id },
+        data: {
+            status: 'Pending',
+            submittedAt: new Date(),
+        }
+    });
+
+    // Helper to format links
+    const formatLink = (url: string) => {
+        // Construct full URL if needed (User mock or S3)
+        // If mocked, it's just a string key. If from S3, it might also be just a key.
+        // Assuming we need to prepend bucket URL unless it's a full URL.
+        const fullUrl = url.startsWith('http')
+            ? url
+            : `https://${process.env.NEXT_PUBLIC_S3_BUCKET_NAME_IMAGES}.fly.storage.tigris.dev/${url}`;
+        const name = url.split('/').pop() || "Document";
+        return `<a href="${fullUrl}" class="doc-link" target="_blank">${name}</a>`;
+    };
+
+    const identityHtml = Array.isArray(verification.identityDocumentUrl)
+        ? verification.identityDocumentUrl.map(formatLink).join("<br>")
+        : formatLink(verification.identityDocumentUrl as string);
+
+    const qualHtml = verification.qualificationDocuments && verification.qualificationDocuments.length > 0
+        ? verification.qualificationDocuments.map(formatLink).join("<br>")
+        : "<em>No documents provided</em>";
+
+    const expHtml = verification.experienceDocuments && verification.experienceDocuments.length > 0
+        ? verification.experienceDocuments.map(formatLink).join("<br>")
+        : "<em>No documents provided</em>";
+
+
+    try {
+        // Notify Admins
+        const admins = await prisma.user.findMany({
+            where: { role: 'admin' },
+            select: { email: true, name: true }
+        });
+
+        for (const admin of admins) {
+            if (admin.email) {
+                await sendTeacherVerificationSubmissionEmail(
+                    admin.email,
+                    session.user.name || "Unknown Teacher",
+                    session.user.email || "No Email",
+                    identityHtml,
+                    qualHtml,
+                    expHtml
+                );
+            }
+        }
+        return { success: true };
+    } catch (e) {
+        console.error("Failed to send admin notification", e);
+        throw new Error("Failed to submit verification request");
+    }
 }
 
 export async function removeVerificationDocument(type: 'qualification' | 'experience', urlToRemove: string) {

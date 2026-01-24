@@ -115,6 +115,7 @@ model Course {
   smallDescription String
   slug             String                 @unique
   status           CourseStatus           @default(Draft)
+  rejectionReason  String?
   language         String?
   tags             String[]
   prerequisites    String?
@@ -140,6 +141,7 @@ model Course {
   interactions     UserInteraction[]
   videoRooms       VideoRoom[]
   whiteboards      Whiteboard[]
+  resources        Resource[]
 }
 
 model Chapter {
@@ -230,6 +232,7 @@ model TeacherProfile {
   earningsReports     EarningsReport[]      @relation("TeacherEarnings")
   payoutRequests      PayoutRequest[]       @relation("TeacherPayouts")
   verification        TeacherVerification?  @relation("TeacherVerification")
+  resources           Resource[]            @relation("TeacherResources")
 }
 
 model LiveSession {
@@ -1271,4 +1274,26 @@ enum ReportType {
   Monthly
   Quarterly
   Yearly
+}
+
+model Resource {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  fileUrl     String
+  fileType    String?  // e.g. "pdf", "image"
+  size        Int?     // in bytes
+  
+  teacherId   String
+  courseId    String?  // Optional: link to specific course
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  teacher     TeacherProfile @relation("TeacherResources", fields: [teacherId], references: [id], onDelete: Cascade)
+  course      Course?        @relation(fields: [courseId], references: [id])
+  
+  @@index([teacherId])
+  @@index([courseId])
+  @@map("resources")
 }

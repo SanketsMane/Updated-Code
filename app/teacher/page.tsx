@@ -1,4 +1,7 @@
 import { requireTeacher } from "../data/auth/require-roles";
+import { prisma } from "@/lib/db";
+import { redirect } from "next/navigation";
+import { getSessionWithRole } from "../data/auth/require-roles";
 import { adminGetCourses } from "../data/admin/admin-get-courses";
 import { RevenueCard } from "@/components/dashboard/yo-coach/revenue-card";
 import { StatBox } from "@/components/dashboard/yo-coach/stat-box";
@@ -13,6 +16,23 @@ export const dynamic = "force-dynamic";
 import { getTeacherAnalytics } from "../actions/analytics";
 
 export default async function TeacherDashboardPage() {
+  const session = await getSessionWithRole();
+  if (!session?.user?.id) redirect("/login");
+
+  const teacherProfile = await prisma.teacherProfile.findUnique({
+    where: { userId: session.user.id }
+  });
+
+  if (!teacherProfile) {
+    // No profile -> register
+    redirect("/register/teacher");
+  }
+
+  if (!teacherProfile.isApproved) {
+    // Not approved -> verification
+    redirect("/teacher/verification");
+  }
+
   // await requireTeacher(); // Assuming this is handled layout/middleware or check below
   // Transform revenue data for chart
   const { stats, topReview, revenueData } = await getTeacherAnalytics();

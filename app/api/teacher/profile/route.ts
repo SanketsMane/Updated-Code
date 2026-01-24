@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { teacherProfileSchema } from "@/lib/zodSchemas";
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 export const dynamic = "force-dynamic";
 
@@ -56,8 +57,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    if (session.user.role !== "teacher" && session.user.role !== "admin") {
-      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    console.log("Teacher Profile Post Session User:", session.user);
+
+    // Allow students to apply/register as teachers
+    // Check for "user" role as well, just in case default is "user"
+    if (session.user.role !== "teacher" && session.user.role !== "admin" && session.user.role !== "student" && session.user.role !== "user") {
+      console.log("Access denied for role:", session.user.role);
+      return NextResponse.json({ error: `Access denied.Role: ${session.user.role} ` }, { status: 403 });
     }
 
     const body = await req.json();
@@ -86,21 +92,34 @@ export async function POST(req: NextRequest) {
         },
       });
     } else {
-      // Create new profile
-      profile = await prisma.teacherProfile.create({
-        data: {
-          ...validatedData,
-          userId: session.user.id,
-        },
-        include: {
-          user: {
-            select: {
-              name: true,
-              email: true,
-              image: true,
+      // Create new API profile AND update user role to teacher
+      // using transaction to ensure consistency
+      profile = await prisma.$transaction(async (tx) => {
+        const newProfile = await tx.teacherProfile.create({
+          data: {
+            ...validatedData,
+            userId: session.user.id,
+          },
+          include: {
+            user: {
+              select: {
+                name: true,
+                email: true,
+                image: true,
+              },
             },
           },
-        },
+        });
+
+        // Auto-promote user to teacher role
+        if (session.user.role !== "teacher" && session.user.role !== "admin") {
+          await tx.user.update({
+            where: { id: session.user.id },
+            data: { role: "teacher" }
+          });
+        }
+
+        return newProfile;
       });
     }
 
@@ -108,11 +127,17 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("Error creating/updating teacher profile:", error);
 
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: error.errors[0].message }, { status: 400 });
+    }
+
     if (error instanceof Error && "code" in error && error.code === "P2002") {
       return NextResponse.json({ error: "Profile already exists" }, { status: 409 });
     }
 
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    // Return the actual error message for debugging purposes (in dev) 
+    // or a generic one in prod. Since we are in dev/debugging mode:
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Internal server error" }, { status: 500 });
   }
 }
 

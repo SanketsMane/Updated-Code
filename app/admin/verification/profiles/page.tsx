@@ -1,12 +1,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { 
-  UserCheck, 
-  Clock, 
-  CheckCircle, 
+import {
+  UserCheck,
+  Clock,
+  CheckCircle,
   XCircle,
   Eye,
   Download,
@@ -19,6 +20,7 @@ import {
 import { requireAdmin } from "@/app/data/auth/require-roles";
 import { getPendingVerifications } from "@/app/data/admin/verification-data";
 import { prisma } from "@/lib/db";
+import { TeacherApprovalActions } from "./_components/TeacherApprovalActions";
 
 export const dynamic = "force-dynamic";
 
@@ -136,18 +138,57 @@ export default async function ProfileVerificationPage() {
                         </div>
                       </div>
 
-                      <div className="mt-4 flex gap-2">
-                        <Button size="sm" className="bg-green-600 hover:bg-green-700">
-                          <CheckCircle className="h-4 w-4 mr-2" />
-                          Approve
-                        </Button>
-                        <Button size="sm" variant="destructive">
-                          <XCircle className="h-4 w-4 mr-2" />
-                          Reject
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          Request More Info
-                        </Button>
+
+
+                      {/* Document Section */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 p-4 bg-muted/30 rounded-lg">
+                        <div>
+                          <h4 className="flex items-center gap-2 font-medium mb-3 text-sm">
+                            <Shield className="h-4 w-4 text-blue-500" /> Identity
+                          </h4>
+                          {verification.identityDocumentUrl ? (
+                            <DocumentLink url={verification.identityDocumentUrl as string} />
+                          ) : (
+                            <span className="text-xs text-muted-foreground italic">No document</span>
+                          )}
+                        </div>
+
+                        <div>
+                          <h4 className="flex items-center gap-2 font-medium mb-3 text-sm">
+                            <GraduationCap className="h-4 w-4 text-purple-500" /> Qualifications
+                          </h4>
+                          {verification.qualificationDocuments && verification.qualificationDocuments.length > 0 ? (
+                            <div className="space-y-2">
+                              {(verification.qualificationDocuments as string[]).map((doc, i) => (
+                                <DocumentLink key={i} url={doc} index={i + 1} />
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-xs text-muted-foreground italic">No documents</span>
+                          )}
+                        </div>
+
+                        <div>
+                          <h4 className="flex items-center gap-2 font-medium mb-3 text-sm">
+                            <Award className="h-4 w-4 text-amber-500" /> Experience
+                          </h4>
+                          {verification.experienceDocuments && verification.experienceDocuments.length > 0 ? (
+                            <div className="space-y-2">
+                              {(verification.experienceDocuments as string[]).map((doc, i) => (
+                                <DocumentLink key={i} url={doc} index={i + 1} />
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-xs text-muted-foreground italic">No documents</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mt-4">
+                        <TeacherApprovalActions
+                          profileId={verification.teacher.id}
+                          userId={verification.teacher.userId}
+                        />
                       </div>
                     </CardContent>
                   </Card>
@@ -196,6 +237,48 @@ export default async function ProfileVerificationPage() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </div >
+  );
+}
+
+
+
+function DocumentLink({ url, index }: { url: string; index?: number }) {
+  // Simple check for mock/production URL logic if needed, or just link
+  const isMock = url.startsWith("mock-upload");
+  const isUrl = url.startsWith('http');
+
+  // If mock, we don't have a real URL.
+  const fullUrl = isUrl
+    ? url
+    : isMock
+      ? "#"
+      : `https://${process.env.NEXT_PUBLIC_S3_BUCKET_NAME_IMAGES}.fly.storage.tigris.dev/${url}`;
+
+  const label = isUrl ? url.split('/').pop() : url;
+
+  if (isMock) {
+    return (
+      <button
+        onClick={() => toast.info("This is a mock upload (simulation). File is not actually stored on server.")}
+        className="flex items-center gap-2 text-xs p-2 bg-amber-50 border border-amber-200 rounded hover:bg-amber-100 transition-colors truncate max-w-full cursor-pointer w-full"
+      >
+        <FileText className="h-3 w-3 shrink-0 text-amber-500" />
+        <span className="truncate text-amber-700">{index ? `Doc ${index} (Mock)` : `Mock File`}</span>
+      </button>
+    );
+  }
+
+  return (
+    <a
+      href={fullUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center gap-2 text-xs p-2 bg-white border rounded hover:bg-gray-50 transition-colors truncate max-w-full"
+    >
+      <FileText className="h-3 w-3 shrink-0 text-gray-500" />
+      <span className="truncate">{index ? `Doc ${index}` : label}</span>
+      <Download className="h-3 w-3 shrink-0 ml-auto opacity-50" />
+    </a>
   );
 }

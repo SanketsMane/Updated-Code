@@ -33,9 +33,21 @@ const expertise = [
 export default function TeacherRegisterPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
+
+  useEffect(() => {
+    // Check if user is already authenticated
+    // if (session) {
+    //   setIsAuthenticated(true);
+    // }
+    // setIsCheckingAuth(false);
+  }, [session]);
+
+  useEffect(() => {
+    if (!isPending && !session) {
+      router.push("/register");
+    }
+  }, [isPending, session, router]);
 
   const [formData, setFormData] = useState({
     bio: "",
@@ -44,13 +56,7 @@ export default function TeacherRegisterPage() {
     hourlyRate: "",
   });
 
-  useEffect(() => {
-    // Check if user is already authenticated
-    if (session) {
-      setIsAuthenticated(true);
-    }
-    setIsCheckingAuth(false);
-  }, [session]);
+
 
   const handleExpertiseToggle = (area: string) => {
     setFormData(prev => ({
@@ -79,6 +85,19 @@ export default function TeacherRegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validation
+    const missingFields = [];
+    if (!formData.bio.trim()) missingFields.push("Bio");
+    if (formData.expertiseAreas.length === 0) missingFields.push("Expertise Areas");
+    if (formData.languages.length === 0) missingFields.push("Languages");
+    if (!formData.hourlyRate) missingFields.push("Hourly Rate");
+
+    if (missingFields.length > 0) {
+      toast.error(`Please fill in the following fields: ${missingFields.join(", ")}`);
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -104,7 +123,9 @@ export default function TeacherRegisterPage() {
       }
 
       toast.success("Teacher profile created successfully!");
-      router.push("/teacher");
+      toast.success("Teacher profile created successfully!");
+      // Force hard navigation to refresh session and get new role
+      window.location.href = "/teacher/verification";
 
     } catch (error) {
       console.error("Profile creation error:", error);
@@ -114,7 +135,7 @@ export default function TeacherRegisterPage() {
     }
   };
 
-  if (isCheckingAuth) {
+  if (isPending) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -122,9 +143,7 @@ export default function TeacherRegisterPage() {
     );
   }
 
-  if (!isAuthenticated) {
-    // Redirect to register if not authenticated
-    router.push("/register");
+  if (!session) {
     return null;
   }
 
@@ -258,16 +277,33 @@ export default function TeacherRegisterPage() {
                         <Label htmlFor="languages">Languages You Speak *</Label>
                         <p className="text-xs text-gray-500">Add at least one language you can teach in</p>
                         <div className="space-y-2">
-                          <Input
-                            placeholder="Add a language (press Enter)"
-                            onKeyPress={(e) => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault();
-                                handleLanguageAdd(e.currentTarget.value);
-                                e.currentTarget.value = '';
-                              }
-                            }}
-                          />
+                          <div className="flex gap-2">
+                            <Input
+                              id="language-input"
+                              placeholder="Add a language"
+                              onKeyPress={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  handleLanguageAdd(e.currentTarget.value);
+                                  e.currentTarget.value = '';
+                                }
+                              }}
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => {
+                                const input = document.getElementById('language-input') as HTMLInputElement;
+                                if (input?.value) {
+                                  handleLanguageAdd(input.value);
+                                  input.value = '';
+                                }
+                              }}
+                            >
+                              Add
+                            </Button>
+                          </div>
+
                           <div className="flex flex-wrap gap-2">
                             {formData.languages.map((lang) => (
                               <Badge key={lang} variant="secondary" className="cursor-pointer" onClick={() => handleLanguageRemove(lang)}>
@@ -275,6 +311,7 @@ export default function TeacherRegisterPage() {
                               </Badge>
                             ))}
                           </div>
+                          <p className="text-xs text-muted-foreground">Press Enter or click Add to include a language</p>
                         </div>
                       </div>
                     </div>
@@ -285,7 +322,7 @@ export default function TeacherRegisterPage() {
                     <div className="space-y-4">
                       <Button
                         type="submit"
-                        disabled={isLoading || formData.expertiseAreas.length === 0 || formData.languages.length === 0}
+                        disabled={isLoading}
                         className="w-full bg-blue-600 hover:bg-blue-700"
                         size="lg"
                       >

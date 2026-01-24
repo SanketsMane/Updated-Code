@@ -8,6 +8,17 @@ import { toast } from "sonner";
 import { approveTeacher, rejectTeacher } from "@/app/actions/admin-management";
 import { useRouter } from "next/navigation";
 import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
@@ -25,6 +36,8 @@ interface TeacherActionsProps {
 export function TeacherActions({ userId, isApproved, isVerified }: TeacherActionsProps) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [isRejectOpen, setIsRejectOpen] = useState(false);
+    const [rejectionReason, setRejectionReason] = useState("");
 
     const handleApprove = async () => {
         setLoading(true);
@@ -40,11 +53,17 @@ export function TeacherActions({ userId, isApproved, isVerified }: TeacherAction
     };
 
     const handleReject = async () => {
+        if (!rejectionReason.trim()) {
+            toast.error("Please provide a reason");
+            return;
+        }
+
         setLoading(true);
         try {
-            await rejectTeacher(userId);
+            await rejectTeacher(userId, rejectionReason);
             toast.warning("Teacher approval revoked");
             router.refresh();
+            setIsRejectOpen(false);
         } catch (error) {
             toast.error("Failed to reject");
         } finally {
@@ -75,9 +94,40 @@ export function TeacherActions({ userId, isApproved, isVerified }: TeacherAction
                             <Check className="w-4 h-4 mr-2" /> Approve Application
                         </DropdownMenuItem>
                     ) : (
-                        <DropdownMenuItem onClick={handleReject} className="text-amber-600">
-                            <X className="w-4 h-4 mr-2" /> Revoke Approval
-                        </DropdownMenuItem>
+                        <Dialog open={isRejectOpen} onOpenChange={setIsRejectOpen}>
+                            <DialogTrigger asChild>
+                                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-amber-600">
+                                    <X className="w-4 h-4 mr-2" /> Revoke Approval
+                                </DropdownMenuItem>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Revoke Teacher Approval</DialogTitle>
+                                    <DialogDescription>
+                                        Please provide a reason for revoking this teacher's approval. This will be sent to the teacher.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="space-y-4 py-4">
+                                    <div className="space-y-2">
+                                        <Label>Reason</Label>
+                                        <Textarea
+                                            value={rejectionReason}
+                                            onChange={(e) => setRejectionReason(e.target.value)}
+                                            placeholder="e.g. Documents invalid, policy violation..."
+                                            rows={4}
+                                        />
+                                    </div>
+                                </div>
+                                <DialogFooter>
+                                    <Button variant="outline" onClick={() => setIsRejectOpen(false)} disabled={loading}>
+                                        Cancel
+                                    </Button>
+                                    <Button variant="destructive" onClick={handleReject} disabled={loading || !rejectionReason.trim()}>
+                                        Revoke Approval
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
                     )}
                 </DropdownMenuContent>
             </DropdownMenu>

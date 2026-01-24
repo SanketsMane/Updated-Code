@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     const command = new PutObjectCommand({
       Bucket: env.NEXT_PUBLIC_S3_BUCKET_NAME_IMAGES,
       ContentType: contentType,
-      ContentLength: size,
+      // ContentLength: size, // Removed to avoid signature mismatch if browser sends different size header or compression occurs
       Key: uniqueKey,
     });
 

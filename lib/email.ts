@@ -299,6 +299,104 @@ const emailTemplates = {
       </div>
     </body>
     </html>
+  `,
+
+  teacherVerificationSubmission: (data: TemplateData) => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>Teacher Verification Submission</title>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #a55eea 0%, #8854d0 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; margin: -20px -20px 30px -20px; }
+        .doc-section { background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #a55eea; }
+        .doc-link { display: inline-block; background: #fff; border: 1px solid #ddd; padding: 8px 15px; border-radius: 5px; text-decoration: none; color: #333; margin: 5px 0; font-weight: bold; }
+        .doc-link:hover { background: #f0f0f0; }
+        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>📋 Teacher Verification Request</h1>
+        </div>
+        
+        <p>Hi Admin,</p>
+        
+        <p><strong>${data.teacherName}</strong> (${data.teacherEmail}) has submitted their documents for verification.</p>
+        
+        <div class="doc-section">
+          <h3>Identity Document</h3>
+          <p>${data.identityDocHtml}</p>
+        </div>
+
+        <div class="doc-section">
+          <h3>Qualifications</h3>
+          <p>${data.qualificationDocsHtml}</p>
+        </div>
+
+        <div class="doc-section">
+            <h3>Experience</h3>
+            <p>${data.experienceDocsHtml}</p>
+        </div>
+        
+        <p>Please review these documents in the admin dashboard and approve/reject the teacher.</p>
+        
+        <div style="text-align: center; margin-top: 20px;">
+           <a href="${data.adminDashboardUrl}" style="background: #a55eea; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Go to Admin Dashboard</a>
+        </div>
+
+        <div class="footer">
+          <p>KIDOKOOL Admin Notification</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `,
+
+  courseSubmission: (data: TemplateData) => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>New Course Submission</title>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #0984e3 0%, #74b9ff 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; margin: -20px -20px 30px -20px; }
+        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        .cta-button { display: inline-block; background: #0984e3; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; font-weight: bold; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>🎓 New Course Submitted</h1>
+        </div>
+        
+        <p>Hi Admin,</p>
+        
+        <p>A new course has been submitted for review.</p>
+        
+        <p><strong>Course Title:</strong> ${data.courseTitle}</p>
+        <p><strong>Instructor:</strong> ${data.teacherName} (${data.teacherEmail})</p>
+        
+        <p>Please review the course content and approve or reject it.</p>
+        
+        <div style="text-align: center;">
+          <a href="${data.courseLink}" class="cta-button">Review Course</a>
+        </div>
+        
+        <div class="footer">
+          <p>KIDOKOOL Admin Notification</p>
+        </div>
+      </div>
+    </body>
+    </html>
   `
 };
 

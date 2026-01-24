@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Uploader } from "@/components/file-uploader/Uploader";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import { tryCatch } from "@/hooks/try-catch";
 import { createLesson } from "../actions";
 import { toast } from "sonner";
+import { VideoGalleryModal } from "@/app/teacher/courses/_components/VideoGalleryModal";
 
 export function NewLessonModal({
   courseId,
@@ -103,10 +105,37 @@ export function NewLessonModal({
             />
             <FormField
               control={form.control}
+              name="videoKey"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Video from Device</FormLabel>
+                    {/* Keep the server gallery option here too if they want */}
+                    <VideoGalleryModal
+                      onSelect={(key) => {
+                        form.setValue("videoKey", key);
+                        toast.success("Video attached from library!");
+                      }}
+                    />
+                  </div>
+                  <FormControl>
+                    <Uploader
+                      fileTypeAccepted="video"
+                      onChange={field.onChange}
+                      value={field.value}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="videoUrl"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>YouTube/Video Link (Optional)</FormLabel>
+                  <FormLabel>Or External Video Link (YouTube)</FormLabel>
                   <FormControl>
                     <Input placeholder="https://youtube.com/..." {...field} />
                   </FormControl>

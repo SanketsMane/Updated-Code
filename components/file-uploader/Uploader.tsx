@@ -54,124 +54,32 @@ export function Uploader({ onChange, value, fileTypeAccepted }: iAppProps) {
         progress: 0,
       }));
 
+      // MOCKED UPLOAD implementation for testing
       try {
-        // PROXY UPLOAD FOR IMAGES (Bypasses CORS)
-        if (fileTypeAccepted === "image") {
-          const formData = new FormData();
-          formData.append("file", file);
+        console.log("Mocking upload for file:", file.name);
 
-          const response = await fetch("/api/upload/proxy", {
-            method: "POST",
-            body: formData,
-          });
+        // Pseudo progress updates
+        setFileState((prev) => ({ ...prev, progress: 20 }));
+        await new Promise(resolve => setTimeout(resolve, 500));
+        setFileState((prev) => ({ ...prev, progress: 60 }));
+        await new Promise(resolve => setTimeout(resolve, 500));
+        setFileState((prev) => ({ ...prev, progress: 90 }));
+        await new Promise(resolve => setTimeout(resolve, 500));
 
-          if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Upload failed: ${response.status} ${response.statusText} - ${errorText}`);
-          }
+        const dummyKey = `mock-upload-${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
 
-          const { key } = await response.json();
+        setFileState((prev) => ({
+          ...prev,
+          progress: 100,
+          uploading: false,
+          key: dummyKey,
+        }));
 
-          setFileState((prev) => ({
-            ...prev,
-            progress: 100,
-            uploading: false,
-            key: key,
-          }));
-
-          onChange?.(key);
-          toast.success("File uploaded successfully");
-          return;
-        }
-
-        // PRESIGNED URL UPLOAD FOR VIDEOS AND PDFS (Direct to S3)
-        //1. Get presigned URL
-        const presignedResponse = await fetch("/api/s3/upload", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            fileName: file.name,
-            contentType: file.type,
-            size: file.size,
-            isImage: false, // Explicitly false since images are handled above
-          }),
-          redirect: "manual",
-        });
-
-        if (presignedResponse.type === "opaqueredirect" || presignedResponse.status === 307 || presignedResponse.status === 302) {
-          toast.error("Authentication session expired. Please refresh the page.");
-          setFileState((prev) => ({ ...prev, uploading: false, error: true }));
-          return;
-        }
-
-        if (!presignedResponse.ok) {
-          const errorText = await presignedResponse.text();
-          let errorMessage = "Failed to get presigned URL";
-          try {
-            const errorJson = JSON.parse(errorText);
-            errorMessage = errorJson.error || errorMessage;
-          } catch {
-            errorMessage = errorText || errorMessage;
-          }
-          toast.error(errorMessage);
-
-          setFileState((prev) => ({
-            ...prev,
-            uploading: false,
-            progress: 0,
-            error: true,
-          }));
-
-          return;
-        }
-
-
-        const { presignedUrl, key } = await presignedResponse.json();
-
-        await new Promise<void>((resolve, reject) => {
-          const xhr = new XMLHttpRequest();
-
-          xhr.upload.onprogress = (event) => {
-            if (event.lengthComputable) {
-              const percentageCompleted = (event.loaded / event.total) * 100;
-              setFileState((prev) => ({
-                ...prev,
-                progress: Math.round(percentageCompleted),
-              }));
-            }
-          };
-
-          xhr.onload = () => {
-            if (xhr.status === 200 || xhr.status === 204) {
-              setFileState((prev) => ({
-                ...prev,
-                progress: 100,
-                uploading: false,
-                key: key,
-              }));
-
-              onChange?.(key);
-
-              toast.success("File uploaded succesfully");
-
-              resolve();
-            } else {
-              reject(new Error(`Upload failed: ${xhr.status} ${xhr.statusText}`));
-            }
-          };
-
-          xhr.onerror = () => {
-            reject(new Error("Upload failed"));
-          };
-
-          xhr.open("PUT", presignedUrl);
-          xhr.setRequestHeader("Content-Type", file.type);
-          xhr.send(file);
-        });
-      } catch (error: any) {
-        console.error("Upload error details:", error);
-        toast.error(error.message || "Something went wrong during upload");
-
+        onChange?.(dummyKey);
+        toast.success("File uploaded successfully (MOCKED)");
+      } catch (error) {
+        console.error("Mock upload error:", error);
+        toast.error("Mock upload failed");
         setFileState((prev) => ({
           ...prev,
           uploading: false,

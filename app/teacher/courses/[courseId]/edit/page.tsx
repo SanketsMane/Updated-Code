@@ -13,18 +13,42 @@ import { CourseStructure } from "./_components/CourseStructure";
 export const dynamic = "force-dynamic";
 
 type Params = Promise<{ courseId: string }>;
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
-export default async function EditRoute({ params }: { params: Params }) {
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { CourseActions } from "./_components/CourseActions";
+
+export default async function EditRoute({
+  params,
+  searchParams
+}: {
+  params: Params;
+  searchParams: SearchParams;
+}) {
   const { courseId } = await params;
-  const data = await adminGetCourse(courseId);
+  const { tab } = await searchParams;
+  const [data, session] = await Promise.all([
+    adminGetCourse(courseId),
+    auth.api.getSession({ headers: await headers() })
+  ]);
+  const defaultTab = typeof tab === 'string' ? tab : "basic-info";
+
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-8">
-        Edit Course:{" "}
-        <span className="text-primary underline">{data.title}</span>
-      </h1>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-bold">
+          Edit Course:{" "}
+          <span className="text-primary underline">{data.title}</span>
+        </h1>
+        <CourseActions
+          courseId={courseId}
+          status={data.status}
+          isTeacher={session?.user.role === "teacher"}
+        />
+      </div>
 
-      <Tabs defaultValue="basic-info" className="w-full">
+      <Tabs defaultValue={defaultTab} className="w-full">
         <TabsList className="grid grid-cols-2 w-full">
           <TabsTrigger value="basic-info">Basic Info</TabsTrigger>
           <TabsTrigger value="course-structure">Course Structure</TabsTrigger>
@@ -55,6 +79,7 @@ export default async function EditRoute({ params }: { params: Params }) {
             </CardContent>
           </Card>
         </TabsContent>
+        {/* Helper to keep tab synced if needed, but defaultValue is enough for initial load */}
       </Tabs>
     </div>
   );

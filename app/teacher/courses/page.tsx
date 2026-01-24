@@ -26,6 +26,11 @@ export default async function TeacherCoursesPage() {
         }
     });
 
+    const teacherProfile = await prisma.teacherProfile.findUnique({
+        where: { userId: session.user.id }
+    });
+    const isApproved = teacherProfile?.isApproved ?? false;
+
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -33,12 +38,14 @@ export default async function TeacherCoursesPage() {
                     <h1 className="text-3xl font-bold tracking-tight">My Courses</h1>
                     <p className="text-muted-foreground">Manage your courses and view their performance</p>
                 </div>
-                <Button asChild>
-                    <Link href="/teacher/courses/new">
-                        <Plus className="mr-2 h-4 w-4" />
-                        Create Course
-                    </Link>
-                </Button>
+                {isApproved && (
+                    <Button asChild>
+                        <Link href="/teacher/courses/create">
+                            <Plus className="mr-2 h-4 w-4" />
+                            Create Course
+                        </Link>
+                    </Button>
+                )}
             </div>
 
             <Card>
@@ -52,11 +59,17 @@ export default async function TeacherCoursesPage() {
                     {courses.length === 0 ? (
                         <div className="text-center py-10">
                             <p className="text-muted-foreground mb-4">No courses found. Start creating your first course!</p>
-                            <Button asChild variant="outline">
-                                <Link href="/teacher/courses/new">
-                                    Create Course
-                                </Link>
-                            </Button>
+                            {isApproved ? (
+                                <Button asChild variant="outline">
+                                    <Link href="/teacher/courses/create">
+                                        Create Course
+                                    </Link>
+                                </Button>
+                            ) : (
+                                <p className="text-sm text-orange-600 bg-orange-50 inline-block px-3 py-1 rounded-full">
+                                    Account approval required to create courses
+                                </p>
+                            )}
                         </div>
                     ) : (
                         <>

@@ -1,36 +1,38 @@
-import { requireTeacher } from "../../data/auth/require-roles";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { IconFileText } from "@tabler/icons-react";
+import { requireTeacher } from "@/app/data/auth/require-roles";
+import { getTeacherResources } from "@/app/actions/resources";
+import { ResourceForm } from "./_components/resource-form";
+import { ResourceList } from "./_components/resource-list";
+import { prisma } from "@/lib/db";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
 export default async function TeacherResourcesPage() {
   await requireTeacher();
+  const session = await auth.api.getSession({ headers: await headers() });
+
+  const [resources, courses] = await Promise.all([
+    getTeacherResources(),
+    prisma.course.findMany({
+      where: { userId: session?.user?.id },
+      select: { id: true, title: true }
+    })
+  ]);
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Resources</h1>
-        <p className="text-muted-foreground">
-          Manage your course materials and resources
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">Resources</h1>
+          <p className="text-muted-foreground">
+            Manage your course materials and resources
+          </p>
+        </div>
+        <ResourceForm courses={courses} />
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <IconFileText className="h-5 w-5" />
-            Course Attachments
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="text-center py-12 text-muted-foreground">
-          <p className="mb-4">This feature is currently under development.</p>
-          <p className="text-sm">
-            Soon you will be able to upload and manage global resources for your students here.
-            For now, please add materials directly to your Lessons.
-          </p>
-        </CardContent>
-      </Card>
+      <ResourceList resources={resources} />
     </div>
   );
 }

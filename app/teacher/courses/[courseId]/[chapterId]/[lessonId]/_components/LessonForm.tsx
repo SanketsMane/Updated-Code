@@ -29,6 +29,7 @@ import { useTransition } from "react";
 import { tryCatch } from "@/hooks/try-catch";
 import { updateLesson } from "../actions";
 import { toast } from "sonner";
+import { VideoGalleryModal } from "@/app/teacher/courses/_components/VideoGalleryModal";
 
 interface iAppProps {
   data: AdminLessonType;
@@ -154,7 +155,14 @@ export function LessonForm({ chapterId, data, courseId }: iAppProps) {
                 name="videoKey"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Video File</FormLabel>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>Video File</FormLabel>
+                      <VideoGalleryModal
+                        onSelect={(key) => {
+                          form.setValue("videoKey", key, { shouldDirty: true });
+                        }}
+                      />
+                    </div>
                     <FormControl>
                       <Uploader
                         onChange={field.onChange}

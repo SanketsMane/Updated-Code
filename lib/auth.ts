@@ -6,7 +6,7 @@ import { emailOTP } from "better-auth/plugins";
 import { sendEmail } from "./email";
 import { admin } from "better-auth/plugins";
 
-export const auth = betterAuth({
+const authOptions = {
   database: prismaAdapter(prisma, {
     provider: "postgresql", // or "mysql", "postgresql", ...etc
   }),
@@ -33,14 +33,14 @@ export const auth = betterAuth({
   user: {
     additionalFields: {
       role: {
-        type: "string",
+        type: "string" as const,
       },
       bio: {
-        type: "string",
+        type: "string" as const,
         required: false,
       },
       education: {
-        type: "string",
+        type: "string" as const,
         required: false,
       },
     },
@@ -81,4 +81,12 @@ export const auth = betterAuth({
     }),
     admin(),
   ],
-});
+};
+
+const globalAuth = global as unknown as { auth: ReturnType<typeof betterAuth> };
+
+export const auth = globalAuth.auth || betterAuth(authOptions);
+
+if (process.env.NODE_ENV !== "production") {
+  globalAuth.auth = auth;
+}

@@ -184,7 +184,14 @@ export default async function TeacherVerificationPage() {
             />
           </CardContent>
         </Card>
+
+        {/* Submit Button */}
+        <div className="flex justify-end pt-4 pb-12">
+          <SubmitVerificationButton />
+        </div>
       </div>
     </div>
   );
 }
+
+import { SubmitVerificationButton } from "./_components/submit-verification-button";

@@ -121,3 +121,51 @@ export async function sendReceiptEmail(
     }
   );
 }
+
+/**
+ * Send teacher verification submission email to admins
+ */
+export async function sendTeacherVerificationSubmissionEmail(
+  adminEmail: string,
+  teacherName: string,
+  teacherEmail: string,
+  identityDocHtml: string,
+  qualificationDocsHtml: string,
+  experienceDocsHtml: string
+): Promise<boolean> {
+  return await sendTemplatedEmail(
+    'teacherVerificationSubmission',
+    adminEmail,
+    `Teacher Verification: ${teacherName}`,
+    {
+      teacherName,
+      teacherEmail,
+      identityDocHtml,
+      qualificationDocsHtml,
+      experienceDocsHtml,
+    }
+  );
+}
+
+/**
+ * Send course submission email to admins
+ */
+export async function sendCourseSubmissionEmail(
+  adminEmail: string,
+  courseTitle: string,
+  teacherName: string,
+  teacherEmail: string,
+  courseId: string
+): Promise<boolean> {
+  return await sendTemplatedEmail(
+    'courseSubmission',
+    adminEmail,
+    `New Course Submitted: ${courseTitle}`,
+    {
+      courseTitle,
+      teacherName,
+      teacherEmail,
+      courseLink: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/admin/verification/courses`
+    }
+  );
+}

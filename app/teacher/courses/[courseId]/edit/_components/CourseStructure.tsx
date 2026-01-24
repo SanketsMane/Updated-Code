@@ -371,8 +371,6 @@ export function CourseStructure({ data }: iAppProps) {
                                         href={`/teacher/courses/${data.id}/${item.id}/${lesson.id}`}
                                       >
                                         <Button size="icon" variant="ghost">
-                                          <g key="edit-icon"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" /></g>
-                                          {/* Using explicit SVG or Lucide icon if imported. Since Pencil not imported, using lucid icon name or adding import */}
                                           <Pencil className="size-4" />
                                         </Button>
                                       </Link>
