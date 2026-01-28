@@ -56,6 +56,7 @@ export async function updateSiteSettings(prevState: any, formData: FormData) {
                     instagram,
                     linkedin,
                     youtube,
+                    footerLinks: JSON.parse(formData.get("footerLinks") as string || "{}"),
                 },
             });
         } else {
@@ -72,6 +73,7 @@ export async function updateSiteSettings(prevState: any, formData: FormData) {
                     instagram,
                     linkedin,
                     youtube,
+                    footerLinks: JSON.parse(formData.get("footerLinks") as string || "{}"),
                 },
             });
         }

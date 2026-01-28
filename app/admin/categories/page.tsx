@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Layers } from "lucide-react";
 import { CategoryDialog } from "./_components/category-dialog";
 import { DeleteCategoryButton } from "./_components/delete-category-button";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -28,8 +29,7 @@ export default async function AdminCategoriesPage() {
     // TODO: Double check specific admin role logic if needed, but requireUser + middleware usually covers auth. 
     // Ideally checking role explicitly:
     if (user.role !== "admin") {
-        // Handle unauthorized (though middleware should catch this)
-        return <div>Unauthorized</div>;
+        return redirect("/");
     }
 
     const categories = await getCategories();

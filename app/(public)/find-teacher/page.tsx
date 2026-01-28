@@ -22,12 +22,19 @@ export default async function FindTeacherPage() {
         }
     });
 
+    // Fetch Advertised Packages (Group Classes)
+    const packages = await prisma.groupClass.findMany({
+        where: { isAdvertised: true, status: "Scheduled" },
+        include: { teacher: { include: { user: true } } },
+        orderBy: { scheduledAt: 'asc' }
+    });
+
     const featuredMentors = await getFeaturedMentors();
 
     const formattedTeachers = teachers.map(t => ({
         id: t.id,
         name: t.user.name || "Instructor",
-        image: t.user.image || "https://github.com/shadcn.png",
+        image: t.user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(t.user.name || "Instructor")}&background=random&color=fff&size=128`,
         headline: t.bio ? t.bio.substring(0, 50) + "..." : "Expert Instructor",
         rating: t.rating || 5.0,
         reviewCount: t.totalReviews,
@@ -40,5 +47,11 @@ export default async function FindTeacherPage() {
         availability: t.availability || {}
     }));
 
-    return <FindTeacherContent teachers={formattedTeachers} featuredMentors={featuredMentors} />;
+    const categories = await prisma.category.findMany({
+        where: { isActive: true },
+        select: { name: true },
+        orderBy: { name: 'asc' }
+    });
+
+    return <FindTeacherContent teachers={formattedTeachers} packages={packages} featuredMentors={featuredMentors} allCategories={categories.map(c => c.name)} />;
 }

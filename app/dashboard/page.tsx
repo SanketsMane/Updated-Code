@@ -23,11 +23,13 @@ export const dynamic = "force-dynamic";
 export default async function DashboardPage() {
   const session = await getSessionWithRole();
 
-  if (session) {
-    if (session.user.role === "admin") redirect("/admin");
-
-    // if (session.user.role === "teacher") redirect("/teacher"); // Allow teachers to view student dashboard
+  if (!session) {
+    redirect("/login");
   }
+
+  if (session.user.role === "admin") redirect("/admin");
+
+  // if (session.user.role === "teacher") redirect("/teacher"); // Allow teachers to view student dashboard
 
   const userId = session?.user?.id || '';
   const analytics = await getUserAnalytics(userId);

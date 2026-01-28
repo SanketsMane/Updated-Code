@@ -7,6 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
@@ -25,36 +33,67 @@ const benefits = [
   "Secure payments and analytics"
 ];
 
-const expertise = [
-  "Mathematics", "Science", "Programming", "Languages", "Arts", "Music",
-  "Business", "Engineering", "Medicine", "Law", "History", "Literature"
-];
-
 export default function TeacherRegisterPage() {
+  // Author: Sanket - All hooks must be declared at the top of the component
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
   const { data: session, isPending } = authClient.useSession();
 
-  useEffect(() => {
-    // Check if user is already authenticated
-    // if (session) {
-    //   setIsAuthenticated(true);
-    // }
-    // setIsCheckingAuth(false);
-  }, [session]);
-
-  useEffect(() => {
-    if (!isPending && !session) {
-      router.push("/register");
-    }
-  }, [isPending, session, router]);
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState("");
+  const [selectedExpertise, setSelectedExpertise] = useState("");
   const [formData, setFormData] = useState({
     bio: "",
     expertiseAreas: [] as string[],
     languages: [] as string[],
     hourlyRate: "",
   });
+  const [metadata, setMetadata] = useState<{ expertise: { id: string, name: string }[], languages: { id: string, name: string }[] }>({ expertise: [], languages: [] });
+  const [loadingMetadata, setLoadingMetadata] = useState(true);
+
+  // Load metadata on mount
+  useEffect(() => {
+    async function loadMetadata() {
+      try {
+        const { getMetadata } = await import("@/app/actions/metadata");
+        const data = await getMetadata();
+        setMetadata(data);
+      } catch (error) {
+        console.error("Failed to load metadata:", error);
+        toast.error("Failed to load options. Please refresh the page.");
+      } finally {
+        setLoadingMetadata(false);
+      }
+    }
+    loadMetadata();
+  }, []);
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!isPending && !session) {
+      router.push("/register");
+    }
+  }, [isPending, session, router]);
+
+  // Handler functions
+  const handleLanguageAddFromSelect = (value: string) => {
+    if (value && !formData.languages.includes(value)) {
+      setFormData(prev => ({
+        ...prev,
+        languages: [...prev.languages, value]
+      }));
+      setSelectedLanguage(""); // Reset selection
+    }
+  };
+
+  const handleExpertiseAddFromSelect = (value: string) => {
+    if (value && !formData.expertiseAreas.includes(value)) {
+      setFormData(prev => ({
+        ...prev,
+        expertiseAreas: [...prev.expertiseAreas, value]
+      }));
+      setSelectedExpertise(""); // Reset selection
+    }
+  };
 
 
 
@@ -238,18 +277,45 @@ export default function TeacherRegisterPage() {
                       <h3 className="text-lg font-semibold">Expertise Areas *</h3>
                       <p className="text-sm text-gray-600">Select the subjects you can teach (minimum 1)</p>
 
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                        {expertise.map((area) => (
-                          <Badge
-                            key={area}
-                            variant={formData.expertiseAreas.includes(area) ? "default" : "outline"}
-                            className={`cursor-pointer justify-center py-2 ${formData.expertiseAreas.includes(area) ? "bg-blue-600 hover:bg-blue-700" : "hover:bg-blue-100"}`}
-                            onClick={() => handleExpertiseToggle(area)}
-                          >
-                            {area}
-                          </Badge>
-                        ))}
-                      </div>
+                      {loadingMetadata ? (
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Loader2 className="h-4 w-4 animate-spin" /> Loading options...
+                        </div>
+                      ) : (
+                        <div className="space-y-4 pt-2">
+                          <div className="flex gap-2 max-w-sm">
+                            <Select
+                              value={selectedExpertise}
+                              onValueChange={(val) => handleExpertiseAddFromSelect(val)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a subject" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {metadata.expertise
+                                  .filter(e => !formData.expertiseAreas.includes(e.name))
+                                  .map((item) => (
+                                    <SelectItem key={item.id} value={item.name}>
+                                      {item.name}
+                                    </SelectItem>
+                                  ))
+                                }
+                                {metadata.expertise.length === 0 && (
+                                  <div className="p-2 text-center text-sm text-muted-foreground">No subjects available</div>
+                                )}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div className="flex flex-wrap gap-2">
+                            {formData.expertiseAreas.map((area) => (
+                              <Badge key={area} className="cursor-pointer" onClick={() => handleExpertiseToggle(area)}>
+                                {area} ×
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <Separator />
@@ -276,32 +342,32 @@ export default function TeacherRegisterPage() {
                       <div>
                         <Label htmlFor="languages">Languages You Speak *</Label>
                         <p className="text-xs text-gray-500">Add at least one language you can teach in</p>
-                        <div className="space-y-2">
-                          <div className="flex gap-2">
-                            <Input
-                              id="language-input"
-                              placeholder="Add a language"
-                              onKeyPress={(e) => {
-                                if (e.key === 'Enter') {
-                                  e.preventDefault();
-                                  handleLanguageAdd(e.currentTarget.value);
-                                  e.currentTarget.value = '';
-                                }
-                              }}
-                            />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              onClick={() => {
-                                const input = document.getElementById('language-input') as HTMLInputElement;
-                                if (input?.value) {
-                                  handleLanguageAdd(input.value);
-                                  input.value = '';
-                                }
-                              }}
+                        <div className="space-y-4 pt-2">
+                          <div className="flex gap-2 max-w-sm">
+                            <Select
+                              value={selectedLanguage}
+                              onValueChange={(val) => handleLanguageAddFromSelect(val)}
                             >
-                              Add
-                            </Button>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a language" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {loadingMetadata ? (
+                                  <div className="p-2 text-center text-sm text-muted-foreground">Loading...</div>
+                                ) : (
+                                  metadata.languages
+                                    .filter(l => !formData.languages.includes(l.name))
+                                    .map((lang) => (
+                                      <SelectItem key={lang.id} value={lang.name}>
+                                        {lang.name}
+                                      </SelectItem>
+                                    ))
+                                )}
+                                {!loadingMetadata && metadata.languages.length === 0 && (
+                                  <div className="p-2 text-center text-sm text-muted-foreground">No languages available</div>
+                                )}
+                              </SelectContent>
+                            </Select>
                           </div>
 
                           <div className="flex flex-wrap gap-2">
@@ -311,7 +377,6 @@ export default function TeacherRegisterPage() {
                               </Badge>
                             ))}
                           </div>
-                          <p className="text-xs text-muted-foreground">Press Enter or click Add to include a language</p>
                         </div>
                       </div>
                     </div>

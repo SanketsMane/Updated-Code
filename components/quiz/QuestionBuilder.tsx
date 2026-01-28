@@ -28,9 +28,9 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { 
-  Plus, 
-  Trash2, 
+import {
+  Plus,
+  Trash2,
   GripVertical,
   Check,
   X,
@@ -182,7 +182,7 @@ export function QuestionBuilder({ initialData, onSave, onCancel }: QuestionBuild
 
     const updateOption = (optionId: string, updates: Partial<typeof data.options[0]>) => {
       updateQuestionData({
-        options: data.options.map(opt => 
+        options: data.options.map(opt =>
           opt.id === optionId ? { ...opt, ...updates } : opt
         )
       });
@@ -210,14 +210,14 @@ export function QuestionBuilder({ initialData, onSave, onCancel }: QuestionBuild
               <Badge variant="secondary" className="min-w-[24px] text-center">
                 {String.fromCharCode(65 + index)}
               </Badge>
-              
+
               <Input
                 value={option.text}
                 onChange={(e) => updateOption(option.id, { text: e.target.value })}
                 placeholder={`Option ${String.fromCharCode(65 + index)}`}
                 className="flex-1"
               />
-              
+
               <div className="flex items-center gap-2">
                 <Switch
                   checked={option.isCorrect}
@@ -225,7 +225,7 @@ export function QuestionBuilder({ initialData, onSave, onCancel }: QuestionBuild
                 />
                 <Label className="text-sm">Correct</Label>
               </div>
-              
+
               <Button
                 type="button"
                 variant="ghost"
@@ -298,9 +298,9 @@ export function QuestionBuilder({ initialData, onSave, onCancel }: QuestionBuild
 
   // Short Answer Question Builder
   const ShortAnswerBuilder = () => {
-    const data = question.questionData as ShortAnswerData || { 
-      correctAnswers: [''], 
-      caseSensitive: false 
+    const data = question.questionData as ShortAnswerData || {
+      correctAnswers: [''],
+      caseSensitive: false
     };
 
     const addAnswer = () => {
@@ -397,8 +397,8 @@ export function QuestionBuilder({ initialData, onSave, onCancel }: QuestionBuild
           <Input
             type="number"
             value={data.maxWords || ''}
-            onChange={(e) => updateQuestionData({ 
-              maxWords: e.target.value ? parseInt(e.target.value) : undefined 
+            onChange={(e) => updateQuestionData({
+              maxWords: e.target.value ? parseInt(e.target.value) : undefined
             })}
             placeholder="e.g., 500"
             min={1}
@@ -410,14 +410,14 @@ export function QuestionBuilder({ initialData, onSave, onCancel }: QuestionBuild
 
   // Fill in the Blank Question Builder
   const FillInTheBlankBuilder = () => {
-    const data = question.questionData as FillInTheBlankData || { 
-      text: '', 
-      blanks: [] 
+    const data = question.questionData as FillInTheBlankData || {
+      text: '',
+      blanks: []
     };
 
     const updateBlank = (blankId: string, updates: any) => {
       updateQuestionData({
-        blanks: data.blanks.map(blank => 
+        blanks: data.blanks.map(blank =>
           blank.id === blankId ? { ...blank, ...updates } : blank
         )
       });
@@ -508,7 +508,7 @@ export function QuestionBuilder({ initialData, onSave, onCancel }: QuestionBuild
                       </Button>
                     </div>
                   ))}
-                  
+
                   <div className="flex items-center justify-between">
                     <Button
                       type="button"
@@ -519,7 +519,7 @@ export function QuestionBuilder({ initialData, onSave, onCancel }: QuestionBuild
                       <Plus className="h-4 w-4 mr-2" />
                       Add Answer
                     </Button>
-                    
+
                     <div className="flex items-center space-x-2">
                       <Switch
                         checked={blank.caseSensitive}
@@ -558,16 +558,16 @@ export function QuestionBuilder({ initialData, onSave, onCancel }: QuestionBuild
             <Label>Question Type</Label>
             <Select
               value={question.type}
-              onValueChange={(value) => setQuestion(prev => ({ 
-                ...prev, 
+              onValueChange={(value) => setQuestion(prev => ({
+                ...prev,
                 type: value as any,
                 questionData: value === 'MultipleChoice' ? { options: [] } :
-                             value === 'TrueFalse' ? { correctAnswer: true } :
-                             value === 'ShortAnswer' ? { correctAnswers: [''], caseSensitive: false } :
-                             value === 'LongAnswer' ? {} :
-                             value === 'FillInTheBlank' ? { text: '', blanks: [] } :
-                             value === 'Matching' ? { pairs: [] } :
-                             value === 'Ordering' ? { items: [] } : {}
+                  value === 'TrueFalse' ? { correctAnswer: true } :
+                    value === 'ShortAnswer' ? { correctAnswers: [''], caseSensitive: false } :
+                      value === 'LongAnswer' ? {} :
+                        value === 'FillInTheBlank' ? { text: '', blanks: [] } :
+                          value === 'Matching' ? { pairs: [] } :
+                            value === 'Ordering' ? { items: [] } : {}
               }))}
             >
               <SelectTrigger>
@@ -604,11 +604,11 @@ export function QuestionBuilder({ initialData, onSave, onCancel }: QuestionBuild
 
           {/* Question Type Specific Builders */}
           <div>
-            {question.type === 'MultipleChoice' && <MultipleChoiceBuilder />}
-            {question.type === 'TrueFalse' && <TrueFalseBuilder />}
-            {question.type === 'ShortAnswer' && <ShortAnswerBuilder />}
-            {question.type === 'LongAnswer' && <LongAnswerBuilder />}
-            {question.type === 'FillInTheBlank' && <FillInTheBlankBuilder />}
+            {question.type === 'MultipleChoice' && MultipleChoiceBuilder()}
+            {question.type === 'TrueFalse' && TrueFalseBuilder()}
+            {question.type === 'ShortAnswer' && ShortAnswerBuilder()}
+            {question.type === 'LongAnswer' && LongAnswerBuilder()}
+            {question.type === 'FillInTheBlank' && FillInTheBlankBuilder()}
           </div>
 
           {/* Explanation */}
@@ -652,9 +652,9 @@ export function QuestionBuilder({ initialData, onSave, onCancel }: QuestionBuild
             <Label>Difficulty Level</Label>
             <Select
               value={question.difficulty}
-              onValueChange={(value) => setQuestion(prev => ({ 
-                ...prev, 
-                difficulty: value as any 
+              onValueChange={(value) => setQuestion(prev => ({
+                ...prev,
+                difficulty: value as any
               }))}
             >
               <SelectTrigger>
@@ -680,9 +680,9 @@ export function QuestionBuilder({ initialData, onSave, onCancel }: QuestionBuild
               </div>
               <Switch
                 checked={question.isRequired}
-                onCheckedChange={(checked) => setQuestion(prev => ({ 
-                  ...prev, 
-                  isRequired: checked 
+                onCheckedChange={(checked) => setQuestion(prev => ({
+                  ...prev,
+                  isRequired: checked
                 }))}
               />
             </div>
@@ -697,9 +697,9 @@ export function QuestionBuilder({ initialData, onSave, onCancel }: QuestionBuild
                 </div>
                 <Switch
                   checked={question.partialCredit}
-                  onCheckedChange={(checked) => setQuestion(prev => ({ 
-                    ...prev, 
-                    partialCredit: checked 
+                  onCheckedChange={(checked) => setQuestion(prev => ({
+                    ...prev,
+                    partialCredit: checked
                   }))}
                 />
               </div>

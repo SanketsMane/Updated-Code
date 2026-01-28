@@ -17,7 +17,10 @@ import {
   CheckCircle2,
   Quote,
   Github,
-  User
+  User,
+  Eye,
+  EyeOff,
+  Lock
 } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -51,27 +54,47 @@ const testimonials = [
 export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [userType, setUserType] = useState<"student" | "teacher">("student");
+  const [loginMethod, setLoginMethod] = useState<"password" | "otp">("password");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      await authClient.emailOtp.sendVerificationOtp({
-        email: email,
-        type: "sign-in",
-      }, {
-        onSuccess: () => {
-          toast.success("Email sent! Check your inbox.");
-          router.push(`/verify-request?email=${email}`);
-        },
-        onError: (ctx) => {
-          toast.error(ctx.error.message || "Error sending email");
-          setIsLoading(false);
-        }
-      });
+      if (loginMethod === "password") {
+        // Password-based login - Author: Sanket
+        await authClient.signIn.email({
+          email: email,
+          password: password,
+        }, {
+          onSuccess: () => {
+            toast.success("Login successful!");
+            router.push("/dashboard");
+          },
+          onError: (ctx) => {
+            toast.error(ctx.error.message || "Invalid email or password");
+            setIsLoading(false);
+          }
+        });
+      } else {
+        // OTP-based login - Author: Sanket
+        await authClient.emailOtp.sendVerificationOtp({
+          email: email,
+          type: "sign-in",
+        }, {
+          onSuccess: () => {
+            toast.success("Email sent! Check your inbox.");
+            router.push(`/verify-request?email=${email}`);
+          },
+          onError: (ctx) => {
+            toast.error(ctx.error.message || "Error sending email");
+            setIsLoading(false);
+          }
+        });
+      }
     } catch (error) {
       console.error(error);
       toast.error("An unexpected error occurred");
@@ -158,22 +181,28 @@ export default function LoginPage() {
         <div className="w-full max-w-md space-y-8">
           <div className="text-center lg:text-left">
             <h2 className="text-3xl font-bold tracking-tight">Welcome Back</h2>
-            <p className="text-muted-foreground mt-2">Enter your email to receive a login code.</p>
+            <p className="text-muted-foreground mt-2">
+              {loginMethod === "password"
+                ? "Enter your email and password to login."
+                : "Enter your email to receive a login code."}
+            </p>
           </div>
 
-          {/* Role Switcher */}
+          {/* Login Method Toggle - Author: Sanket */}
           <div className="grid grid-cols-2 p-1 bg-secondary/50 rounded-xl relative">
             <button
-              onClick={() => setUserType("student")}
-              className={`text-sm font-semibold py-2.5 rounded-lg transition-all duration-300 ${userType === "student" ? "bg-white shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"}`}
+              type="button"
+              onClick={() => setLoginMethod("password")}
+              className={`text-sm font-semibold py-2.5 rounded-lg transition-all duration-300 ${loginMethod === "password" ? "bg-white shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"}`}
             >
-              I'm a Student
+              Password
             </button>
             <button
-              onClick={() => setUserType("teacher")}
-              className={`text-sm font-semibold py-2.5 rounded-lg transition-all duration-300 ${userType === "teacher" ? "bg-white shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"}`}
+              type="button"
+              onClick={() => setLoginMethod("otp")}
+              className={`text-sm font-semibold py-2.5 rounded-lg transition-all duration-300 ${loginMethod === "otp" ? "bg-white shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"}`}
             >
-              I'm a Teacher
+              OTP Code
             </button>
           </div>
 
@@ -194,8 +223,46 @@ export default function LoginPage() {
               </div>
             </div>
 
+            {/* Password Field - Author: Sanket */}
+            {loginMethod === "password" && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Password</Label>
+                  <Link
+                    href="/forgot-password"
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-10 pr-10 bg-secondary/20 h-11"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+
             <Button type="submit" className="w-full h-11 font-bold shadow-lg shadow-primary/20" disabled={isLoading}>
-              {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : "Continue with Email"}
+              {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : loginMethod === "password" ? "Login" : "Continue with Email"}
               {!isLoading && <ArrowRight className="w-4 h-4 ml-2" />}
             </Button>
           </form>

@@ -27,11 +27,13 @@ import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
 import { HomeIcon, Tv2 } from "lucide-react";
 import { useSignOut } from "@/hooks/use-singout";
+import { useRouter } from "next/navigation";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
   const { data: session, isPending } = authClient.useSession();
   const handleSignOut = useSignOut();
+  const router = useRouter();
 
   if (isPending) {
     return null;
@@ -40,6 +42,12 @@ export function NavUser() {
   const role = session?.user.role;
   const dashboardLink = role === "admin" ? "/admin" : role === "teacher" ? "/teacher" : "/dashboard";
   const coursesLink = role === "admin" ? "/admin/courses" : role === "teacher" ? "/teacher/courses" : "/dashboard/courses";
+
+  // Navigation handler - Author: Sanket
+  const handleNavigation = (path: string) => {
+    console.log("Navigating to:", path);
+    router.push(path);
+  };
 
   return (
     <SidebarMenu>
@@ -53,8 +61,9 @@ export function NavUser() {
               <Avatar className="h-8 w-8 rounded-lg ">
                 <AvatarImage
                   src={
-                    session?.user.image ??
-                    `https://avatar.vercel.sh/${session?.user.email}`
+                    session?.user.image && session.user.image.trim() !== ""
+                      ? session.user.image
+                      : `https://avatar.vercel.sh/${session?.user.email}`
                   }
                   alt={session?.user.name}
                 />
@@ -88,8 +97,9 @@ export function NavUser() {
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage
                     src={
-                      session?.user.image ??
-                      `https://avatar.vercel.sh/${session?.user.email}`
+                      session?.user.image && session.user.image.trim() !== ""
+                        ? session.user.image
+                        : `https://avatar.vercel.sh/${session?.user.email}`
                     }
                     alt={session?.user.name}
                   />
@@ -113,29 +123,21 @@ export function NavUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem asChild>
-                <Link href="/">
-                  <HomeIcon />
-                  Homepage
-                </Link>
+              <DropdownMenuItem onClick={() => handleNavigation("/")}>
+                <HomeIcon />
+                Homepage
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href={dashboardLink}>
-                  <IconDashboard />
-                  Dashboard
-                </Link>
+              <DropdownMenuItem onClick={() => handleNavigation(dashboardLink)}>
+                <IconDashboard />
+                Dashboard
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href={coursesLink}>
-                  <Tv2 />
-                  Courses
-                </Link>
+              <DropdownMenuItem onClick={() => handleNavigation(coursesLink)}>
+                <Tv2 />
+                Courses
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href={role === "admin" ? "/admin/settings" : "/dashboard/settings"}>
-                  <IconSettings />
-                  Settings & Profile
-                </Link>
+              <DropdownMenuItem onClick={() => handleNavigation(role === "admin" ? "/admin/settings" : "/dashboard/settings")}>
+                <IconSettings />
+                Settings & Profile
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

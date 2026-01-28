@@ -18,27 +18,57 @@ interface FileUploadProps {
 export function FileUpload({ value, onChange, label = "Upload Image", disabled }: FileUploadProps) {
     const [isUploading, setIsUploading] = useState(false);
 
+    // Author: Sanket - Use S3 presigned URLs for direct upload (no server proxy, no size limits)
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
         setIsUploading(true);
         try {
-            const formData = new FormData();
-            formData.append("file", file);
-
-            const response = await fetch("/api/upload/proxy", {
+            // Step 1: Get presigned URL from API
+            const presignResponse = await fetch("/api/s3/upload", {
                 method: "POST",
-                body: formData,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    fileName: file.name,
+                    contentType: file.type,
+                    size: file.size,
+                    isImage: true,
+                }),
             });
 
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.error || "Upload failed");
+            if (!presignResponse.ok) {
+                const error = await presignResponse.json();
+                throw new Error(error.error || "Failed to get upload URL");
             }
 
-            const data = await response.json();
-            onChange(data.url);
+            const { presignedUrl, key, contentType } = await presignResponse.json();
+
+            // Step 2: Upload directly to S3 using presigned URL
+            // IMPORTANT: Use the contentType from API response to match presigned URL signature
+            const uploadResponse = await fetch(presignedUrl, {
+                method: "PUT",
+                body: file,
+                headers: {
+                    "Content-Type": contentType, // Use exact contentType from API
+                },
+            });
+
+            if (!uploadResponse.ok) {
+                // Log the actual S3 error for debugging
+                const errorText = await uploadResponse.text();
+                console.error("S3 Upload Error:", {
+                    status: uploadResponse.status,
+                    statusText: uploadResponse.statusText,
+                    body: errorText,
+                    headers: Object.fromEntries(uploadResponse.headers.entries())
+                });
+                throw new Error(`Upload failed with status ${uploadResponse.status}: ${errorText}`);
+            }
+
+            // Construct the S3 URL from the key
+            const s3Url = `https://${process.env.NEXT_PUBLIC_S3_BUCKET_NAME_IMAGES}.s3.eu-north-1.amazonaws.com/${key}`;
+            onChange(s3Url);
             toast.success("Image uploaded successfully");
         } catch (error: any) {
             console.error("Upload error:", error);

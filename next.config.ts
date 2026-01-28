@@ -45,6 +45,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "lh3.googleusercontent.com",
+      },
+      {
+        protocol: "https",
+        hostname: "kidokool-sanket-dev.s3.us-west-2.amazonaws.com",
       }
     ],
   },

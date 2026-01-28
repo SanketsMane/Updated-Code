@@ -53,8 +53,47 @@ model User {
   whiteboardElements          WhiteboardElement[]
   whiteboardParticipation     WhiteboardParticipant[]  @relation("WhiteboardParticipants")
   createdWhiteboards          Whiteboard[]             @relation("WhiteboardCreator")
+  refundRequests              RefundRequest[]
+  issues                      Issue[]
+  wallet                      Wallet?
 
   @@map("user")
+}
+
+// ... existing models ...
+
+model Issue {
+  id          String      @id @default(cuid())
+  reporterId  String
+  subject     String
+  description String
+  status      IssueStatus @default(Open)
+  priority    Priority    @default(Medium)
+  category    String
+  
+  isEscalated Boolean     @default(false)
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  reporter    User        @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  
+  @@map("issues")
+}
+
+enum IssueStatus {
+  Open
+  InProgress
+  Resolved
+  Escalated
+  Closed
+}
+
+enum Priority {
+  Low
+  Medium
+  High
+  Critical
 }
 
 model Session {
@@ -142,6 +181,7 @@ model Course {
   videoRooms       VideoRoom[]
   whiteboards      Whiteboard[]
   resources        Resource[]
+  refundRequests   RefundRequest[]
 }
 
 model Chapter {
@@ -223,7 +263,7 @@ model TeacherProfile {
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
   experience          Int?
-  commissions         Commission[]
+  commissions         Commission[]          @relation("TeacherCommissions")
   groupClasses        GroupClass[]
   liveSessions        LiveSession[]
   reviews             Review[]              @relation("TeacherReviews")
@@ -337,12 +377,21 @@ model GroupClass {
   updatedAt   DateTime          @updatedAt
   teacher     TeacherProfile    @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   enrollments GroupEnrollment[]
+
+  // Package / Ads fields
+  isAdvertised    Boolean          @default(false)
+  bannerUrl       String?
+  
+  // Chat
+  chatGroupId     String?          
+  conversation    Conversation?    @relation("GroupClassChat", fields: [chatGroupId], references: [id])
 }
 
 model GroupEnrollment {
   id         String     @id @default(uuid())
   classId    String
   studentId  String
+  status     EnrollmentStatus @default(Pending)
   enrolledAt DateTime   @default(now())
   class      GroupClass @relation(fields: [classId], references: [id], onDelete: Cascade)
   student    User       @relation("GroupEnrollments", fields: [studentId], references: [id], onDelete: Cascade)
@@ -395,20 +444,27 @@ model Tag {
 }
 
 model Commission {
-  id                String            @id @default(uuid())
+  id                String             @id @default(uuid())
   teacherId         String
   courseId          String?
   sessionId         String?
   type              CommissionType
-  amount            Int
-  commission        Int
+  amount            Int                // Net amount for teacher
+  commission        Int                // Platform fee (deprecated, use commissionAmount)
+  commissionAmount  Int?               // Platform fee amount (new field)
   netAmount         Int
-  status            PayoutStatus      @default(Pending)
+  status            CommissionStatus   @default(Pending)
+  description       String?
+  metadata          Json?
   paidAt            DateTime?
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  teacher           TeacherProfile    @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-  payoutCommissions PayoutCommission? @relation("PayoutCommissions")
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  teacher           TeacherProfile     @relation("TeacherCommissions", fields: [teacherId], references: [id], onDelete: Cascade)
+  payoutCommissions PayoutCommission[] @relation("PayoutCommissions")
+  
+  @@index([teacherId])
+  @@index([status])
+  @@map("commissions")
 }
 
 model Notification {
@@ -438,6 +494,7 @@ model Conversation {
   participant1   User      @relation("ConversationParticipant1", fields: [participant1Id], references: [id], onDelete: Cascade)
   participant2   User      @relation("ConversationParticipant2", fields: [participant2Id], references: [id], onDelete: Cascade)
   messages       Message[] @relation("ConversationMessages")
+  groupClasses   GroupClass[] @relation("GroupClassChat")
 
   @@unique([participant1Id, participant2Id])
 }
@@ -538,6 +595,7 @@ model SiteSettings {
   instagram      String?
   linkedin       String?
   youtube        String?
+  footerLinks    Json?
   updatedAt      DateTime @updatedAt
 }
 
@@ -1113,6 +1171,13 @@ enum CommissionType {
   GroupClass
 }
 
+enum CommissionStatus {
+  Pending
+  Approved
+  PaidOut
+  Cancelled
+}
+
 enum PayoutStatus {
   Pending
   Processing
@@ -1296,4 +1361,91 @@ model Resource {
   @@index([teacherId])
   @@index([courseId])
   @@map("resources")
+}
+
+model RefundRequest {
+  id              String       @id @default(cuid())
+  userId          String
+  amount          Int
+  reason          String
+  status          RefundStatus @default(Pending)
+  adminNotes      String?
+  processedAt     DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId        String?
+  course          Course?      @relation(fields: [courseId], references: [id])
+  
+  @@map("refund_requests")
+}
+
+enum RefundStatus {
+  Pending
+  Approved
+  Rejected
+  Processed
+}
+
+// Wallet System Models
+model Wallet {
+  id            String              @id @default(uuid())
+  userId        String              @unique
+  balance       Int                 @default(0) // Balance in points (1 point = ₹1)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  
+  user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions  WalletTransaction[]
+  
+  @@map("wallets")
+}
+
+model WalletTransaction {
+  id              String                @id @default(uuid())
+  walletId        String
+  type            WalletTransactionType
+  amount          Int                   // Amount in points (positive for credit, negative for debit)
+  balanceBefore   Int
+  balanceAfter    Int
+  description     String
+  metadata        Json?                 // Store course/session/group details
+  stripeSessionId String?               // For recharge transactions
+  createdAt       DateTime              @default(now())
+  
+  wallet          Wallet                @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  
+  @@index([walletId])
+  @@index([createdAt])
+  @@map("wallet_transactions")
+}
+
+enum WalletTransactionType {
+  RECHARGE          // Adding money to wallet
+  COURSE_PURCHASE   // Buying a course
+  SESSION_BOOKING   // Booking live session
+  GROUP_ENROLLMENT  // Joining group class
+  REFUND            // Money returned
+  ADMIN_CREDIT      // Admin added balance
+  ADMIN_DEBIT       // Admin removed balance
+}
+
+model Expertise {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("expertise")
+}
+
+model Language {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("languages")
 }

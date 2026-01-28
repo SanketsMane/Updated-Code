@@ -57,19 +57,9 @@ export function Navbar() {
         </Link>
 
         {/* Categories / Desktop Nav */}
-        <div className="hidden md:flex flex-1 items-center gap-6">
+        <div className="hidden md:flex flex-1 items-center justify-center gap-6">
           {/* Simple functional search bar placeholder - Udemy Style */}
-          <div className="flex-1 max-w-xl relative">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input
-                type="text"
-                suppressHydrationWarning
-                placeholder="Search for anything"
-                className="w-full pl-10 pr-4 py-2.5 rounded-full border border-gray-300 bg-gray-50 text-sm focus:outline-none focus:border-primary focus:bg-white transition-all placeholder:text-gray-500 text-gray-800"
-              />
-            </div>
-          </div>
+
 
           {/* Integrated New Menu Component */}
           <div className="flex items-center text-sm font-medium text-foreground">

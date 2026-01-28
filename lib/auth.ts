@@ -83,10 +83,15 @@ const authOptions = {
   ],
 };
 
-const globalAuth = global as unknown as { auth: ReturnType<typeof betterAuth> };
+// Singleton pattern to prevent multiple Better Auth instances - Author: Sanket
+// This is critical for async local storage to work correctly
+const globalForAuth = globalThis as unknown as {
+  auth: ReturnType<typeof betterAuth> | undefined;
+};
 
-export const auth = globalAuth.auth || betterAuth(authOptions);
+export const auth = globalForAuth.auth ?? betterAuth(authOptions);
 
-if (process.env.NODE_ENV !== "production") {
-  globalAuth.auth = auth;
+// Always cache the instance globally, not just in development
+if (!globalForAuth.auth) {
+  globalForAuth.auth = auth;
 }

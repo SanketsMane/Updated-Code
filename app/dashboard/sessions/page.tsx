@@ -5,10 +5,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Video } from "lucide-react";
+import {
+  Video,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Calendar,
+  Clock,
+  User,
+  Star,
+  Download,
+  MessageSquare,
+  ExternalLink
+} from "lucide-react";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { StudentSessionCard } from "./_components/StudentSessionCard";
+import { SuccessHandler } from "./_components/SuccessHandler";
 
 export const dynamic = "force-dynamic";
 
@@ -57,6 +70,10 @@ export default async function SessionsDashboard() {
           </Button>
         </Link>
       </div>
+
+      <Suspense fallback={null}>
+        <SuccessHandler />
+      </Suspense>
 
       {/* Session Tabs */}
       <Tabs defaultValue="upcoming" className="space-y-6">
@@ -111,13 +128,13 @@ async function SessionsList({ userId, filter }: { userId: string; filter: string
       break;
     case "completed":
       filteredBookings = bookings.filter(b =>
-        b.session.status === "completed" || b.session.status === "Completed"
+        b.session.status === "completed"
       );
       break;
     case "cancelled":
       filteredBookings = bookings.filter(b =>
         b.status === "cancelled" || b.status === "refunded" ||
-        b.session.status === "cancelled" || b.session.status === "Cancelled"
+        b.session.status === "cancelled"
       );
       break;
     default:
@@ -150,6 +167,7 @@ async function SessionsList({ userId, filter }: { userId: string; filter: string
   return (
     <div className="space-y-4">
       {filteredBookings.map((booking) => (
+        // @ts-ignore - Subject nullable mismatch
         <StudentSessionCard key={booking.id} booking={booking} />
       ))}
     </div>
@@ -159,20 +177,20 @@ async function SessionsList({ userId, filter }: { userId: string; filter: string
 function SessionCard({ session }: { session: any }) {
   const sessionDate = new Date(session.scheduledAt);
   const now = new Date();
-  const isUpcoming = sessionDate > now && session.status === "Scheduled";
+  const isUpcoming = sessionDate > now && session.status === "scheduled";
   const canJoin = isUpcoming && sessionDate <= new Date(now.getTime() + 15 * 60000); // 15 minutes before
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Scheduled":
+      case "scheduled":
         return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400";
-      case "Completed":
+      case "completed":
         return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400";
-      case "Cancelled":
+      case "cancelled":
         return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400";
-      case "NoShow":
+      case "no_show":
         return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400";
-      case "InProgress":
+      case "in_progress":
         return "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400";
       default:
         return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400";
@@ -184,12 +202,11 @@ function SessionCard({ session }: { session: any }) {
       case "scheduled":
       case "in_progress":
       case "completed":
-      case "cancelled":
         return <CheckCircle className="h-4 w-4" />;
-      case "Cancelled":
-      case "NoShow":
+      case "cancelled":
+      case "no_show":
         return <XCircle className="h-4 w-4" />;
-      case "InProgress":
+      case "in_progress":
         return <Video className="h-4 w-4" />;
       default:
         return <AlertCircle className="h-4 w-4" />;

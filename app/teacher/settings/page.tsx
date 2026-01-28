@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Settings, User, Bell, Lock, DollarSign, Calendar } from "lucide-react";
+import { ChangePasswordForm } from "@/components/settings/ChangePasswordForm";
 
 export const dynamic = "force-dynamic";
 
@@ -44,9 +45,9 @@ export default async function TeacherSettingsPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="bio">Bio</Label>
-              <Textarea 
-                id="bio" 
-                placeholder="Tell students about your teaching experience..." 
+              <Textarea
+                id="bio"
+                placeholder="Tell students about your teaching experience..."
                 rows={4}
               />
             </div>
@@ -153,20 +154,8 @@ export default async function TeacherSettingsPage() {
           </CardContent>
         </Card>
 
-        {/* Security Settings */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Lock className="h-5 w-5" />
-              Security
-            </CardTitle>
-            <CardDescription>Manage your account security</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Button variant="outline">Change Password</Button>
-            <Button variant="outline">Enable Two-Factor Authentication</Button>
-          </CardContent>
-        </Card>
+        {/* Password Change Section - Author: Sanket */}
+        <ChangePasswordForm />
       </div>
     </div>
   );

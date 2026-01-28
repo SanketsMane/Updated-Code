@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { Uploader } from "@/components/file-uploader/Uploader";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { ChangePasswordForm } from "@/components/settings/ChangePasswordForm";
 
 const initialState = {
     message: "",
@@ -221,6 +222,9 @@ export function SettingsForm({ user, preferences, categories }: SettingsFormProp
                     </Button>
                 </div>
             </form>
+
+            {/* Password Change Section - Author: Sanket */}
+            <ChangePasswordForm />
         </div>
     );
 }

@@ -54,6 +54,7 @@ export function PublicCourseCard({ data }: iAppProps) {
           src={thumbnailUrl}
           alt={data.title}
           fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover transition-transform duration-700 group-hover:scale-105"
         />
         <div className="absolute top-3 right-3 z-20">
@@ -80,9 +81,20 @@ export function PublicCourseCard({ data }: iAppProps) {
 
         {/* Hover Overlay Actions */}
         <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 z-20">
-          <Button variant="secondary" size="sm" className="font-bold shadow-lg translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-            View Details
-          </Button>
+          {(data as any).isEnrolled && (data as any).firstChapterId ? (
+            <Link href={`/courses/${data.slug}/chapters/${(data as any).firstChapterId}`}>
+              <Button variant="default" size="sm" className="font-bold shadow-lg translate-y-4 group-hover:translate-y-0 transition-transform duration-300 bg-emerald-600 hover:bg-emerald-700">
+                <Play className="w-4 h-4 mr-2" />
+                Continue
+              </Button>
+            </Link>
+          ) : (
+            <Link href={`/courses/${data.slug}`}>
+              <Button variant="secondary" size="sm" className="font-bold shadow-lg translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                View Details
+              </Button>
+            </Link>
+          )}
         </div>
 
         {/* Level Badge */}
@@ -108,7 +120,7 @@ export function PublicCourseCard({ data }: iAppProps) {
 
         {/* Title */}
         <Link
-          href={`/courses/${data.slug}`}
+          href={(data as any).isEnrolled && (data as any).firstChapterId ? `/courses/${data.slug}/chapters/${(data as any).firstChapterId}` : `/courses/${data.slug}`}
           className="font-bold text-[#011E21] dark:text-white text-lg leading-snug line-clamp-2 group-hover:text-primary transition-colors"
         >
           {data.title}
@@ -133,7 +145,9 @@ export function PublicCourseCard({ data }: iAppProps) {
             </div>
             <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">{(data as any).user?.name || "Expert Instructor"}</span>
           </div>
-          <span className="text-xl font-bold text-[#011E21] dark:text-white">₹{data.price}</span>
+          <span className="text-xl font-bold text-[#011E21] dark:text-white">
+            {(data as any).isEnrolled ? <span className="text-emerald-600 text-sm">Owned</span> : `₹${data.price}`}
+          </span>
         </div>
       </div>
     </motion.div>

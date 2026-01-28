@@ -35,14 +35,7 @@ export default async function LiveSessionsPage() {
   return (
     <div className="min-h-screen bg-background font-sans text-foreground">
       {/* Live Now Tray - Using latest sessions as "Live" for demo */}
-      <LiveNowTray sessions={sessions.slice(0, 3).map(s => ({
-        id: s.id,
-        title: s.title,
-        instructor: s.teacher.user.name || "Instructor",
-        image: s.teacher.user.image || "/placeholder-user.jpg",
-        viewers: Math.floor(Math.random() * 50) + 10, // Mock viewers for now
-        topic: "Education"
-      }))} />
+      {/* LiveNowTray removed as per request */}
 
       {/* Clean Hero Section */}
       <section className="relative overflow-hidden bg-white dark:bg-black py-20 lg:py-28 border-b border-gray-100 dark:border-gray-800">

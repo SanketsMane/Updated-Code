@@ -54,32 +54,57 @@ export function Uploader({ onChange, value, fileTypeAccepted }: iAppProps) {
         progress: 0,
       }));
 
-      // MOCKED UPLOAD implementation for testing
+      // Author: Sanket - Real S3 upload using presigned URLs
       try {
-        console.log("Mocking upload for file:", file.name);
+        // Step 1: Get presigned URL from our API
+        setFileState((prev) => ({ ...prev, progress: 10 }));
 
-        // Pseudo progress updates
+        const presignResponse = await fetch("/api/s3/upload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fileName: file.name,
+            contentType: file.type,
+            size: file.size,
+            isImage: fileTypeAccepted === "image",
+          }),
+        });
+
+        if (!presignResponse.ok) {
+          const error = await presignResponse.json();
+          throw new Error(error.error || "Failed to get upload URL");
+        }
+
+        const { presignedUrl, key, contentType } = await presignResponse.json();
         setFileState((prev) => ({ ...prev, progress: 20 }));
-        await new Promise(resolve => setTimeout(resolve, 500));
-        setFileState((prev) => ({ ...prev, progress: 60 }));
-        await new Promise(resolve => setTimeout(resolve, 500));
-        setFileState((prev) => ({ ...prev, progress: 90 }));
-        await new Promise(resolve => setTimeout(resolve, 500));
 
-        const dummyKey = `mock-upload-${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
+        // Step 2: Upload file directly to S3 using presigned URL
+        // IMPORTANT: Use exact contentType from API to match signature
+        const uploadResponse = await fetch(presignedUrl, {
+          method: "PUT",
+          body: file,
+          headers: {
+            "Content-Type": contentType,
+          },
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error(`S3 upload failed with status ${uploadResponse.status}`);
+        }
 
         setFileState((prev) => ({
           ...prev,
           progress: 100,
           uploading: false,
-          key: dummyKey,
+          key: key,
         }));
 
-        onChange?.(dummyKey);
-        toast.success("File uploaded successfully (MOCKED)");
+        // Return the S3 key (not the full URL) to maintain consistency
+        onChange?.(key);
+        toast.success("File uploaded successfully");
       } catch (error) {
-        console.error("Mock upload error:", error);
-        toast.error("Mock upload failed");
+        console.error("Upload error:", error);
+        toast.error(error instanceof Error ? error.message : "Upload failed");
         setFileState((prev) => ({
           ...prev,
           uploading: false,

@@ -5,6 +5,7 @@ import { MentorMatchWizard } from "@/components/marketing/MentorMatchWizard";
 import { HorizontalTeacherCard } from "@/components/marketing/HorizontalTeacherCard";
 import { ShieldCheck, Search, SlidersHorizontal, ChevronDown, X, ArrowUp, Filter, Star } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
+import { PackagesList } from "@/components/mentors/PackagesList";
 
 
 import Link from "next/link";
@@ -16,6 +17,9 @@ import { FeaturedMentorCarousel } from "@/components/marketing/FeaturedMentorCar
 import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
 import { FeaturedMentor } from "@/app/data/marketing/get-marketing-data";
@@ -38,18 +42,22 @@ export interface TeacherWithProfile {
 interface FindTeacherContentProps {
     teachers: TeacherWithProfile[];
     featuredMentors: FeaturedMentor[];
+    allCategories?: string[];
+    packages?: any[];
 }
 
-export function FindTeacherContent({ teachers, featuredMentors }: FindTeacherContentProps) {
+export function FindTeacherContent({ teachers, featuredMentors, allCategories = [], packages = [] }: FindTeacherContentProps) {
     const [searchQuery, setSearchQuery] = useState("");
-    const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [categorySearch, setCategorySearch] = useState("");
+    const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+
     const [selectedAvailability, setSelectedAvailability] = useState<string[]>([]);
     const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
     const [sortBy, setSortBy] = useState("popularity");
     const [showScrollTop, setShowScrollTop] = useState(false);
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-    const languages = ["English", "Spanish", "French", "German", "Japanese"];
     const availabilityOptions = ["Instant Booking", "Free Trial", "Weekends"];
 
     // Filter and search logic
@@ -59,23 +67,22 @@ export function FindTeacherContent({ teachers, featuredMentors }: FindTeacherCon
             return [];
         }
 
-        return teachers.filter(teacher => {
+        const filtered = teachers.filter(teacher => {
             // Search filter
             const matchesSearch = searchQuery === "" ||
                 teacher.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 teacher.headline.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 teacher.teaches.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
 
-            // Language filter
-            const matchesLanguage = selectedLanguages.length === 0 ||
-                selectedLanguages.some(lang =>
-                    teacher.speaks.some(s => s.toLowerCase().includes(lang.toLowerCase()))
-                );
+            // Category filter
+            const matchesCategory = !selectedCategory ||
+                teacher.teaches.some(t => t.toLowerCase() === selectedCategory.toLowerCase());
 
             // Price filter
-            const matchesPrice = teacher.hourlyRate >= priceRange[0] && teacher.hourlyRate <= priceRange[1];
+            const isMaxPrice = priceRange[1] === 10000;
+            const matchesPrice = teacher.hourlyRate >= priceRange[0] && (isMaxPrice ? true : teacher.hourlyRate <= priceRange[1]);
 
-            return matchesSearch && matchesLanguage && matchesPrice;
+            return matchesSearch && matchesCategory && matchesPrice;
         });
 
         // Sorting Logic
@@ -89,16 +96,13 @@ export function FindTeacherContent({ teachers, featuredMentors }: FindTeacherCon
                     return b.rating - a.rating;
                 case "newest":
                     // Assuming higher ID or another field proxies for newest if createdAt isn't available
-                    // If we had createdAt in the interface we would use it. 
-                    // For now, let's assume standard ID sort or just keep original order if not available.
-                    // The interface doesn't have createdAt. Let's fallback to original order (often by db id).
                     return 0;
                 case "popularity":
                 default:
                     return b.reviewCount - a.reviewCount; // Popularity by review count
             }
         });
-    }, [searchQuery, selectedLanguages, priceRange, sortBy, teachers]);
+    }, [searchQuery, selectedCategory, priceRange, sortBy, teachers]);
 
     // Scroll detection
     useEffect(() => {
@@ -113,12 +117,6 @@ export function FindTeacherContent({ teachers, featuredMentors }: FindTeacherCon
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
-    const toggleLanguage = (lang: string) => {
-        setSelectedLanguages(prev =>
-            prev.includes(lang) ? prev.filter(l => l !== lang) : [...prev, lang]
-        );
-    };
-
     const toggleAvailability = (opt: string) => {
         setSelectedAvailability(prev =>
             prev.includes(opt) ? prev.filter(o => o !== opt) : [...prev, opt]
@@ -127,12 +125,12 @@ export function FindTeacherContent({ teachers, featuredMentors }: FindTeacherCon
 
     const clearAllFilters = () => {
         setSearchQuery("");
-        setSelectedLanguages([]);
+        setSelectedCategory(null);
         setSelectedAvailability([]);
-        setPriceRange([500, 5000]);
+        setPriceRange([0, 10000]);
     };
 
-    const activeFiltersCount = selectedLanguages.length + selectedAvailability.length;
+    const activeFiltersCount = (selectedCategory ? 1 : 0) + selectedAvailability.length;
 
     return (
         <div className="min-h-screen bg-neutral-50 dark:bg-[#0f172a] font-sans text-slate-900 dark:text-slate-50 pb-20">
@@ -251,17 +249,16 @@ export function FindTeacherContent({ teachers, featuredMentors }: FindTeacherCon
                                 className="mt-8 flex flex-wrap items-center justify-center gap-2"
                             >
                                 <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 mr-2">Active Filters:</span>
-                                {selectedLanguages.map(lang => (
+                                {selectedCategory && (
                                     <Badge
-                                        key={lang}
                                         variant="secondary"
                                         className="bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/40 dark:text-blue-300 dark:border-blue-800 hover:bg-blue-200 cursor-pointer gap-1 pl-3 pr-2 py-1.5"
-                                        onClick={() => toggleLanguage(lang)}
+                                        onClick={() => setSelectedCategory(null)}
                                     >
-                                        {lang}
+                                        Category: {selectedCategory}
                                         <X className="h-3 w-3" />
                                     </Badge>
-                                ))}
+                                )}
                                 {activeFiltersCount > 0 && (
                                     <Button
                                         variant="ghost"
@@ -278,8 +275,7 @@ export function FindTeacherContent({ teachers, featuredMentors }: FindTeacherCon
                 </div>
             </div>
 
-            {/* Trending Ticker - Kept as is or simplified coloring */}
-            <TopicTicker />
+            {/* TopicTicker removed as per request */}
 
             <div className="container mx-auto px-6 max-w-7xl py-10">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -287,14 +283,7 @@ export function FindTeacherContent({ teachers, featuredMentors }: FindTeacherCon
                     {/* Sidebar Filters */}
                     <div className="lg:col-span-3 hidden lg:block space-y-6">
                         <div className="bg-white dark:bg-[#1e293b] p-6 rounded-2xl border border-slate-200 dark:border-slate-800 sticky top-24 shadow-sm">
-                            <div className="mb-8">
-                                <MentorMatchWizard />
-                            </div>
-
-                            {/* Featured Carousel in Sidebar */}
-                            <div className="mb-6 pb-6 border-b border-slate-100 dark:border-slate-800">
-                                <FeaturedMentorCarousel mentors={featuredMentors} />
-                            </div>
+                            {/* Removed MentorMatchWizard and FeaturedMentorCarousel as per request */}
 
                             <div className="flex items-center justify-between mb-6">
                                 <h3 className="font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2">
@@ -315,32 +304,61 @@ export function FindTeacherContent({ teachers, featuredMentors }: FindTeacherCon
                             {/* Filter Groups */}
                             <div className="space-y-6">
                                 {/* Languages */}
+                                {/* Categories / Profile Filter */}
                                 <div className="space-y-3">
                                     <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-                                        Spoken Language <ChevronDown className="w-4 h-4 text-slate-400" />
+                                        Profile
                                     </h4>
-                                    <div className="space-y-2">
-                                        {languages.map(lang => (
-                                            <motion.div
-                                                key={lang}
-                                                className="flex items-center space-x-2"
-                                                whileHover={{ x: 2 }}
+
+                                    <Popover open={isCategoryOpen} onOpenChange={setIsCategoryOpen}>
+                                        <PopoverTrigger asChild>
+                                            <div
+                                                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm flex items-center justify-between cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-colors"
                                             >
-                                                <Checkbox
-                                                    id={lang}
-                                                    checked={selectedLanguages.includes(lang)}
-                                                    onCheckedChange={() => toggleLanguage(lang)}
-                                                    className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                                                <span className={selectedCategory ? "text-slate-900 dark:text-white font-medium" : "text-slate-500 dark:text-slate-400"}>
+                                                    {selectedCategory || "Select Category"}
+                                                </span>
+                                                <ChevronDown className="h-4 w-4 text-slate-400" />
+                                            </div>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-[280px] p-0" align="start">
+                                            <div className="p-2 border-b border-slate-100 dark:border-slate-800">
+                                                <Input
+                                                    placeholder="Search categories..."
+                                                    value={categorySearch}
+                                                    onChange={(e) => setCategorySearch(e.target.value)}
+                                                    className="h-9 border-none bg-slate-50 dark:bg-slate-800 focus-visible:ring-0"
                                                 />
-                                                <Label
-                                                    htmlFor={lang}
-                                                    className="text-sm font-normal text-slate-600 dark:text-slate-400 cursor-pointer"
-                                                >
-                                                    {lang}
-                                                </Label>
-                                            </motion.div>
-                                        ))}
-                                    </div>
+                                            </div>
+                                            <div className="max-h-[300px] overflow-y-auto p-1">
+                                                {allCategories
+                                                    .filter(cat => cat.toLowerCase().includes(categorySearch.toLowerCase()))
+                                                    .map((cat, idx) => (
+                                                        <div
+                                                            key={idx}
+                                                            onClick={() => {
+                                                                setSelectedCategory(cat === selectedCategory ? null : cat);
+                                                                setIsCategoryOpen(false);
+                                                            }}
+                                                            className={cn(
+                                                                "flex items-center justify-between px-3 py-2 rounded-md text-sm cursor-pointer transition-colors",
+                                                                selectedCategory === cat
+                                                                    ? "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-200"
+                                                                    : "hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
+                                                            )}
+                                                        >
+                                                            {cat}
+                                                            {selectedCategory === cat && <Check className="h-4 w-4" />}
+                                                        </div>
+                                                    ))}
+                                                {allCategories.filter(cat => cat.toLowerCase().includes(categorySearch.toLowerCase())).length === 0 && (
+                                                    <div className="p-3 text-center text-xs text-slate-400">
+                                                        No categories found
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </PopoverContent>
+                                    </Popover>
                                 </div>
 
                                 <div className="h-px bg-slate-100 dark:bg-slate-800" />
@@ -401,6 +419,8 @@ export function FindTeacherContent({ teachers, featuredMentors }: FindTeacherCon
 
                     {/* Main Content: Teacher Lists */}
                     <div className="lg:col-span-9 space-y-6">
+                        <PackagesList packages={packages} />
+
                         {/* Mobile Filter Button */}
                         <div className="lg:hidden">
                             <Button
@@ -422,14 +442,16 @@ export function FindTeacherContent({ teachers, featuredMentors }: FindTeacherCon
                             animate={{ opacity: 1, y: 0 }}
                             className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-[#1e293b] p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm"
                         >
-                            <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">
+                            <div className="text-sm text-slate-600 dark:text-slate-400 font-medium">
                                 Showing <span className="text-slate-900 dark:text-white font-bold">1 - {filteredTeachers.length}</span> of {filteredTeachers.length} Professional Mentors
-                            </p>
+                            </div>
                             <div className="flex items-center gap-2">
                                 <span className="text-sm text-slate-500">Sort By:</span>
                                 <select
                                     value={sortBy}
                                     onChange={(e) => setSortBy(e.target.value)}
+                                    // @ts-ignore
+                                    suppressHydrationWarning
                                     className="bg-slate-50 dark:bg-slate-800 border-none text-sm font-semibold rounded-lg px-3 py-1.5 focus:ring-1 focus:ring-blue-600"
                                 >
                                     <option value="popularity">Popularity</option>

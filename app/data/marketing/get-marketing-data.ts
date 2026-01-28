@@ -39,7 +39,7 @@ export async function getFeaturedReviews(): Promise<FeaturedReview[]> {
     return reviews.map(r => ({
         id: r.id,
         reviewerName: r.reviewer.name,
-        reviewerImage: r.reviewer.image || "https://github.com/shadcn.png", // Fallback
+        reviewerImage: r.reviewer.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(r.reviewer.name || "Reviewer")}&background=random`,
         reviewerRole: r.reviewer.role === 'teacher' ? 'Instructor' : 'Student',
         rating: r.rating,
         title: r.title || "Review",
@@ -102,9 +102,29 @@ export async function getFeaturedMentors(): Promise<FeaturedMentor[]> {
         id: t.id,
         name: t.user.name || "Instructor",
         role: t.expertise[0] || "Expert Instructor",
-        image: t.user.image || "https://github.com/shadcn.png",
+        image: t.user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(t.user.name || "Instructor")}&background=random&color=fff&size=128`,
         rating: t.rating || 5.0,
         students: `${t.totalStudents}+`,
         color: colors[idx % colors.length]
+    }));
+}
+
+export async function getAllCategories(): Promise<FeaturedCategory[]> {
+    const categories = await prisma.category.findMany({
+        where: { isActive: true },
+        include: {
+            _count: {
+                select: { courses: true }
+            }
+        },
+        orderBy: { name: 'asc' }
+    });
+
+    return categories.map(c => ({
+        id: c.id,
+        label: c.name,
+        count: c._count.courses,
+        slug: c.slug,
+        icon: c.icon || undefined
     }));
 }

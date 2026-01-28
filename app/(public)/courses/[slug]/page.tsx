@@ -20,6 +20,8 @@ import {
 } from "lucide-react";
 import { CoursePurchaseButton } from "./_components/CoursePurchaseButton";
 
+import { CourseDescription } from "./_components/CourseDescription";
+
 export default async function CourseDetailsPage({
     params,
 }: {
@@ -66,48 +68,62 @@ export default async function CourseDetailsPage({
     const isPurchased = course.enrollment.length > 0;
     // If user is the author, treat as purchased
     const isOwner = session?.user.id === course.userId;
-    const canAccess = isPurchased || isOwner || session?.user.role === "admin";
+    const canAccess = isPurchased || isOwner || (session?.user as any)?.role === "admin";
 
     return (
         <div className="min-h-screen bg-background pb-20">
             {/* Hero Section */}
-            <div className="bg-slate-900 text-white py-12 md:py-16">
-                <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-10">
+            {/* Hero Section */}
+            <div className="relative bg-slate-900 text-white pt-12 pb-24 md:pt-16 md:pb-32 overflow-hidden">
+                {/* Background Banner */}
+                {course.fileKey && (
+                    <div className="absolute inset-0 z-0">
+                        <Image
+                            src={`https://utfs.io/f/${course.fileKey}`}
+                            alt={course.title}
+                            fill
+                            className="object-cover opacity-20 blur-sm scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-slate-900/60" />
+                    </div>
+                )}
+
+                <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-10 relative z-10">
                     <div className="md:col-span-2 space-y-6">
-                        <div className="flex items-center gap-2 text-primary text-sm font-semibold tracking-wide uppercase">
-                            <Link href="/courses" className="hover:underline">Courses</Link>
+                        <div className="flex items-center gap-2 text-primary-foreground/80 text-sm font-semibold tracking-wide uppercase">
+                            <Link href="/courses" className="hover:underline hover:text-primary">Courses</Link>
                             <span>/</span>
                             <span>{course.category}</span>
                         </div>
 
-                        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
+                        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight shadow-black/50 drop-shadow-md">
                             {course.title}
                         </h1>
 
-                        <p className="text-lg text-slate-300 line-clamp-2">
+                        <p className="text-lg text-slate-200 line-clamp-2 drop-shadow-sm">
                             {course.smallDescription}
                         </p>
 
-                        <div className="flex flex-wrap items-center gap-4 text-sm text-slate-300">
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-slate-200 font-medium">
                             {course.level && (
-                                <div className="flex items-center gap-1">
-                                    <BarChart className="h-4 w-4 text-yellow-500" />
+                                <div className="flex items-center gap-1 bg-slate-800/50 px-2 py-1 rounded-full backdrop-blur-sm border border-slate-700/50">
+                                    <BarChart className="h-4 w-4 text-yellow-400" />
                                     <span>{course.level}</span>
                                 </div>
                             )}
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-1 bg-slate-800/50 px-2 py-1 rounded-full backdrop-blur-sm border border-slate-700/50">
                                 <Globe className="h-4 w-4 text-blue-400" />
                                 <span>English</span>
                             </div>
-                            <div className="flex items-center gap-1">
-                                <Clock className="h-4 w-4" />
+                            <div className="flex items-center gap-1 bg-slate-800/50 px-2 py-1 rounded-full backdrop-blur-sm border border-slate-700/50">
+                                <Clock className="h-4 w-4 text-emerald-400" />
                                 <span>Last updated {new Date(course.updatedAt).toLocaleDateString()}</span>
                             </div>
                         </div>
 
                         <div className="flex items-center gap-4 pt-4">
                             <div className="flex items-center gap-2">
-                                <div className="h-10 w-10 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden">
+                                <div className="h-10 w-10 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden border-2 border-slate-600">
                                     {course.user.image ? (
                                         <Image src={course.user.image} alt={course.user.name || "Instructor"} width={40} height={40} />
                                     ) : (
@@ -115,7 +131,7 @@ export default async function CourseDetailsPage({
                                     )}
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium text-white">Created by <span className="text-primary hover:underline cursor-pointer">{course.user.name || "Instructor"}</span></p>
+                                    <p className="text-sm font-medium text-white drop-shadow-sm">Created by <span className="text-primary hover:underline cursor-pointer font-bold">{course.user.name || "Instructor"}</span></p>
                                 </div>
                             </div>
                         </div>
@@ -123,9 +139,9 @@ export default async function CourseDetailsPage({
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-10 -mt-10 md:-mt-20">
+            <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-10 -mt-12 md:-mt-20">
                 {/* Main Content */}
-                <div className="md:col-span-2 space-y-10 mt-10 md:mt-0">
+                <div className="md:col-span-2 space-y-10 mt-10 md:mt-20">
 
                     {/* What you'll learn */}
                     {/* We can parse this from description or if we add a dedicated field later */}
@@ -172,15 +188,7 @@ export default async function CourseDetailsPage({
                     {/* Description */}
                     <div className="bg-card border rounded-xl p-6 shadow-sm space-y-4">
                         <h3 className="text-xl font-bold">Description</h3>
-                        <div className="prose dark:prose-invert max-w-none">
-                            {/* This handles the JSON content if simplistic, ideally use a rich text renderer */}
-                            {course.description && typeof course.description === 'string' ? (
-                                <div dangerouslySetInnerHTML={{ __html: course.description }} /> // Only if HTML, likely JSON though.
-                            ) : (
-                                <p>{course.smallDescription}</p>
-                            )}
-                            {/* If stored as TIP-TAP JSON, we need a renderer. For now, fallback to smallDescription if complex */}
-                        </div>
+                        <CourseDescription description={course.description} />
                     </div>
                 </div>
 

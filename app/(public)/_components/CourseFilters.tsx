@@ -17,18 +17,7 @@ import {
 } from "@/components/ui/accordion";
 import { Search, X, Filter, Star } from "lucide-react";
 
-const categories = [
-  "Programming & Development",
-  "Business & Marketing",
-  "Design & Creative",
-  "Health & Fitness",
-  "Language Learning",
-  "Music & Arts",
-  "Photography",
-  "Data Science",
-  "Personal Development",
-  "Finance & Accounting"
-];
+
 
 const levels = [
   "Beginner",
@@ -50,7 +39,7 @@ const ratings = [
   { label: "3.5 & up", value: "3.5" }
 ];
 
-export function CourseFilters() {
+export function CourseFilters({ categories }: { categories: { id: string; label: string; count: number }[] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -157,14 +146,15 @@ export function CourseFilters() {
               <AccordionContent>
                 <div className="space-y-3 pt-2">
                   {categories.map((category) => (
-                    <div key={category} className="flex items-center space-x-2">
+                    <div key={category.id} className="flex items-center space-x-2">
                       <Checkbox
-                        id={`cat-${category}`}
-                        checked={filters.categories.includes(category)}
-                        onCheckedChange={() => toggleFilter('categories', category)}
+                        id={`cat-${category.id}`}
+                        checked={filters.categories.includes(category.label)}
+                        onCheckedChange={() => toggleFilter('categories', category.label)}
                       />
-                      <Label htmlFor={`cat-${category}`} className="text-sm font-normal cursor-pointer leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                        {category}
+                      <Label htmlFor={`cat-${category.id}`} className="text-sm font-normal cursor-pointer leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex-1 flex justify-between">
+                        <span>{category.label}</span>
+                        {category.count > 0 && <span className="text-xs text-muted-foreground">({category.count})</span>}
                       </Label>
                     </div>
                   ))}

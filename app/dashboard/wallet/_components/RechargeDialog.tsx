@@ -1,0 +1,152 @@
+"use client";
+
+import { useState } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+
+interface RechargeDialogProps {
+    children: React.ReactNode;
+}
+
+/**
+ * Dialog component for wallet recharge
+ * @author Sanket
+ */
+export function RechargeDialog({ children }: RechargeDialogProps) {
+    const [open, setOpen] = useState(false);
+    const [amount, setAmount] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const quickAmounts = [100, 500, 1000, 2000, 5000];
+
+    const handleRecharge = async () => {
+        const amountNum = parseInt(amount);
+
+        if (!amountNum || amountNum < 100) {
+            toast.error("Minimum recharge amount is ₹100");
+            return;
+        }
+
+        if (amountNum > 100000) {
+            toast.error("Maximum recharge amount is ₹100,000");
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const response = await fetch("/api/wallet/recharge", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ amount: amountNum })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Failed to create checkout session");
+            }
+
+            // Redirect to Stripe checkout
+            if (data.url) {
+                window.location.href = data.url;
+            }
+        } catch (error: any) {
+            toast.error(error.message || "Failed to initiate recharge");
+            setLoading(false);
+        }
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+                {children}
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Add Money to Wallet</DialogTitle>
+                    <DialogDescription>
+                        Choose an amount or enter a custom value. 1 Point = ₹1
+                    </DialogDescription>
+                </DialogHeader>
+
+                <div className="space-y-4 py-4">
+                    {/* Quick Amount Buttons */}
+                    <div>
+                        <Label className="text-sm font-medium mb-2 block">Quick Select</Label>
+                        <div className="grid grid-cols-3 gap-2">
+                            {quickAmounts.map((amt) => (
+                                <Button
+                                    key={amt}
+                                    variant={amount === amt.toString() ? "default" : "outline"}
+                                    onClick={() => setAmount(amt.toString())}
+                                    type="button"
+                                >
+                                    ₹{amt}
+                                </Button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Custom Amount Input */}
+                    <div>
+                        <Label htmlFor="amount" className="text-sm font-medium mb-2 block">
+                            Custom Amount
+                        </Label>
+                        <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">₹</span>
+                            <Input
+                                id="amount"
+                                type="number"
+                                placeholder="Enter amount"
+                                value={amount}
+                                onChange={(e) => setAmount(e.target.value)}
+                                className="pl-7"
+                                min={100}
+                                max={100000}
+                            />
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                            Min: ₹100 | Max: ₹100,000
+                        </p>
+                    </div>
+
+                    {/* Summary */}
+                    {amount && parseInt(amount) >= 100 && (
+                        <div className="bg-muted p-4 rounded-lg">
+                            <div className="flex justify-between text-sm mb-1">
+                                <span>Amount</span>
+                                <span className="font-semibold">₹{parseInt(amount).toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                                <span>Points to be added</span>
+                                <span className="font-semibold text-blue-600">{parseInt(amount).toLocaleString()} Points</span>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Recharge Button */}
+                    <Button
+                        onClick={handleRecharge}
+                        disabled={!amount || parseInt(amount) < 100 || loading}
+                        className="w-full"
+                        size="lg"
+                    >
+                        {loading ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Processing...
+                            </>
+                        ) : (
+                            `Add ₹${amount || '0'} to Wallet`
+                        )}
+                    </Button>
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+}

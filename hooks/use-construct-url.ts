@@ -1,7 +1,7 @@
-import { env } from "@/lib/env";
+// Author: Sanket
+// Purpose: Hook to construct full S3 URLs from keys
+import { constructS3Url } from "@/lib/s3-utils";
 
 export function useConstructUrl(key: string): string {
-  if (!key) return "";
-  if (key.startsWith("http")) return key;
-  return `https://${env.NEXT_PUBLIC_S3_BUCKET_NAME_IMAGES}.fly.storage.tigris.dev/${key}`;
+  return constructS3Url(key);
 }

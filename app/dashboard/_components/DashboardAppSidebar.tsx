@@ -15,6 +15,7 @@ import {
   IconCalendar,
   IconUsers,
   IconBell,
+  IconTicket,
 } from "@tabler/icons-react";
 import Logo from "@/public/logo.png";
 
@@ -46,14 +47,34 @@ const data = {
       icon: IconSearch,
     },
     {
+      title: "All Courses",
+      url: "/dashboard/all-courses",
+      icon: IconBook,
+    },
+    {
       title: "My Courses",
       url: "/dashboard/courses",
       icon: IconBook,
     },
     {
+      title: "Course Resources",
+      url: "/dashboard/resources",
+      icon: IconFileDescription,
+    },
+    {
+      title: "My Groups",
+      url: "/dashboard/groups",
+      icon: IconUsers,
+    },
+    {
       title: "Live Sessions",
       url: "/dashboard/sessions",
       icon: IconVideo,
+    },
+    {
+      title: "Wallet",
+      url: "/dashboard/wallet",
+      icon: IconTicket, // Using IconTicket as wallet icon placeholder
     },
     {
       title: "Messages",
@@ -78,7 +99,7 @@ const data = {
     {
       title: "Certificates",
       url: "/dashboard/certificates",
-      icon: IconSchool, // Using IconSchool as placeholder for certificate/award or verify IconAward availability
+      icon: IconSchool,
     },
   ],
   navSecondary: [
@@ -86,6 +107,11 @@ const data = {
       title: "Settings",
       url: "/dashboard/settings",
       icon: IconSettings,
+    },
+    {
+      title: "Support Tickets",
+      url: "/dashboard/issues",
+      icon: IconTicket,
     },
     {
       title: "Get Help",

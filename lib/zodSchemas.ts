@@ -60,7 +60,7 @@ export const courseSchema = z.object({
   level: z.enum(courseLevels, {
     message: "Level is required",
   }),
-  category: z.enum(courseCategories, {
+  category: z.string().min(1, {
     message: "Category is required",
   }),
   smallDescription: z

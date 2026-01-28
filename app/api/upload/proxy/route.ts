@@ -34,6 +34,10 @@ export async function POST(request: Request) {
             );
         }
 
+        // Author: Sanket - Debug logging to verify region
+        console.log("S3 Upload - Using Region:", env.AWS_REGION);
+        console.log("S3 Upload - Bucket:", env.NEXT_PUBLIC_S3_BUCKET_NAME_IMAGES);
+
         const formData = await request.formData();
         const file = formData.get("file") as File;
 
@@ -68,12 +72,8 @@ export async function POST(request: Request) {
             throw s3Error;
         });
 
-        let url = `https://${env.NEXT_PUBLIC_S3_BUCKET_NAME_IMAGES}.s3.${env.AWS_REGION}.amazonaws.com/${uniqueKey}`;
-
-        // Support for Tigris or other S3-compatible endpoints if explicitly set
-        if (env.AWS_ENDPOINT_URL_S3?.includes("tigris") || env.AWS_ENDPOINT_URL_S3?.includes("fly")) {
-            url = `https://${env.NEXT_PUBLIC_S3_BUCKET_NAME_IMAGES}.fly.storage.tigris.dev/${uniqueKey}`;
-        }
+        // Author: Sanket - Construct AWS S3 URL
+        const url = `https://${env.NEXT_PUBLIC_S3_BUCKET_NAME_IMAGES}.s3.${env.AWS_REGION}.amazonaws.com/${uniqueKey}`;
 
         return NextResponse.json({
             key: uniqueKey,

@@ -31,7 +31,8 @@ export async function POST(
             user: {
               select: { name: true }
             }
-          }
+          },
+          select: { userId: true } // Need teacher's userId for notification
         },
         _count: {
           select: {
@@ -80,6 +81,60 @@ export async function POST(
         { error: "You have already booked this session" },
         { status: 400 }
       );
+    }
+
+    // Handle Free Sessions (Price === 0)
+    if (liveSession.price === 0) {
+      await db.$transaction(async (tx) => {
+        // Create confirmed booking
+        await tx.sessionBooking.create({
+          data: {
+            sessionId: liveSession.id,
+            studentId: userId,
+            status: 'confirmed',
+            amount: 0,
+            paymentCompletedAt: new Date(),
+            stripeSessionId: `free_${crypto.randomUUID()}` // Dummy ID for unique constraint
+          }
+        });
+
+        // Update session status if needed (though multiple people can book, so maybe not "Scheduled" -> "SomethingElse" unless 1-on-1 logic implies single booking?)
+        // Logic above suggests maxParticipants check. If 1-on-1, maybe we close it?
+        // Keeping consistent with webhook logic:
+        /* 
+        await tx.liveSession.update({
+           where: { id: liveSession.id },
+           data: { status: 'scheduled' } 
+        }); 
+        */
+        // Actually, webhook updates status to 'scheduled'. But if it's already scheduled, that's fine.
+        // If 1-on-1 capacity logic handles "Full", we don't need to change status unless it's to lock it.
+        // Let's leave status management to the capacity check.
+
+        // Create Notification
+        await tx.notification.create({
+          data: {
+            userId: userId,
+            title: "Booking Confirmed",
+            message: `Your free session "${liveSession.title}" is confirmed!`,
+            type: "Session"
+          }
+        });
+
+        // Create Teacher Notification
+        await tx.notification.create({
+          data: {
+            userId: liveSession.teacher.userId, // Fixed access
+            title: "New Session Booking",
+            message: `${session.user.name} booked "${liveSession.title}"`,
+            type: "Session"
+          }
+        });
+      });
+
+      return NextResponse.json({
+        url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/sessions?booking=success`
+      });
     }
 
     // Create Stripe checkout session

@@ -41,3 +41,10 @@ yarn-error.log*
 next-env.d.ts
 
 /lib/generated/prisma
+
+deployment.zip
+deployment.tar.gz
+
+cpanel-linux-build
+
+cpanel-deploy

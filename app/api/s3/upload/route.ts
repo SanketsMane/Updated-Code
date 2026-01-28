@@ -19,11 +19,12 @@ const fileUploadSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  // Author: Sanket - Allow all authenticated users to upload files
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
-  if (!session || (session.user.role !== "admin" && session.user.role !== "teacher")) {
+  if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   try {
@@ -52,11 +53,12 @@ export async function POST(request: Request) {
 
     const uniqueKey = `${uuidv4()}-${fileName}`;
 
+    // Author: Sanket - Include ContentType to ensure proper file serving
+    // Client MUST send the exact same Content-Type header during PUT
     const command = new PutObjectCommand({
       Bucket: env.NEXT_PUBLIC_S3_BUCKET_NAME_IMAGES,
-      ContentType: contentType,
-      // ContentLength: size, // Removed to avoid signature mismatch if browser sends different size header or compression occurs
       Key: uniqueKey,
+      ContentType: contentType,
     });
 
     const S3 = getS3Client();
@@ -67,6 +69,7 @@ export async function POST(request: Request) {
     const response = {
       presignedUrl,
       key: uniqueKey,
+      contentType, // Return this so client uses exact same value
     };
 
     return NextResponse.json(response);

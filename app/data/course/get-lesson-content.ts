@@ -1,10 +1,13 @@
-import "server-only";
-import { requireUser } from "../user/require-user";
+import { getSessionWithRole } from "@/app/data/auth/require-roles";
 import { prisma } from "@/lib/db";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 export async function getLessonContent(lessonId: string) {
-  const session = await requireUser();
+  const session = await getSessionWithRole();
+
+  if (!session) {
+    return redirect("/login");
+  }
 
   const lesson = await prisma.lesson.findUnique({
     where: {
@@ -19,7 +22,7 @@ export async function getLessonContent(lessonId: string) {
       position: true,
       lessonProgress: {
         where: {
-          userId: session.id,
+          userId: session.user.id,
         },
         select: {
           completed: true,
@@ -34,6 +37,7 @@ export async function getLessonContent(lessonId: string) {
               id: true,
               title: true,
               slug: true,
+              userId: true, // Select userId to check ownership
             },
           },
         },
@@ -45,10 +49,15 @@ export async function getLessonContent(lessonId: string) {
     return notFound();
   }
 
+  // Allow access if user is admin or course owner
+  if (session.user.role === "admin" || lesson.Chapter.Course.userId === session.user.id) {
+    return lesson;
+  }
+
   const enrollment = await prisma.enrollment.findUnique({
     where: {
       userId_courseId: {
-        userId: session.id,
+        userId: session.user.id,
         courseId: lesson.Chapter.courseId,
       },
     },

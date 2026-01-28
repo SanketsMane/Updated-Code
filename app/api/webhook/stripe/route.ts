@@ -29,7 +29,9 @@ export async function POST(req: NextRequest) {
 
   if (event.type === "checkout.session.completed") {
     // Handle different payment types based on metadata
-    if (session.metadata?.type === "live_session") {
+    if (session.metadata?.type === "wallet_recharge") {
+      await handleWalletRecharge(session);
+    } else if (session.metadata?.type === "live_session") {
       await handleLiveSessionPayment(session);
     } else {
       // Default to Course Enrollment (Standard flow)
@@ -131,10 +133,91 @@ async function handleLiveSessionPayment(session: Stripe.Checkout.Session) {
 
     console.log(`Live session booking confirmed: ${booking.id}`);
   } catch (error) {
-    console.error('Error processing live session payment:', error);
+    console.error("Error handling course enrollment payment:", error);
+    throw error;
   }
 }
 
+// ----------------
+// Helper: Wallet Recharge Payment
+// ----------------
+async function handleWalletRecharge(session: Stripe.Checkout.Session) {
+  const metadata = session.metadata || {};
+  const userId = metadata.userId;
+  const amount = parseInt(metadata.amount || "0");
+
+  if (!userId || !amount) {
+    console.error("Missing userId or amount in wallet recharge metadata");
+    return;
+  }
+
+  try {
+    // Check for duplicate processing (idempotency)
+    const existingTransaction = await prisma.walletTransaction.findFirst({
+      where: { stripeSessionId: session.id }
+    });
+
+    if (existingTransaction) {
+      console.log("Wallet recharge already processed:", session.id);
+      return;
+    }
+
+    // Get or create wallet
+    let wallet = await prisma.wallet.findUnique({
+      where: { userId }
+    });
+
+    if (!wallet) {
+      wallet = await prisma.wallet.create({
+        data: { userId, balance: 0 }
+      });
+    }
+
+    // Atomic transaction to update balance and create transaction record
+    await prisma.$transaction(async (tx) => {
+      const balanceBefore = wallet!.balance;
+      const balanceAfter = balanceBefore + amount;
+
+      // Update wallet balance
+      await tx.wallet.update({
+        where: { id: wallet!.id },
+        data: { balance: balanceAfter }
+      });
+
+      // Create transaction record
+      await tx.walletTransaction.create({
+        data: {
+          walletId: wallet!.id,
+          type: "RECHARGE",
+          amount,
+          balanceBefore,
+          balanceAfter,
+          description: `Wallet recharge of ₹${amount}`,
+          stripeSessionId: session.id,
+          metadata: {
+            paymentIntentId: session.payment_intent,
+            customerEmail: session.customer_email
+          }
+        }
+      });
+
+      // Create notification
+      await tx.notification.create({
+        data: {
+          userId,
+          title: "Wallet Recharged",
+          message: `₹${amount} has been added to your wallet. New balance: ₹${balanceAfter}`,
+          type: "Payment"
+        }
+      });
+    });
+
+    console.log(`Wallet recharge successful: ₹${amount} for user ${userId}`);
+  } catch (error) {
+    console.error("Error handling wallet recharge:", error);
+    throw error;
+  }
+}
 // ----------------
 // Helper: Course Enrollment Payment
 // ----------------

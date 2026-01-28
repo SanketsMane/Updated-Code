@@ -18,6 +18,7 @@ import {
   IconMessage,
   IconShield,
   IconWallet,
+  IconTicket,
 } from "@tabler/icons-react";
 import Logo from "@/public/logo.png";
 
@@ -52,6 +53,11 @@ const teacherData = {
       title: "My Courses",
       url: "/teacher/courses",
       icon: IconBook,
+    },
+    {
+      title: "Group Classes",
+      url: "/teacher/groups",
+      icon: IconUsers,
     },
     {
       title: "Create Course",
@@ -114,6 +120,11 @@ const teacherData = {
       title: "Settings",
       url: "/teacher/settings",
       icon: IconSettings,
+    },
+    {
+      title: "Support Tickets",
+      url: "/dashboard/issues",
+      icon: IconTicket,
     },
     {
       title: "Get Help",

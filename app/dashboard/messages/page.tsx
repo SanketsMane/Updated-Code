@@ -1,4 +1,4 @@
-"use client";
+import { useSearchParams } from "next/navigation";
 
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
@@ -97,70 +97,37 @@ export default function MessagesPage() {
     sendTypingStop
   } = useChatWebSocket();
 
+  const searchParams = useSearchParams();
+  const conversationIdParam = searchParams.get("id");
+
   // Load conversations on mount
   useEffect(() => {
     loadConversations();
   }, []);
 
-  // Load messages when conversation is selected
+  // Effect to select conversation from URL
   useEffect(() => {
-    if (selectedConversation) {
-      loadMessages(selectedConversation);
-      fetch("/api/messages/conversations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "markAsRead", conversationId: selectedConversation })
-      });
-    }
-  }, [selectedConversation]);
-
-  // Scroll to bottom when new messages arrive
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  // Handle incoming real-time messages
-  useEffect(() => {
-    setOnMessageReceived((payload: any) => {
-      // If message belongs to current conversation, add it
-      if (selectedConversation && payload.conversationId === selectedConversation) {
-        setMessages(prev => [...prev, {
-          id: payload.id || Date.now().toString(),
-          content: payload.content,
-          messageType: "Text", // Default for now
-          isRead: false,
-          createdAt: payload.createdAt,
-          sender: payload.sender
-        }]);
-      } else {
-        // Otherwise, update unread count in conversation list
-        setConversations(prev => prev.map(c => {
-          if (c.id === payload.conversationId) {
-            return {
-              ...c,
-              unreadCount: c.unreadCount + 1,
-              lastMessage: {
-                content: payload.content,
-                createdAt: payload.createdAt,
-                sender: payload.sender
-              },
-              lastActivity: payload.createdAt
-            };
-          }
-          return c;
-        }).sort((a, b) => new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime()));
-
-        toast.info(`New message from ${payload.sender.name}`);
+    if (conversationIdParam && !selectedConversation && conversations.length > 0) {
+      // Verify if it exists in loaded conversations or just set it (will load messages anyway)
+      // To be safe, we check if we have it or if we should trust the URL.
+      // Loading messages handles fetch by ID, so setting it is safe if valid.
+      const exists = conversations.find(c => c.id === conversationIdParam);
+      if (exists) {
+        setSelectedConversation(conversationIdParam);
       }
-    });
-  }, [selectedConversation, setOnMessageReceived]);
+    }
+  }, [conversationIdParam, conversations, selectedConversation]);
 
   const loadConversations = async () => {
     try {
       const response = await fetch("/api/messages/conversations");
       const convs = await response.json();
       setConversations(convs);
-      if (convs.length > 0 && !selectedConversation) {
+
+      // Default to URL param if present, else first
+      if (conversationIdParam) {
+        setSelectedConversation(conversationIdParam);
+      } else if (convs.length > 0 && !selectedConversation) {
         setSelectedConversation(convs[0].id);
       }
     } catch (error) {

@@ -9,8 +9,8 @@ import { prisma } from "../lib/db";
 async function createAdminUser() {
     console.log("🔐 Creating admin user...\n");
 
-    const email = "bksun170882@gmail.com";
-    const name = "Admin User";
+    const email = "rohandesai568@gmail.com";
+    const name = "Rohan Desai";
 
     try {
         // Check if user already exists
@@ -38,7 +38,7 @@ async function createAdminUser() {
                     email,
                     name,
                     role: "admin",
-                    emailVerified: new Date(), // Mark as verified
+                    emailVerified: true, // Mark as verified
                 },
             });
 

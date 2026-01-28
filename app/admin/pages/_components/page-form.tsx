@@ -88,12 +88,13 @@ export function PageForm({ page }: PageFormProps) {
                         </CardContent>
                     </Card>
 
-                    <div className="flex gap-2">
-                        <Button type="button" variant="outline" className="w-full" onClick={() => router.back()}>Cancel</Button>
-                        <Button type="submit" className="w-full" disabled={isPending}>
-                            {isPending ? "Saving..." : (page ? "Update Page" : "Create Page")}
-                        </Button>
-                    </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-4">
+                    <Button type="button" variant="outline" onClick={() => router.back()}>Cancel</Button>
+                    <Button type="submit" disabled={isPending}>
+                        {isPending ? "Saving..." : (page ? "Update Page" : "Create Page")}
+                    </Button>
                 </div>
             </div>
         </form>

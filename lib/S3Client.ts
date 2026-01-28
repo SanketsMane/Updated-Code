@@ -15,10 +15,13 @@ export const getS3Client = () => {
       }
     });
   }
+
+  // Author: Sanket - Debug logging to verify region
+  console.log("S3Client - Using Region:", env.AWS_REGION);
+
   return new S3Client({
     region: env.AWS_REGION,
-    endpoint: env.AWS_ENDPOINT_URL_S3,
-    forcePathStyle: false,
+    // Don't set endpoint - let AWS SDK use correct region-specific endpoint
     credentials: {
       accessKeyId: env.AWS_ACCESS_KEY_ID,
       secretAccessKey: env.AWS_SECRET_ACCESS_KEY,

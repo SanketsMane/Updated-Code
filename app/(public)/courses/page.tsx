@@ -3,18 +3,16 @@ import { CourseComparisonProvider } from "@/components/marketing/CourseCompariso
 import { PublicCourseCardSkeleton } from "../_components/PublicCourseCard";
 import { CourseFilters } from "../_components/CourseFilters";
 import { Suspense } from "react";
-import { Badge } from "@/components/ui/badge";
 import {
-  Code, Palette, BarChart3, TrendingUp, Target, Lightbulb,
-  Search, Sparkles
+  Code, Palette, BarChart3, TrendingUp, Target, Lightbulb
 } from "lucide-react";
 import Link from "next/link";
 import { FadeIn } from "@/components/ui/fade-in";
 import { AnimatedCoursesGrid } from "@/components/marketing/AnimatedCoursesGrid";
+import { getAllCategories } from "@/app/data/marketing/get-marketing-data";
+import { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
-
-import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Explore Premium Courses - KIDOKOOL",
@@ -25,21 +23,12 @@ interface SearchParams {
   category?: string;
   level?: string;
   search?: string;
-  priceRange?: string | string[]; // Can be string or array
+  priceRange?: string | string[];
 }
 
 interface Props {
   searchParams: Promise<SearchParams>;
 }
-
-const featuredCategories = [
-  { name: "Programming", icon: Code, count: 245, popular: true },
-  { name: "Design", icon: Palette, count: 189, popular: true },
-  { name: "Business", icon: BarChart3, count: 156, popular: false },
-  { name: "Marketing", icon: TrendingUp, count: 134, popular: false },
-  { name: "Data Science", icon: Target, count: 98, popular: true },
-  { name: "Photography", icon: Lightbulb, count: 87, popular: false }
-];
 
 const trendingTopics = [
   "React & Next.js", "AI & Machine Learning", "Python Programming",
@@ -47,14 +36,10 @@ const trendingTopics = [
   "Cloud Computing", "Cybersecurity"
 ];
 
-import { getTopCategories } from "@/app/data/marketing/get-marketing-data";
-
-// ... existing imports
-
 export default async function PublicCoursesRoute({ searchParams }: Props) {
   const params = await searchParams;
   const allCourses = await getAllCourses();
-  const categories = await getTopCategories(); // Fetch dynamic categories
+  const categories = await getAllCategories(); // Fetch all dynamic categories
 
   // Filter courses based on search parameters
   let filteredCourses = allCourses;
@@ -67,9 +52,12 @@ export default async function PublicCoursesRoute({ searchParams }: Props) {
   }
 
   if (params.category) {
-    filteredCourses = filteredCourses.filter(course =>
-      course.category?.toLowerCase() === params.category!.toLowerCase()
-    );
+    const categoryParam = Array.isArray(params.category) ? params.category[0] : params.category;
+    if (categoryParam) {
+      filteredCourses = filteredCourses.filter(course =>
+        course.category?.toLowerCase() === categoryParam.toLowerCase()
+      );
+    }
   }
 
   if (params.level) {
@@ -140,7 +128,9 @@ export default async function PublicCoursesRoute({ searchParams }: Props) {
             <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-10 items-start">
               {/* Sidebar Filters */}
               <aside className="lg:sticky lg:top-24 h-fit">
-                <CourseFilters />
+                <Suspense fallback={<div className="h-[500px] w-full bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl" />}>
+                  <CourseFilters categories={categories} />
+                </Suspense>
               </aside>
 
               {/* Course Grid */}

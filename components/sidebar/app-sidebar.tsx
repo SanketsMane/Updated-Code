@@ -21,7 +21,9 @@ import {
   IconSpeakerphone,
   IconShieldCheck as IconVerification,
   IconUserCheck,
+
   IconWallet,
+  IconTicket,
 } from "@tabler/icons-react";
 import Logo from "@/public/logo.png";
 
@@ -98,6 +100,16 @@ const data = {
       icon: IconUsers,
     },
     {
+      title: "Settings",
+      url: "/admin/verification",
+      icon: IconShieldCheck,
+    },
+    {
+      title: "Metadata",
+      url: "/admin/metadata",
+      icon: IconSettings,
+    },
+    {
       title: "Blog",
       url: "/admin/blog",
       icon: IconFileText,
@@ -106,6 +118,11 @@ const data = {
       title: "Messages",
       url: "/admin/messages",
       icon: IconSpeakerphone,
+    },
+    {
+      title: "Support Tickets",
+      url: "/admin/issues",
+      icon: IconTicket,
     },
     {
       title: "Verification Center",
@@ -135,11 +152,6 @@ const data = {
       title: "Get Help",
       url: "/admin/help",
       icon: IconHelp,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: IconSearch,
     },
   ],
 };

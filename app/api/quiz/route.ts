@@ -125,6 +125,8 @@ export async function POST(request: NextRequest) {
 
     const validatedData = createQuizSchema.parse(body);
 
+    console.log("DEBUG: Validated Data:", JSON.stringify(validatedData, null, 2));
+
     const quiz = await prisma.quiz.create({
       data: {
         title: validatedData.title,
@@ -165,6 +167,8 @@ export async function POST(request: NextRequest) {
         }
       }
     });
+
+    console.log("DEBUG: Quiz Created ID:", quiz.id);
 
     return NextResponse.json(quiz, { status: 201 });
 
