@@ -83,7 +83,7 @@ export default async function AdminTeamPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {teamMembers.filter(m => m.teacherProfile?.[0]?.isVerified).length}
+              {teamMembers.filter(m => m.teacherProfile?.isVerified).length}
             </div>
           </CardContent>
         </Card>
@@ -95,7 +95,7 @@ export default async function AdminTeamPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {teamMembers.filter(m => m.role === "teacher" && !m.teacherProfile?.[0]?.isVerified).length}
+              {teamMembers.filter(m => m.role === "teacher" && !m.teacherProfile?.isVerified).length}
             </div>
           </CardContent>
         </Card>
@@ -106,7 +106,7 @@ export default async function AdminTeamPage() {
         <h2 className="text-xl font-semibold">Team Members</h2>
         <div className="grid gap-4">
           {teamMembers.map((member) => {
-            const profile = member.teacherProfile?.[0]; // Assuming 1-1 or 1-many
+            const profile = member.teacherProfile; // Assuming 1-1 or 1-many
             const isVerified = profile?.isVerified;
 
             return (
@@ -127,7 +127,7 @@ export default async function AdminTeamPage() {
                             variant="secondary"
                             className={roleColors[member.role as keyof typeof roleColors] || roleColors.student}
                           >
-                            {member.role.toUpperCase()}
+                            {(member.role || "user").toUpperCase()}
                           </Badge>
                           {isVerified && (
                             <Badge variant="default" className="bg-green-600 hover:bg-green-700">Verified</Badge>

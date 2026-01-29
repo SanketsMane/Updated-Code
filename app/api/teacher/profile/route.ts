@@ -16,7 +16,7 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    if (session.user.role !== "teacher" && session.user.role !== "admin") {
+    if ((session.user as any).role !== "teacher" && (session.user as any).role !== "admin") {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
@@ -61,9 +61,9 @@ export async function POST(req: NextRequest) {
 
     // Allow students to apply/register as teachers
     // Check for "user" role as well, just in case default is "user"
-    if (session.user.role !== "teacher" && session.user.role !== "admin" && session.user.role !== "student" && session.user.role !== "user") {
-      console.log("Access denied for role:", session.user.role);
-      return NextResponse.json({ error: `Access denied.Role: ${session.user.role} ` }, { status: 403 });
+    if ((session.user as any).role !== "teacher" && (session.user as any).role !== "admin" && (session.user as any).role !== "student" && (session.user as any).role !== "user") {
+      console.log("Access denied for role:", (session.user as any).role);
+      return NextResponse.json({ error: `Access denied.Role: ${(session.user as any).role} ` }, { status: 403 });
     }
 
     const body = await req.json();
@@ -112,7 +112,7 @@ export async function POST(req: NextRequest) {
         });
 
         // Auto-promote user to teacher role
-        if (session.user.role !== "teacher" && session.user.role !== "admin") {
+        if ((session.user as any).role !== "teacher" && (session.user as any).role !== "admin") {
           await tx.user.update({
             where: { id: session.user.id },
             data: { role: "teacher" }
@@ -151,7 +151,7 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    if (session.user.role !== "teacher" && session.user.role !== "admin") {
+    if ((session.user as any).role !== "teacher" && (session.user as any).role !== "admin") {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 

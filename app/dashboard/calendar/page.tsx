@@ -148,7 +148,7 @@ export default async function DashboardCalendarPage() {
                           {session.description}
                         </p>
                       </div>
-                      <Badge variant={session.status === 'Scheduled' ? 'default' : 'secondary'}>
+                      <Badge variant={session.status === 'scheduled' ? 'default' : 'secondary'}>
                         {session.status}
                       </Badge>
                     </div>

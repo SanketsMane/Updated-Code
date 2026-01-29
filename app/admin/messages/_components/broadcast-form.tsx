@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import { IconSend } from "@tabler/icons-react";
 
 export function BroadcastForm() {
-    const [state, formAction, isPending] = useActionState(sendMessage, {});
+    const [state, formAction, isPending] = useActionState(sendMessage, { success: false, message: "" });
 
     useEffect(() => {
         if (state?.success) {

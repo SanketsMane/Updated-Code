@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -46,7 +47,23 @@ const trendingTopics = [
   "Cloud Computing", "Cybersecurity"
 ];
 
-export default function PublicCoursesRoute({ searchParams }: Props) {
+export default async function PublicCoursesRoute({ searchParams }: Props) {
+  const categories = await prisma.category.findMany({
+    include: {
+      courses: {
+        select: {
+          id: true
+        }
+      }
+    }
+  });
+
+  const formattedCategories = categories.map(c => ({
+    id: c.id,
+    label: c.name,
+    count: c.courses.length
+  }));
+
   return (
     <div style={{ fontFamily: 'system-ui, -apple-system, sans-serif', backgroundColor: '#fafafa', minHeight: '100vh' }}>
       {/* Hero Section */}
@@ -380,7 +397,7 @@ export default function PublicCoursesRoute({ searchParams }: Props) {
               gap: '1rem',
               alignItems: 'center'
             }}>
-              <CourseFilters />
+              <CourseFilters categories={formattedCategories} />
             </div>
           </div>
 

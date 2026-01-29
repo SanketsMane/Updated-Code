@@ -48,3 +48,5 @@ deployment.tar.gz
 cpanel-linux-build
 
 cpanel-deploy
+*.zip
+env.production

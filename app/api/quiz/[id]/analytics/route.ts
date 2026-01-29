@@ -44,7 +44,7 @@ export async function GET(
     }
 
     // Check permissions
-    if (session.user.role === 'STUDENT') {
+    if ((session.user as any).role === 'student') {
       // Students can only see their own analytics
       const userAttempts = quiz.attempts.filter(a => a.userId === session.user.id);
 

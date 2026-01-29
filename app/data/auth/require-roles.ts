@@ -14,11 +14,11 @@ export const requireTeacherOrAdmin = cache(async () => {
     return redirect("/login");
   }
 
-  if (session.user.role !== "admin" && session.user.role !== "teacher") {
+  if ((session.user as any).role !== "admin" && (session.user as any).role !== "teacher") {
     return redirect("/not-admin");
   }
 
-  return session;
+  return session as typeof session & { user: { role: string | null } };
 });
 
 export const requireTeacher = cache(async () => {
@@ -30,11 +30,11 @@ export const requireTeacher = cache(async () => {
     return redirect("/login");
   }
 
-  if (session.user.role !== "teacher" && session.user.role !== "admin") {
+  if ((session.user as any).role !== "teacher" && (session.user as any).role !== "admin") {
     return redirect("/not-admin");
   }
 
-  return session;
+  return session as typeof session & { user: { role: string | null } };
 });
 
 export const requireAdmin = cache(async () => {
@@ -46,11 +46,11 @@ export const requireAdmin = cache(async () => {
     return redirect("/login");
   }
 
-  if (session.user.role !== "admin") {
+  if ((session.user as any).role !== "admin") {
     return redirect("/not-admin");
   }
 
-  return session;
+  return session as typeof session & { user: { role: string | null } };
 });
 
 export const getSessionWithRole = cache(async () => {
@@ -58,5 +58,5 @@ export const getSessionWithRole = cache(async () => {
     headers: await headers(),
   });
 
-  return session;
+  return session as typeof session & { user: { role: string | null } };
 });

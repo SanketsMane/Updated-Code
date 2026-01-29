@@ -7,7 +7,7 @@ import { env } from "@/lib/env";
 export const dynamic = "force-dynamic";
 
 const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-    apiVersion: "2025-05-28.basil", // Use latest consistent version
+    apiVersion: "2025-08-27.basil", // Use latest consistent version
     typescript: true,
 });
 

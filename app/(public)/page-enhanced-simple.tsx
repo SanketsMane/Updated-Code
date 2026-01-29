@@ -16,13 +16,13 @@ export default async function Home() {
   const session = await getSessionWithRole();
   
   if (session) {
-    if (session.user.role === "admin") {
+    if ((session.user as any).role === "admin") {
       redirect("/admin");
     }
-    if (session.user.role === "teacher") {
+    if ((session.user as any).role === "teacher") {
       redirect("/teacher");
     }
-    if (session.user.role === null || session.user.role === undefined) {
+    if ((session.user as any).role === null || (session.user as any).role === undefined) {
       redirect("/dashboard");
     }
   }

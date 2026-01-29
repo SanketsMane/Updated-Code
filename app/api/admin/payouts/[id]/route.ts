@@ -6,14 +6,14 @@ export const dynamic = "force-dynamic";
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireAdmin();
 
     const body = await request.json();
     const { status, reviewNotes, reviewedBy } = body;
-    const payoutId = params.id;
+    const { id: payoutId } = await params;
 
     if (!status || !['Approved', 'Rejected', 'Completed', 'Pending'].includes(status)) {
       return NextResponse.json(
@@ -83,13 +83,14 @@ export async function PATCH(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireAdmin();
+    const { id } = await params;
 
     const payout = await prisma.payoutRequest.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         teacher: {
           include: {

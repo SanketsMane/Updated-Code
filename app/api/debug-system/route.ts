@@ -1,6 +1,7 @@
 
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+// @ts-ignore
 import nodemailer from "nodemailer";
 
 export async function GET() {
@@ -41,7 +42,7 @@ export async function GET() {
 
     } catch (error: any) {
         console.error("Email Error:", error);
-        results.email = { status: "error", error: error.message, stack: error.stack };
+        return NextResponse.json({ status: "error", error: error.message, stack: (error as any).stack } as any, { status: 500 });
     }
 
     return NextResponse.json(results, { status: 200 });

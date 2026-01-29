@@ -56,6 +56,7 @@ export function HorizontalTeacherCard({ teacher }: TeacherCardProps) {
                             src={teacher.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(teacher.name)}&background=random&color=fff&size=128`}
                             alt={teacher.name}
                             fill
+                            sizes="(max-width: 768px) 100vw, 300px"
                             className="object-cover"
                         />
 

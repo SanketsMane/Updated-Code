@@ -28,7 +28,7 @@ export default async function AdminCategoriesPage() {
     const user = await requireUser();
     // TODO: Double check specific admin role logic if needed, but requireUser + middleware usually covers auth. 
     // Ideally checking role explicitly:
-    if (user.role !== "admin") {
+    if ((user as any).role !== "admin") {
         return redirect("/");
     }
 

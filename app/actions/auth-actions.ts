@@ -18,7 +18,7 @@ export async function setTeacherRole() {
     // but this action is for new teacher signup. 
     // Safety: Only allow changing from 'user' to 'teacher'.
 
-    if (session.user.role === "admin") {
+    if ((session.user as any).role === "admin") {
         return { success: true, message: "Already admin" };
     }
 

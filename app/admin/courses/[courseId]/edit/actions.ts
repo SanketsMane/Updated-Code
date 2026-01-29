@@ -20,7 +20,7 @@ export async function editCourse(
   const session = await requireTeacherOrAdmin();
 
   // Check if teacher is trying to edit their own course
-  if (session.user.role === "teacher") {
+  if ((session.user as any).role === "teacher") {
     const course = await prisma.course.findUnique({
       where: { id: courseId },
       select: { userId: true }

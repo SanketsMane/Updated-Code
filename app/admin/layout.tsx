@@ -20,7 +20,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (isMounted && !isPending && !session) {
       router.push("/login");
-    } else if (isMounted && !isPending && session && session.user.role !== "admin") {
+    } else if (isMounted && !isPending && session && (session.user as any).role !== "admin") {
       router.push("/not-admin");
     }
   }, [session, isPending, router, isMounted]);
@@ -38,7 +38,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     return null;
   }
 
-  if (session.user.role !== "admin") {
+  if ((session.user as any).role !== "admin") {
     return null;
   }
   return (

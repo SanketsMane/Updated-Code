@@ -10,11 +10,11 @@ import { createCourseNotification } from "@/app/actions/notifications";
  */
 export async function POST(
     req: NextRequest,
-    { params }: { params: { slug: string } }
+    { params }: { params: Promise<{ slug: string }> }
 ) {
     try {
         const user = await requireUser();
-        const { slug } = params;
+        const { slug } = await params;
 
         // Get course details
         const course = await prisma.course.findUnique({
@@ -84,7 +84,9 @@ export async function POST(
                 data: {
                     teacherId: course.userId,
                     amount: netAmount,
+                    commission: commissionAmount,
                     commissionAmount,
+                    netAmount,
                     type: "Course",
                     status: "Pending",
                     description: `Course sale: ${course.title}`,

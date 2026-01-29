@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
     if (published !== null) whereClause.isPublished = published === 'true';
 
     // Students can only see published and active quizzes
-    if (session.user.role === 'STUDENT') {
+    if ((session.user as any).role === 'student') {
       whereClause.isPublished = true;
       whereClause.isActive = true;
     }
@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Only teachers and admins can create quizzes
-    if (session.user.role !== 'TEACHER' && session.user.role !== 'ADMIN') {
+    if ((session.user as any).role !== 'teacher' && (session.user as any).role !== 'admin') {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

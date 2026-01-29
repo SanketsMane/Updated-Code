@@ -71,7 +71,7 @@ export async function GET(
         createdBy: {
           select: { name: true, email: true }
         },
-        attempts: session.user.role === 'TEACHER' || session.user.role === 'ADMIN' ? {
+        attempts: (session.user as any).role === 'teacher' || (session.user as any).role === 'admin' ? {
           include: {
             user: {
               select: { name: true, email: true }
@@ -91,7 +91,7 @@ export async function GET(
     }
 
     // Students can only access published and active quizzes
-    if (session.user.role === 'STUDENT') {
+    if ((session.user as any).role === 'student') {
       if (!quiz.isPublished || !quiz.isActive) {
         return NextResponse.json({ error: "Quiz not available" }, { status: 403 });
       }
@@ -132,7 +132,7 @@ export async function PUT(
     }
 
     // Only teachers and admins can update quizzes
-    if (session.user.role !== 'TEACHER' && session.user.role !== 'ADMIN') {
+    if ((session.user as any).role !== 'teacher' && (session.user as any).role !== 'admin') {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -147,7 +147,7 @@ export async function PUT(
     }
 
     // Check if user owns the quiz or is admin
-    if (quiz.createdById !== session.user.id && session.user.role !== 'ADMIN') {
+    if (quiz.createdById !== session.user.id && (session.user as any).role !== 'admin') {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -237,7 +237,7 @@ export async function DELETE(
     }
 
     // Only teachers and admins can delete quizzes
-    if (session.user.role !== 'TEACHER' && session.user.role !== 'ADMIN') {
+    if ((session.user as any).role !== 'teacher' && (session.user as any).role !== 'admin') {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -259,7 +259,7 @@ export async function DELETE(
     }
 
     // Check if user owns the quiz or is admin
-    if (quiz.createdById !== session.user.id && session.user.role !== 'ADMIN') {
+    if (quiz.createdById !== session.user.id && (session.user as any).role !== 'admin') {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

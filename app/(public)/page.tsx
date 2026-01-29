@@ -68,9 +68,9 @@ export default async function Home() {
   const session = await getSessionWithRole();
 
   if (session) {
-    if (session.user.role === "admin") {
+    if ((session.user as any).role === "admin") {
       redirect("/admin");
-    } else if (session.user.role === "teacher") {
+    } else if ((session.user as any).role === "teacher") {
       redirect("/teacher");
     } else {
       // Default to student dashboard for students or users without a role

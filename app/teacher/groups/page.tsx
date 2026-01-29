@@ -14,7 +14,7 @@ export default async function TeacherGroupsPage() {
         headers: await headers()
     });
 
-    if (!session?.user || session.user.role !== "teacher") return <div>Unauthorized</div>;
+    if (!session?.user || (session.user as any).role !== "teacher") return <div>Unauthorized</div>;
 
     const teacher = await prisma.teacherProfile.findUnique({
         where: { userId: session.user.id },

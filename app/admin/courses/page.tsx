@@ -46,7 +46,7 @@ async function RenderCourses() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 gap-7">
           {data.map((course) => (
-            <AdminCourseCard key={course.id} data={course} userRole={session.user?.role} />
+            <AdminCourseCard key={course.id} data={course} userRole={(session.user as any)?.role} />
           ))}
         </div>
       )}

@@ -26,7 +26,7 @@ import { IconUserPlus } from "@tabler/icons-react";
 
 export function AddUserDialog() {
     const [open, setOpen] = useState(false);
-    const [state, formAction, isPending] = useActionState(createUser, {});
+    const [state, formAction, isPending] = useActionState(createUser, { success: false, message: "" });
 
     useEffect(() => {
         if (state?.success) {

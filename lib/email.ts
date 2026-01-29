@@ -3,6 +3,7 @@
  * Replaces Resend with multi-provider support and professional templates
  */
 
+// @ts-ignore
 import nodemailer from 'nodemailer';
 
 interface EmailData {

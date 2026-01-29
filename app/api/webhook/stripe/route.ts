@@ -195,7 +195,7 @@ async function handleWalletRecharge(session: Stripe.Checkout.Session) {
           description: `Wallet recharge of ₹${amount}`,
           stripeSessionId: session.id,
           metadata: {
-            paymentIntentId: session.payment_intent,
+            paymentIntentId: session.payment_intent as string,
             customerEmail: session.customer_email
           }
         }

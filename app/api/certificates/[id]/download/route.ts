@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
  */
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const session = await auth.api.getSession({
@@ -26,7 +26,7 @@ export async function GET(
             );
         }
 
-        const { id } = params;
+        const { id } = await params;
 
         // Fetch certificate and verify ownership
         const certificate = await prisma.certificate.findUnique({
@@ -35,7 +35,6 @@ export async function GET(
                 course: {
                     select: {
                         title: true,
-                        thumbnailKey: true,
                     }
                 }
             }

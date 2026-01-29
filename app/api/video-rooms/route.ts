@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Students can only see rooms they're participants of or public rooms
-    if (session.user.role === 'STUDENT') {
+    if ((session.user as any).role === 'student') {
       whereClause.OR = [
         { isPrivate: false },
         { 
@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Only teachers and admins can create video rooms
-    if (session.user.role !== 'TEACHER' && session.user.role !== 'ADMIN') {
+    if ((session.user as any).role !== 'teacher' && (session.user as any).role !== 'admin') {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

@@ -9,9 +9,10 @@ export const dynamic = "force-dynamic";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     // Verify authentication
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session?.user) {
@@ -27,7 +28,7 @@ export async function POST(
     // Get the booking
     const booking = await db.sessionBooking.findFirst({
       where: {
-        id: params.id,
+        id,
         studentId: userId
       },
       include: {

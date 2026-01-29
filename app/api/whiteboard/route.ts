@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
     if (sessionId) whereClause.sessionId = sessionId;
 
     // Students can only see public whiteboards or ones they participate in
-    if (session.user.role === 'STUDENT') {
+    if ((session.user as any).role === 'student') {
       whereClause.OR = [
         { isPublic: true },
         { 
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Only teachers and admins can create whiteboards
-    if (session.user.role !== 'TEACHER' && session.user.role !== 'ADMIN') {
+    if ((session.user as any).role !== 'teacher' && (session.user as any).role !== 'admin') {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

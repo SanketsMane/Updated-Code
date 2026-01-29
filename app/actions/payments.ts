@@ -19,7 +19,7 @@ export async function requestPayout(data: {
         headers: await headers()
     });
 
-    if (!session?.user || session.user.role !== "teacher") {
+    if (!session?.user || (session.user as any).role !== "teacher") {
         return { error: "Unauthorized" };
     }
 
@@ -84,7 +84,7 @@ export async function updatePayoutStatus(
         headers: await headers()
     });
 
-    if (!session?.user || session.user.role !== "admin") {
+    if (!session?.user || (session.user as any).role !== "admin") {
         return { error: "Unauthorized" };
     }
 
@@ -149,7 +149,7 @@ export async function updateRefundStatus(
         headers: await headers()
     });
 
-    if (!session?.user || session.user.role !== "admin") {
+    if (!session?.user || (session.user as any).role !== "admin") {
         return { error: "Unauthorized" };
     }
 

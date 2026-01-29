@@ -51,7 +51,7 @@ export default async function StudentGroupsPage() {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="flex-1 flex flex-col justify-end">
-                                {enrollment.status === "Approved" ? (
+                                {enrollment.status === "Active" ? (
                                     <form action={async () => {
                                         "use server";
                                         const result = await createGroupChat(group.id);

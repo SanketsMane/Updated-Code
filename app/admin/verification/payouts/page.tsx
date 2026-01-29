@@ -216,20 +216,20 @@ export default async function PayoutSystemPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {pendingPayouts.filter(p => p.status === 'approved').map((payout) => (
+                {pendingPayouts.filter(p => p.status === 'Approved').map((payout) => (
                   <Card key={payout.id} className="border-l-4 border-l-green-500">
                     <CardContent className="pt-6">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
                           <Avatar>
-                            <AvatarImage src={`/avatars/${payout.id}.jpg`} />
+                            <AvatarImage src={payout.teacher.user.image || undefined} />
                             <AvatarFallback>
-                              {payout.teacherName.split(' ').map(n => n[0]).join('')}
+                              {payout.teacher.user.name.split(' ').map(n => n[0]).join('')}
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <h3 className="font-semibold">{payout.teacherName}</h3>
-                            <p className="text-sm text-muted-foreground">{payout.email}</p>
+                            <h3 className="font-semibold">{payout.teacher.user.name}</h3>
+                            <p className="text-sm text-muted-foreground">{payout.teacher.user.email}</p>
                             <Badge variant="outline" className={getStatusColor(payout.status)}>
                               {payout.status}
                             </Badge>
@@ -237,7 +237,7 @@ export default async function PayoutSystemPage() {
                         </div>
                         <div className="text-right">
                           <div className="text-2xl font-bold text-green-600">
-                            ${payout.amount.toLocaleString()}
+                            ${Number(payout.requestedAmount).toLocaleString()}
                           </div>
                           <Button size="sm" className="mt-2">
                             <DollarSign className="h-4 w-4 mr-2" />

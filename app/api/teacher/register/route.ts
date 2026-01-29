@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
           email: validatedData.email,
           password: validatedData.password,
           name: validatedData.name,
-        },
+        } as any,
         asResponse: false
       });
 

@@ -53,6 +53,7 @@ export function PopularLanguages() {
                                         src={`https://flagcdn.com/w80/${lang.code}.png`}
                                         alt={lang.name}
                                         fill
+                                        sizes="40px"
                                         className="object-cover"
                                     />
                                     {/* Glass sheen overlay */}

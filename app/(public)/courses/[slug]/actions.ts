@@ -122,8 +122,11 @@ export async function enrollInCourseAction(
         });
       }
 
+      const finalCustomerId = (stripeCustomerId as string) || undefined;
+      
+      // @ts-expect-error - Stripe types mismatch for customer ID
       const checkoutSession = await stripe.checkout.sessions.create({
-        customer: stripeCustomerId,
+        customer: finalCustomerId,
         line_items: [
           {
             price: course.stripePriceId,

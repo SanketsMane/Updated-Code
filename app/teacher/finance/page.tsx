@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { getSession } from "@/lib/auth"; // Assuming auth utils
+
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ export default async function TeacherFinancePage() {
         headers: await headers()
     });
 
-    if (!session?.user || session.user.role !== "teacher") {
+    if (!session?.user || (session.user as any).role !== "teacher") {
         redirect("/");
     }
 
@@ -113,7 +113,7 @@ export default async function TeacherFinancePage() {
                                             <TableCell>{formatDate(payout.createdAt)}</TableCell>
                                             <TableCell>{formatPrice(Number(payout.requestedAmount))}</TableCell>
                                             <TableCell>
-                                                <Badge variant={payout.status === 'Completed' || payout.status === 'Paid' ? 'default' : 'secondary'}>
+                                                <Badge variant={payout.status === 'Completed' ? 'default' : 'secondary'}>
                                                     {payout.status}
                                                 </Badge>
                                             </TableCell>

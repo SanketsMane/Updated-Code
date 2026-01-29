@@ -83,7 +83,7 @@ export function Navbar() {
               email={session.user.email}
               name={session.user.name || session.user.email.split('@')[0]}
               image={session.user.image || `https://avatar.vercel.sh/${session.user.email}`}
-              role={session.user.role || undefined}
+              role={(session.user as any).role || undefined}
             />
           ) : (
             <div className="flex items-center gap-3">

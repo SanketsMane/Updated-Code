@@ -8,8 +8,9 @@ export const dynamic = "force-dynamic";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     // Verify authentication
     const session = await auth.api.getSession({ headers: await headers() });
@@ -24,7 +25,7 @@ export async function POST(
 
     // Get session details
     const liveSession = await db.liveSession.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         teacher: {
           include: {

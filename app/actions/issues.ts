@@ -87,7 +87,7 @@ export async function updateIssueStatus(
         headers: await headers()
     });
 
-    if (!session?.user || session.user.role !== "admin") {
+    if (!session?.user || (session.user as any).role !== "admin") {
         return { error: "Unauthorized" };
     }
 

@@ -14,5 +14,5 @@ export const requireUser = cache(async () => {
     return redirect("/login");
   }
 
-  return session.user;
+  return session.user as typeof session.user & { role: string | null };
 });

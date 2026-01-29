@@ -1,5 +1,6 @@
 "use client";
 
+// @ts-ignore
 import confetti from "canvas-confetti";
 
 export const useConfetti = () => {

@@ -44,7 +44,7 @@ export default async function EditRoute({
         <CourseActions
           courseId={courseId}
           status={data.status}
-          isTeacher={session?.user.role === "teacher"}
+          isTeacher={(session?.user as any).role === "teacher"}
         />
       </div>
 

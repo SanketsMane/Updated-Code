@@ -129,6 +129,7 @@ export default function RegisterPage() {
             src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071&auto=format&fit=crop"
             alt="Background"
             fill
+            sizes="50vw"
             className="object-cover opacity-40 mix-blend-overlay"
             priority
           />

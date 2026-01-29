@@ -1,19 +1,19 @@
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { EditGroupForm } from "../_components/edit-group-form";
+import { EditGroupForm } from "../../_components/edit-group-form";
 import { notFound } from "next/navigation";
 
-export default async function EditGroupPage({ params }: { params: { id: string } }) {
+export default async function EditGroupPage({ params }: { params: Promise<{ id: string }> }) {
     const session = await auth.api.getSession({
         headers: await headers()
     });
 
     // Await params in newer Next.js or just use as is if config allows. 
     // Next 15 requires awaiting params, but this codebase seems mixed. Assuming standard access.
-    const { id } = await Promise.resolve(params); // Safety wrapper
+    const { id } = await params; // Safety wrapper
 
-    if (!session?.user || session.user.role !== "teacher") return <div>Unauthorized</div>;
+    if (!session?.user || (session.user as any).role !== "teacher") return <div>Unauthorized</div>;
 
     const group = await prisma.groupClass.findUnique({
         where: { id }

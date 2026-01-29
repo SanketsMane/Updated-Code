@@ -23,7 +23,7 @@ export async function GET() {
         id: session.user.id,
         email: session.user.email,
         name: session.user.name,
-        role: session.user.role,
+        role: (session.user as any).role,
       },
       session: {
         id: session.session.id,

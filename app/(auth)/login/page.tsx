@@ -71,11 +71,22 @@ export default function LoginPage() {
           password: password,
         }, {
           onSuccess: () => {
-            toast.success("Login successful!");
+            toast.dismiss(); // Dismiss any loading toasts if present
+            toast.success("Login successful! Redirecting...");
             router.push("/dashboard");
           },
           onError: (ctx) => {
-            toast.error(ctx.error.message || "Invalid email or password");
+            console.error("Login Error:", ctx);
+            let message = ctx.error.message;
+            
+            // Improve user feedback for common auth errors
+            if (ctx.error.status === 401 || message?.toLowerCase().includes("invalid")) {
+              message = "Invalid email or password. Please try again.";
+            } else if (!message) {
+               message = "Unable to sign in. Please try again later.";
+            }
+            
+            toast.error(message);
             setIsLoading(false);
           }
         });
@@ -86,18 +97,26 @@ export default function LoginPage() {
           type: "sign-in",
         }, {
           onSuccess: () => {
-            toast.success("Email sent! Check your inbox.");
+             toast.dismiss();
+            toast.success("Verification code sent! Check your inbox.");
             router.push(`/verify-request?email=${email}`);
           },
           onError: (ctx) => {
-            toast.error(ctx.error.message || "Error sending email");
+             console.error("OTP Error:", ctx);
+             let message = ctx.error.message || "Failed to send verification code.";
+             if (ctx.error.status === 429) {
+                 message = "Too many attempts. Please try again later.";
+             }
+            toast.error(message);
             setIsLoading(false);
           }
         });
       }
-    } catch (error) {
-      console.error(error);
-      toast.error("An unexpected error occurred");
+    } catch (error: any) {
+      console.error("Unexpected submission error:", error);
+      // Fallback for unexpected errors that might slip through
+      const failureMsg = error?.message || "An unexpected error occurred. Please try again.";
+      toast.error(failureMsg);
       setIsLoading(false);
     }
   };
@@ -123,6 +142,7 @@ export default function LoginPage() {
             src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071&auto=format&fit=crop"
             alt="Background"
             fill
+            sizes="50vw"
             className="object-cover opacity-40 mix-blend-overlay"
             priority
           />

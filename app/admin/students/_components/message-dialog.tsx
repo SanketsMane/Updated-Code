@@ -26,7 +26,7 @@ interface MessageDialogProps {
 
 export function MessageDialog({ recipientId, recipientName, trigger }: MessageDialogProps) {
     const [open, setOpen] = useState(false);
-    const [state, formAction, isPending] = useActionState(sendMessage, {});
+    const [state, formAction, isPending] = useActionState(sendMessage, { success: false, message: "" });
 
     useEffect(() => {
         if (state?.success) {

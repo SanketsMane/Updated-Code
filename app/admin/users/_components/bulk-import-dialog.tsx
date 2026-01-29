@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea"; // Or file input
 import { bulkImportUsers } from "@/app/actions/users";
 import { toast } from "sonner";
 import { IconUpload } from "@tabler/icons-react";
-import { Papa } from "@/lib/papa-parse"; // Need to check if papaparse is installed or use simple split
+// import { Papa } from "@/lib/papa-parse";
 
 export function BulkImportDialog() {
     const [open, setOpen] = useState(false);

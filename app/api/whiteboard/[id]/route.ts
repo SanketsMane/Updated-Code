@@ -68,7 +68,7 @@ export async function GET(
     const isParticipant = whiteboard.participants.some(p => p.userId === session.user.id);
     const isOwner = whiteboard.createdById === session.user.id;
     const isPublic = whiteboard.isPublic;
-    const isAdminOrTeacher = ['ADMIN', 'TEACHER'].includes(session.user.role || '');
+    const isAdminOrTeacher = ['admin', 'teacher'].includes((session.user as any).role || '');
 
     if (!isParticipant && !isOwner && !isPublic && !isAdminOrTeacher) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
@@ -114,7 +114,7 @@ export async function PUT(
 
     // Check permissions
     const isOwner = whiteboard.createdById === session.user.id;
-    const isAdminOrTeacher = ['ADMIN', 'TEACHER'].includes(session.user.role || '');
+    const isAdminOrTeacher = ['admin', 'teacher'].includes((session.user as any).role || '');
 
     if (!isOwner && !isAdminOrTeacher) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
@@ -185,7 +185,7 @@ export async function DELETE(
 
     // Only owner or admin can delete
     const isOwner = whiteboard.createdById === session.user.id;
-    const isAdmin = session.user.role === 'ADMIN';
+    const isAdmin = (session.user as any).role === 'admin';
 
     if (!isOwner && !isAdmin) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });

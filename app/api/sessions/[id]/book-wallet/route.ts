@@ -9,11 +9,11 @@ import { deductFromWallet } from "@/app/actions/wallet";
  */
 export async function POST(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const user = await requireUser();
-        const { id: sessionId } = params;
+        const { id: sessionId } = await params;
 
         // Get session details
         const session = await prisma.liveSession.findUnique({
@@ -84,7 +84,9 @@ export async function POST(
                 data: {
                     teacherId: session.teacherId,
                     amount: netAmount,
+                    commission: commissionAmount,
                     commissionAmount,
+                    netAmount,
                     type: "LiveSession",
                     status: "Pending",
                     description: `Live session: ${session.title}`,

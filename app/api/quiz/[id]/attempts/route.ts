@@ -42,7 +42,7 @@ export async function GET(
     let whereClause: any = { quizId: id };
 
     // Students can only see their own attempts
-    if (session.user.role === 'STUDENT') {
+    if ((session.user as any).role === 'student') {
       whereClause.userId = session.user.id;
     } else if (userId) {
       whereClause.userId = userId;
