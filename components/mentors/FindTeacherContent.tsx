@@ -3,7 +3,7 @@
 import { MotionWrapper } from "@/components/ui/motion-wrapper";
 import { MentorMatchWizard } from "@/components/marketing/MentorMatchWizard";
 import { HorizontalTeacherCard } from "@/components/marketing/HorizontalTeacherCard";
-import { ShieldCheck, Search, SlidersHorizontal, ChevronDown, X, ArrowUp, Filter, Star } from "lucide-react";
+import { ShieldCheck, Search, SlidersHorizontal, ChevronDown, X, ArrowUp, Filter, Star, Globe, Languages, Users, Zap, Award, Clock } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { PackagesList } from "@/components/mentors/PackagesList";
 
@@ -21,6 +21,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 import { FeaturedMentor } from "@/app/data/marketing/get-marketing-data";
 
@@ -36,17 +38,21 @@ export interface TeacherWithProfile {
     speaks: string[];
     description: string;
     country: string;
+    gender: string;
+    experience: number;
     isVerified: boolean;
+    availability: any;
 }
 
 interface FindTeacherContentProps {
     teachers: TeacherWithProfile[];
     featuredMentors: FeaturedMentor[];
     allCategories?: string[];
+    allLanguages?: string[];
     packages?: any[];
 }
 
-export function FindTeacherContent({ teachers, featuredMentors, allCategories = [], packages = [] }: FindTeacherContentProps) {
+export function FindTeacherContent({ teachers, featuredMentors, allCategories = [], allLanguages = [], packages = [] }: FindTeacherContentProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [categorySearch, setCategorySearch] = useState("");
@@ -57,6 +63,19 @@ export function FindTeacherContent({ teachers, featuredMentors, allCategories = 
     const [sortBy, setSortBy] = useState("popularity");
     const [showScrollTop, setShowScrollTop] = useState(false);
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+    // New Filters
+    const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
+    const [selectedGender, setSelectedGender] = useState<string | null>(null);
+    const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+    const [minRating, setMinRating] = useState<number | null>(null);
+    const [experienceRange, setExperienceRange] = useState<[number, number]>([0, 30]);
+    const [isOnlineOnly, setIsOnlineOnly] = useState(false);
+
+    const [languageSearch, setLanguageSearch] = useState("");
+    const [countrySearch, setCountrySearch] = useState("");
+    const [isLanguageOpen, setIsLanguageOpen] = useState(false);
+    const [isCountryOpen, setIsCountryOpen] = useState(false);
 
     const availabilityOptions = ["Instant Booking", "Free Trial", "Weekends"];
 
@@ -82,7 +101,20 @@ export function FindTeacherContent({ teachers, featuredMentors, allCategories = 
             const isMaxPrice = priceRange[1] === 10000;
             const matchesPrice = teacher.hourlyRate >= priceRange[0] && (isMaxPrice ? true : teacher.hourlyRate <= priceRange[1]);
 
-            return matchesSearch && matchesCategory && matchesPrice;
+            // New filters
+            const matchesLanguage = !selectedLanguage || teacher.speaks.some(s => s.toLowerCase() === selectedLanguage.toLowerCase());
+            const matchesGender = !selectedGender || teacher.gender?.toLowerCase() === selectedGender.toLowerCase();
+            const matchesCountry = !selectedCountry || teacher.country?.toLowerCase() === selectedCountry.toLowerCase();
+            const matchesRating = !minRating || teacher.rating >= minRating;
+            const matchesExperience = teacher.experience >= experienceRange[0] && teacher.experience <= experienceRange[1];
+            
+            // Online status is a bit tricky, for now we match any teacher if not toggled, 
+            // otherwise we'd need real-time data or a flag. Assuming isVerified for "Online" for demo if toggled.
+            // In a real app, this would check a Redis/DB status.
+            const matchesOnline = !isOnlineOnly || teacher.isVerified; 
+
+            return matchesSearch && matchesCategory && matchesPrice && matchesLanguage && 
+                   matchesGender && matchesCountry && matchesRating && matchesExperience && matchesOnline;
         });
 
         // Sorting Logic
@@ -128,9 +160,21 @@ export function FindTeacherContent({ teachers, featuredMentors, allCategories = 
         setSelectedCategory(null);
         setSelectedAvailability([]);
         setPriceRange([0, 10000]);
+        setSelectedLanguage(null);
+        setSelectedGender(null);
+        setSelectedCountry(null);
+        setMinRating(null);
+        setExperienceRange([0, 30]);
+        setIsOnlineOnly(false);
     };
 
-    const activeFiltersCount = (selectedCategory ? 1 : 0) + selectedAvailability.length;
+    const activeFiltersCount = (selectedCategory ? 1 : 0) + 
+                             (selectedLanguage ? 1 : 0) + 
+                             (selectedGender ? 1 : 0) + 
+                             (selectedCountry ? 1 : 0) + 
+                             (minRating ? 1 : 0) + 
+                             (isOnlineOnly ? 1 : 0) + 
+                             selectedAvailability.length;
 
     return (
         <div className="min-h-screen bg-neutral-50 dark:bg-[#0f172a] font-sans text-slate-900 dark:text-slate-50 pb-20">
@@ -259,6 +303,56 @@ export function FindTeacherContent({ teachers, featuredMentors, allCategories = 
                                         <X className="h-3 w-3" />
                                     </Badge>
                                 )}
+                                {selectedLanguage && (
+                                    <Badge
+                                        variant="secondary"
+                                        className="bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-900/40 dark:text-indigo-300 dark:border-indigo-800 hover:bg-indigo-200 cursor-pointer gap-1 pl-3 pr-2 py-1.5"
+                                        onClick={() => setSelectedLanguage(null)}
+                                    >
+                                        Language: {selectedLanguage}
+                                        <X className="h-3 w-3" />
+                                    </Badge>
+                                )}
+                                {selectedCountry && (
+                                    <Badge
+                                        variant="secondary"
+                                        className="bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-300 dark:border-emerald-800 hover:bg-emerald-200 cursor-pointer gap-1 pl-3 pr-2 py-1.5"
+                                        onClick={() => setSelectedCountry(null)}
+                                    >
+                                        Country: {selectedCountry}
+                                        <X className="h-3 w-3" />
+                                    </Badge>
+                                )}
+                                {selectedGender && (
+                                    <Badge
+                                        variant="secondary"
+                                        className="bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/40 dark:text-purple-300 dark:border-purple-800 hover:bg-purple-200 cursor-pointer gap-1 pl-3 pr-2 py-1.5"
+                                        onClick={() => setSelectedGender(null)}
+                                    >
+                                        Gender: {selectedGender}
+                                        <X className="h-3 w-3" />
+                                    </Badge>
+                                )}
+                                {minRating && (
+                                    <Badge
+                                        variant="secondary"
+                                        className="bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-800 hover:bg-amber-200 cursor-pointer gap-1 pl-3 pr-2 py-1.5"
+                                        onClick={() => setMinRating(null)}
+                                    >
+                                        Rating: {minRating}+ Stars
+                                        <X className="h-3 w-3" />
+                                    </Badge>
+                                )}
+                                {isOnlineOnly && (
+                                    <Badge
+                                        variant="secondary"
+                                        className="bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-900/40 dark:text-rose-300 dark:border-rose-800 hover:bg-rose-200 cursor-pointer gap-1 pl-3 pr-2 py-1.5"
+                                        onClick={() => setIsOnlineOnly(false)}
+                                    >
+                                        Online Now
+                                        <X className="h-3 w-3" />
+                                    </Badge>
+                                )}
                                 {activeFiltersCount > 0 && (
                                     <Button
                                         variant="ghost"
@@ -304,10 +398,24 @@ export function FindTeacherContent({ teachers, featuredMentors, allCategories = 
                             {/* Filter Groups */}
                             <div className="space-y-6">
                                 {/* Languages */}
+                                {/* Online Now Toggle */}
+                                <div className="flex items-center justify-between p-3 bg-blue-50/50 dark:bg-blue-900/10 rounded-xl border border-blue-100 dark:border-blue-900/20">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Online Now</span>
+                                    </div>
+                                    <Switch 
+                                        checked={isOnlineOnly}
+                                        onCheckedChange={setIsOnlineOnly}
+                                    />
+                                </div>
+
+                                <div className="h-px bg-slate-100 dark:bg-slate-800" />
+
                                 {/* Categories / Profile Filter */}
                                 <div className="space-y-3">
-                                    <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-                                        Profile
+                                    <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                        <Award className="w-4 h-4 text-blue-500" /> Subject / Category
                                     </h4>
 
                                     <Popover open={isCategoryOpen} onOpenChange={setIsCategoryOpen}>
@@ -316,7 +424,7 @@ export function FindTeacherContent({ teachers, featuredMentors, allCategories = 
                                                 className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm flex items-center justify-between cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-colors"
                                             >
                                                 <span className={selectedCategory ? "text-slate-900 dark:text-white font-medium" : "text-slate-500 dark:text-slate-400"}>
-                                                    {selectedCategory || "Select Category"}
+                                                    {selectedCategory || "Select Subject"}
                                                 </span>
                                                 <ChevronDown className="h-4 w-4 text-slate-400" />
                                             </div>
@@ -324,7 +432,7 @@ export function FindTeacherContent({ teachers, featuredMentors, allCategories = 
                                         <PopoverContent className="w-[280px] p-0" align="start">
                                             <div className="p-2 border-b border-slate-100 dark:border-slate-800">
                                                 <Input
-                                                    placeholder="Search categories..."
+                                                    placeholder="Search subjects..."
                                                     value={categorySearch}
                                                     onChange={(e) => setCategorySearch(e.target.value)}
                                                     className="h-9 border-none bg-slate-50 dark:bg-slate-800 focus-visible:ring-0"
@@ -351,14 +459,204 @@ export function FindTeacherContent({ teachers, featuredMentors, allCategories = 
                                                             {selectedCategory === cat && <Check className="h-4 w-4" />}
                                                         </div>
                                                     ))}
-                                                {allCategories.filter(cat => cat.toLowerCase().includes(categorySearch.toLowerCase())).length === 0 && (
-                                                    <div className="p-3 text-center text-xs text-slate-400">
-                                                        No categories found
-                                                    </div>
-                                                )}
                                             </div>
                                         </PopoverContent>
                                     </Popover>
+                                </div>
+
+                                <div className="h-px bg-slate-100 dark:bg-slate-800" />
+
+                                {/* Languages Filter */}
+                                <div className="space-y-3">
+                                    <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                        <Languages className="w-4 h-4 text-indigo-500" /> Language of Instruction
+                                    </h4>
+
+                                    <Popover open={isLanguageOpen} onOpenChange={setIsLanguageOpen}>
+                                        <PopoverTrigger asChild>
+                                            <div
+                                                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm flex items-center justify-between cursor-pointer hover:border-indigo-400 dark:hover:border-indigo-500 transition-colors"
+                                            >
+                                                <span className={selectedLanguage ? "text-slate-900 dark:text-white font-medium" : "text-slate-500 dark:text-slate-400"}>
+                                                    {selectedLanguage || "Select Language"}
+                                                </span>
+                                                <ChevronDown className="h-4 w-4 text-slate-400" />
+                                            </div>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-[280px] p-0" align="start">
+                                            <div className="p-2 border-b border-slate-100 dark:border-slate-800">
+                                                <Input
+                                                    placeholder="Search languages..."
+                                                    value={languageSearch}
+                                                    onChange={(e) => setLanguageSearch(e.target.value)}
+                                                    className="h-9 border-none bg-slate-50 dark:bg-slate-800 focus-visible:ring-0"
+                                                />
+                                            </div>
+                                            <div className="max-h-[300px] overflow-y-auto p-1">
+                                                {allLanguages
+                                                    .filter(lang => lang.toLowerCase().includes(languageSearch.toLowerCase()))
+                                                    .map((lang, idx) => (
+                                                        <div
+                                                            key={idx}
+                                                            onClick={() => {
+                                                                setSelectedLanguage(lang === selectedLanguage ? null : lang);
+                                                                setIsLanguageOpen(false);
+                                                            }}
+                                                            className={cn(
+                                                                "flex items-center justify-between px-3 py-2 rounded-md text-sm cursor-pointer transition-colors",
+                                                                selectedLanguage === lang
+                                                                    ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-200"
+                                                                    : "hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
+                                                            )}
+                                                        >
+                                                            {lang}
+                                                            {selectedLanguage === lang && <Check className="h-4 w-4" />}
+                                                        </div>
+                                                    ))}
+                                            </div>
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+
+                                <div className="h-px bg-slate-100 dark:bg-slate-800" />
+
+                                {/* Country Filter */}
+                                <div className="space-y-3">
+                                    <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                        <Globe className="w-4 h-4 text-emerald-500" /> Country
+                                    </h4>
+
+                                    <Popover open={isCountryOpen} onOpenChange={setIsCountryOpen}>
+                                        <PopoverTrigger asChild>
+                                            <div
+                                                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm flex items-center justify-between cursor-pointer hover:border-emerald-400 dark:hover:border-emerald-500 transition-colors"
+                                            >
+                                                <span className={selectedCountry ? "text-slate-900 dark:text-white font-medium" : "text-slate-500 dark:text-slate-400"}>
+                                                    {selectedCountry || "Select Country"}
+                                                </span>
+                                                <ChevronDown className="h-4 w-4 text-slate-400" />
+                                            </div>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-[280px] p-0" align="start">
+                                            <div className="p-2 border-b border-slate-100 dark:border-slate-800">
+                                                <Input
+                                                    placeholder="Search countries..."
+                                                    value={countrySearch}
+                                                    onChange={(e) => setCountrySearch(e.target.value)}
+                                                    className="h-9 border-none bg-slate-50 dark:bg-slate-800 focus-visible:ring-0"
+                                                />
+                                            </div>
+                                            <div className="max-h-[300px] overflow-y-auto p-1">
+                                                {/* Deduplicate and filter countries from teachers list */}
+                                                {Array.from(new Set(teachers.map(t => t.country)))
+                                                    .filter(c => c && c.toLowerCase().includes(countrySearch.toLowerCase()))
+                                                    .map((country, idx) => (
+                                                        <div
+                                                            key={idx}
+                                                            onClick={() => {
+                                                                setSelectedCountry(country === selectedCountry ? null : country);
+                                                                setIsCountryOpen(false);
+                                                            }}
+                                                            className={cn(
+                                                                "flex items-center justify-between px-3 py-2 rounded-md text-sm cursor-pointer transition-colors",
+                                                                selectedCountry === country
+                                                                    ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-200"
+                                                                    : "hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
+                                                            )}
+                                                        >
+                                                            {country}
+                                                            {selectedCountry === country && <Check className="h-4 w-4" />}
+                                                        </div>
+                                                    ))}
+                                            </div>
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+
+                                <div className="h-px bg-slate-100 dark:bg-slate-800" />
+
+                                {/* Gender Filter */}
+                                <div className="space-y-3">
+                                    <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                        <Users className="w-4 h-4 text-purple-500" /> Gender
+                                    </h4>
+                                    <RadioGroup 
+                                        value={selectedGender || "all"} 
+                                        onValueChange={(val) => setSelectedGender(val === "all" ? null : val)}
+                                        className="flex flex-col gap-2"
+                                    >
+                                        <div className="flex items-center space-x-2">
+                                            <RadioGroupItem value="all" id="g-all" />
+                                            <Label htmlFor="g-all" className="text-sm font-normal cursor-pointer">All</Label>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <RadioGroupItem value="Male" id="g-male" />
+                                            <Label htmlFor="g-male" className="text-sm font-normal cursor-pointer">Male</Label>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <RadioGroupItem value="Female" id="g-female" />
+                                            <Label htmlFor="g-female" className="text-sm font-normal cursor-pointer">Female</Label>
+                                        </div>
+                                    </RadioGroup>
+                                </div>
+
+                                <div className="h-px bg-slate-100 dark:bg-slate-800" />
+
+                                {/* Experience Filter */}
+                                <div className="space-y-3">
+                                    <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                        <Clock className="w-4 h-4 text-orange-500" /> Experience (Years)
+                                    </h4>
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <div className="bg-slate-50 dark:bg-slate-800 p-2 rounded-lg text-xs flex-1 text-center font-medium">{experienceRange[0]}y</div>
+                                        <span className="text-slate-400">-</span>
+                                        <div className="bg-slate-50 dark:bg-slate-800 p-2 rounded-lg text-xs flex-1 text-center font-medium">{experienceRange[1]}y+</div>
+                                    </div>
+                                    <Slider
+                                        defaultValue={[0, 30]}
+                                        max={30}
+                                        step={1}
+                                        value={experienceRange}
+                                        onValueChange={(val) => setExperienceRange(val as [number, number])}
+                                        className="py-4"
+                                    />
+                                </div>
+
+                                <div className="h-px bg-slate-100 dark:bg-slate-800" />
+
+                                {/* Ratings Filter */}
+                                <div className="space-y-3">
+                                    <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                        <Star className="w-4 h-4 text-amber-500" /> Minimum Rating
+                                    </h4>
+                                    <div className="flex flex-col gap-2">
+                                        {[4.5, 4.0, 3.5, 3.0].map((rating) => (
+                                            <div 
+                                                key={rating}
+                                                onClick={() => setMinRating(minRating === rating ? null : rating)}
+                                                className={cn(
+                                                    "flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all border",
+                                                    minRating === rating 
+                                                        ? "bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800" 
+                                                        : "border-transparent hover:bg-slate-50 dark:hover:bg-slate-800"
+                                                )}
+                                            >
+                                                <div className="flex items-center gap-1">
+                                                    {Array.from({ length: 5 }).map((_, i) => (
+                                                        <Star 
+                                                            key={i} 
+                                                            className={cn(
+                                                                "w-3 h-3", 
+                                                                i < Math.floor(rating) ? "text-amber-500 fill-amber-500" : "text-slate-300"
+                                                            )} 
+                                                        />
+                                                    ))}
+                                                    <span className="text-xs font-semibold ml-1">{rating}+</span>
+                                                </div>
+                                                {minRating === rating && <Check className="w-3 h-3 text-amber-600" />}
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
 
                                 <div className="h-px bg-slate-100 dark:bg-slate-800" />

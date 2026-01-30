@@ -56,6 +56,8 @@
     "@tiptap/starter-kit": "^2.14.0",
     "@types/bcryptjs": "^2.4.6",
     "agora-access-token": "^2.0.4",
+    "agora-rtc-react": "^2.5.1",
+    "agora-rtc-sdk-ng": "^4.24.2",
     "bcryptjs": "^3.0.3",
     "better-auth": "^1.2.8",
     "canvas-confetti": "^1.9.4",

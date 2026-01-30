@@ -299,34 +299,37 @@ export function SessionsList({ status, filter = 'all' }: SessionsListProps) {
                     </div>
                   </div>
 
-                  {/* Student Info */}
-                  {session.student ? (
-                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage src={session.student.image} />
-                        <AvatarFallback>
-                          {session.student.name?.substring(0, 2).toUpperCase() || 'ST'}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">{session.student.name}</p>
-                        <p className="text-xs text-muted-foreground">{session.student.email}</p>
+                  {/* Student Info & Start Action */}
+                  <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                    {session.student ? (
+                      <>
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={session.student.image} />
+                          <AvatarFallback>
+                            {session.student.name?.substring(0, 2).toUpperCase() || 'ST'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{session.student.name}</p>
+                          <p className="text-xs text-muted-foreground">{session.student.email}</p>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="flex-1 flex items-center gap-2 text-sm text-muted-foreground">
+                        <User className="h-4 w-4" />
+                        <span>Available for booking</span>
                       </div>
-                      {session.status === 'scheduled' && session.meetingUrl && (
-                        <Link href={session.meetingUrl}>
-                          <Button size="sm">
-                            <Video className="h-4 w-4 mr-2" />
-                            Start Session
-                          </Button>
-                        </Link>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <User className="h-4 w-4" />
-                      <span>Available for booking</span>
-                    </div>
-                  )}
+                    )}
+                    
+                    {session.status === 'scheduled' && (
+                      <Link href={`/video-call/${session.id}`}>
+                        <Button size="sm" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
+                          <Video className="h-4 w-4 mr-2" />
+                          Start Session
+                        </Button>
+                      </Link>
+                    )}
+                  </div>
 
                   {/* Time Until Session */}
                   {session.status === 'scheduled' && new Date(session.scheduledAt) > new Date() && (

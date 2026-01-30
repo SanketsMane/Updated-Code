@@ -22,6 +22,8 @@ interface TeacherCardProps {
         speaks: string[];
         description: string;
         country: string;
+        gender: string;
+        experience: number;
         isVerified: boolean;
         availability?: Record<string, string[]> | object;
     }
@@ -116,6 +118,12 @@ export function HorizontalTeacherCard({ teacher }: TeacherCardProps) {
                                     {lang}
                                 </Badge>
                             ))}
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2 text-sm">
+                            <span className="font-semibold text-slate-700 dark:text-slate-300">Experience:</span>
+                            <span className="text-slate-600 dark:text-slate-400">
+                                {teacher.experience} Years
+                            </span>
                         </div>
                         <div className="flex flex-wrap items-center gap-2 text-sm">
                             <span className="font-semibold text-slate-700 dark:text-slate-300">Speaks:</span>

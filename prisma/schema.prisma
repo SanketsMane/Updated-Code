@@ -22,6 +22,8 @@ model User {
   banReason                   String?
   banExpires                  DateTime?
   bio                         String?
+  gender                      String?
+  country                     String?
   education                   String?
   blogPosts                   BlogPost[]               @relation("BlogPosts")
   certificates                Certificate[]            @relation("UserCertificates")

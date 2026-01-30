@@ -16,8 +16,7 @@ const authOptions = {
     "http://localhost:3001",
     "http://localhost:3002",
     "http://localhost:3003",
-    "https://kidokool-lms.vercel.app",
-    "https://kidokool-lms-pink.vercel.app",
+    "http://16.176.20.69",
     ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
   ],
   // socialProviders: {
@@ -29,6 +28,26 @@ const authOptions = {
 
   emailAndPassword: {
     enabled: true,
+    async sendResetPassword({ user, url }: { user: any; url: string }) {
+      await sendEmail({
+        to: user.email,
+        subject: "KIDOKOOL - Reset Your Password",
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 10px; margin-bottom: 30px;">
+              <h1>🔐 Password Reset Request</h1>
+            </div>
+            <p>Hi ${user.name || "there"},</p>
+            <p>We received a request to reset your password. Click the button below to set a new password:</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${url}" style="background: #ff6b6b; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">Reset Password</a>
+            </div>
+            <p>This link will expire in 1 hour.</p>
+            <p>If you didn't request this, you can safely ignore this email.</p>
+          </div>
+        `,
+      });
+    },
   },
   user: {
     additionalFields: {

@@ -42,16 +42,32 @@ export default async function FindTeacherPage() {
         teaches: t.expertise,
         speaks: t.languages,
         description: t.bio || "No description available.",
-        country: "Global", // Schema doesn't have country yet
+        // @ts-ignore
+        country: t.user.country || "Global",
+        // @ts-ignore
+        gender: t.user.gender || "Not Specified",
+        experience: t.experience || 0,
         isVerified: t.isVerified,
         availability: t.availability || {}
     }));
 
-    const categories = await prisma.category.findMany({
+    const categories = await prisma.expertise.findMany({
         where: { isActive: true },
         select: { name: true },
         orderBy: { name: 'asc' }
     });
 
-    return <FindTeacherContent teachers={formattedTeachers} packages={packages} featuredMentors={featuredMentors} allCategories={categories.map(c => c.name)} />;
+    const languages = await prisma.language.findMany({
+        where: { isActive: true },
+        select: { name: true },
+        orderBy: { name: 'asc' }
+    });
+
+    return <FindTeacherContent 
+        teachers={formattedTeachers} 
+        packages={packages} 
+        featuredMentors={featuredMentors} 
+        allCategories={categories.map(c => c.name)}
+        allLanguages={languages.map(l => l.name)}
+    />;
 }

@@ -18,10 +18,6 @@ export default async function VideoCallPage({ params }: VideoCallPageProps) {
       <div className="h-screen w-screen bg-gray-900">
         <VideoCall
           sessionId={sessionId}
-          onCallEnd={() => {
-            // Redirect back to sessions after call ends
-            window.location.href = "/dashboard/sessions";
-          }}
         />
       </div>
     );

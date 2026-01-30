@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { CalendarIcon, Loader2 } from "lucide-react";
-import { format } from "date-fns";
+import { format, startOfToday, isBefore } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -277,7 +277,13 @@ export function CreateSessionForm() {
                     setSelectedDate(date);
                     setValue("scheduledDate", date);
                   }}
-                  disabled={(date) => date < new Date()}
+                  disabled={(date) => isBefore(date, startOfToday())}
+                  modifiers={{
+                    past: (date) => isBefore(date, startOfToday()),
+                  }}
+                  modifiersClassNames={{
+                    past: "text-red-500 opacity-100 font-bold hover:bg-transparent pointer-events-none",
+                  }}
                   initialFocus
                 />
               </PopoverContent>
