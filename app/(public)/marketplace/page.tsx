@@ -21,11 +21,17 @@ export default async function MarketplacePage() {
     teaches: t.expertise || [],
     speaks: t.languages || [],
     description: t.bio || "",
-    country: "Global", // Schema doesn't have country
+    // @ts-ignore
+    country: t.user.country || "Global",
+    // @ts-ignore
+    gender: t.user.gender || "Not Specified",
+    experience: t.experience || 0,
     isVerified: t.isVerified || false,
+    availability: t.availability || {},
   }));
 
-  const allCategoriesData = await prisma.category.findMany({
+  const allCategoriesData = await prisma.expertise.findMany({
+    where: { isActive: true },
     select: { name: true }
   });
   const allCategories = allCategoriesData.map(c => c.name);
