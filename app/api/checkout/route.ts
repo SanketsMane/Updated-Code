@@ -12,6 +12,10 @@ const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY || "", {
 });
 
 export async function POST(req: Request) {
+    /**
+     * Handles course checkout with coupon validation and Stripe session creation.
+     * Author: Sanket
+     */
     try {
         const stripe = getStripe();
         const session = await getSessionWithRole();
@@ -21,7 +25,7 @@ export async function POST(req: Request) {
             return new NextResponse("Unauthorized", { status: 401 });
         }
 
-        const { courseId } = await req.json();
+        const { courseId, couponCode } = await req.json();
 
         if (!courseId) {
             return new NextResponse("Missing Course ID", { status: 400 });
@@ -62,6 +66,39 @@ export async function POST(req: Request) {
             return new NextResponse("Already purchased", { status: 400 });
         }
 
+        // Coupon Logic
+        let finalPrice = course.price;
+        let couponId: string | undefined;
+
+        if (couponCode) {
+            const coupon = await prisma.coupon.findUnique({
+                where: { code: couponCode, isActive: true }
+            });
+
+            if (coupon) {
+                const now = new Date();
+                const isValid = 
+                    (!coupon.expiryDate || now <= coupon.expiryDate) &&
+                    (coupon.usedCount < coupon.usageLimit);
+                
+                // Check if global or teacher-specific
+                const isApplicableForTeacher = !coupon.teacherId || coupon.teacherId === course.userId;
+                // Check if applicable on FULL course
+                const isApplicableOnType = coupon.applicableOn.includes("FULL");
+
+                if (isValid && isApplicableForTeacher && isApplicableOnType) {
+                    let discount = 0;
+                    if (coupon.type === "PERCENTAGE") {
+                        discount = Math.round((course.price * coupon.value) / 100);
+                    } else {
+                        discount = coupon.value;
+                    }
+                    finalPrice = Math.max(0, course.price - discount);
+                    couponId = coupon.id;
+                }
+            }
+        }
+
         // Create Stripe Session
         const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [
             {
@@ -73,7 +110,7 @@ export async function POST(req: Request) {
                         description: course.smallDescription || undefined,
                         images: course.fileKey ? [`https://utfs.io/f/${course.fileKey}`] : [],
                     },
-                    unit_amount: Math.round(course.price! * 100), // Stripe expects cents
+                    unit_amount: Math.round(finalPrice * 100), // Stripe expects cents
                 },
             },
         ];
@@ -109,7 +146,7 @@ export async function POST(req: Request) {
             data: {
                 userId: user.id,
                 courseId: courseId,
-                amount: Math.round(course.price! * 100),
+                amount: Math.round(finalPrice * 100),
                 status: "Pending", // Important: Initial status
             }
         });
@@ -124,6 +161,7 @@ export async function POST(req: Request) {
                 courseId: course.id,
                 userId: user.id,
                 enrollmentId: enrollment.id, // Pass to Webhook
+                couponId: couponId || "",
             },
         });
 

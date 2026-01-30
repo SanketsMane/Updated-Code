@@ -30,12 +30,12 @@ export async function generateCertificate(courseId: string) {
         const completedProgress = await prisma.lessonProgress.count({
             where: {
                 userId: session.id,
-                Lesson: {
-                    Chapter: {
-                        courseId: courseId,
-                    },
-                },
                 completed: true,
+                Lesson: {
+                    chapterId: {
+                        in: course.chapter.map(c => c.id)
+                    }
+                }
             },
         });
 

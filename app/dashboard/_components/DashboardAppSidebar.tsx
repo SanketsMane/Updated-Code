@@ -48,7 +48,7 @@ const data = {
     },
     {
       title: "All Courses",
-      url: "/dashboard/all-courses",
+      url: "/courses",
       icon: IconBook,
     },
     {
@@ -125,6 +125,10 @@ import { authClient } from "@/lib/auth-client";
 import { IconSchool } from "@tabler/icons-react";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  /**
+   * Application sidebar with dynamic navigation and role-based links.
+   * Author: Sanket
+   */
   const { data: session } = authClient.useSession();
   const role = session?.user?.role;
 

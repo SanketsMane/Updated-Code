@@ -11,6 +11,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CheckCircle, AlertTriangle, XCircle, ArrowUpCircle } from "lucide-react";
 
 export default async function AdminIssuesPage() {
+    /**
+     * Admin dashboard for managing and escalating user issues.
+     * Author: Sanket
+     */
     const issues = await prisma.issue.findMany({
         orderBy: { createdAt: "desc" },
         include: { reporter: { select: { name: true, email: true } } }
@@ -19,6 +23,7 @@ export default async function AdminIssuesPage() {
     const escalatedIssues = issues.filter(i => i.isEscalated || i.status === "Escalated");
     const openIssues = issues.filter(i => i.status === "Open" || i.status === "InProgress");
     const resolvedIssues = issues.filter(i => i.status === "Resolved" || i.status === "Closed");
+    const disputes = issues.filter(i => i.category === "Dispute" || i.category === "Class / Teacher Dispute");
 
     return (
         <div className="space-y-6">
@@ -30,6 +35,9 @@ export default async function AdminIssuesPage() {
             <Tabs defaultValue="all">
                 <TabsList>
                     <TabsTrigger value="all">All Issues ({issues.length})</TabsTrigger>
+                    <TabsTrigger value="disputes" className="text-orange-600 data-[state=active]:text-orange-700">
+                        Disputes ({disputes.length})
+                    </TabsTrigger>
                     <TabsTrigger value="escalated" className="text-red-500 data-[state=active]:text-red-600">
                         Escalated ({escalatedIssues.length})
                     </TabsTrigger>
@@ -39,6 +47,9 @@ export default async function AdminIssuesPage() {
 
                 <TabsContent value="all" className="mt-4">
                     <IssueTable issues={issues} />
+                </TabsContent>
+                <TabsContent value="disputes" className="mt-4">
+                    <IssueTable issues={disputes} />
                 </TabsContent>
                 <TabsContent value="escalated" className="mt-4">
                     <IssueTable issues={escalatedIssues} />

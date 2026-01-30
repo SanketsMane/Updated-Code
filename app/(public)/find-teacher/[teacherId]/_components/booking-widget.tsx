@@ -25,6 +25,7 @@ export function BookingWidget({
 }: BookingWidgetProps) {
     const [selectedDate, setSelectedDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() + 1))); // Tomorrow
     const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+    const [couponCode, setCouponCode] = useState("");
     const [isPending, startTransition] = useTransition();
 
     const handleBook = () => {
@@ -32,20 +33,18 @@ export function BookingWidget({
 
         startTransition(async () => {
             try {
-                // Construct a proper Date object from selectedDate + selectedSlot time
-                // For demo, we just pass the string or construct loosely
                 const dateTimeStr = `${format(selectedDate, 'yyyy-MM-dd')} ${selectedSlot}`;
 
                 const result = await bookSessionAction({
                     teacherProfileId,
                     dateTime: dateTimeStr,
-                    price: hourlyRate
+                    price: hourlyRate,
+                    couponCode: couponCode || undefined
                 });
 
                 if (result.success && result.sessionId) {
                     toast.success("Session Booked Successfully!");
-                    // Redirect to success or session page
-                    window.location.href = `/video-call/${result.sessionId}`; // Direct to call or dashboard
+                    window.location.href = `/video-call/${result.sessionId}`;
                 } else {
                     toast.error(result.error || "Failed to book session");
                 }
@@ -100,6 +99,19 @@ export function BookingWidget({
                             <p className="text-xs text-muted-foreground mt-1">Please contact the instructor.</p>
                         </div>
                     )}
+                </div>
+
+                <div className="pt-4 border-t">
+                    <label className="text-xs font-semibold text-muted-foreground mb-2 block uppercase tracking-wider">Discount Coupon</label>
+                    <div className="flex gap-2">
+                        <input 
+                            type="text" 
+                            placeholder="Enter Code"
+                            className="flex-1 px-3 py-2 rounded-lg border text-sm outline-none focus:border-primary uppercase"
+                            value={couponCode}
+                            onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                        />
+                    </div>
                 </div>
             </div>
 

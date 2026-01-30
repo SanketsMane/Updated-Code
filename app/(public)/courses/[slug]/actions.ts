@@ -122,14 +122,13 @@ export async function enrollInCourseAction(
         });
       }
 
-      const finalCustomerId = (stripeCustomerId as string) || undefined;
-      
-      // @ts-expect-error - Stripe types mismatch for customer ID
+      const finalCustomerId = stripeCustomerId || undefined;
+
       const checkoutSession = await stripe.checkout.sessions.create({
         customer: finalCustomerId,
         line_items: [
           {
-            price: course.stripePriceId,
+            price: course.stripePriceId || undefined,
             quantity: 1,
           },
         ],
@@ -137,9 +136,9 @@ export async function enrollInCourseAction(
         success_url: `${env.BETTER_AUTH_URL}/payment/success`,
         cancel_url: `${env.BETTER_AUTH_URL}/payment/cancel`,
         metadata: {
-          userId: user.id,
-          courseId: course.id,
-          enrollmentId: enrollment.id,
+          userId: user.id || "",
+          courseId: course.id || "",
+          enrollmentId: enrollment.id || "",
         },
       });
 

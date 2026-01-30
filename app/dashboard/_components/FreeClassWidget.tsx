@@ -12,6 +12,11 @@ interface FreeClassWidgetProps {
 }
 
 export function FreeClassWidget({ usage }: FreeClassWidgetProps) {
+    /**
+     * Component to display student's free trial availability.
+     * Enforces lifetime limits for Demo and Group classes.
+     * Author: Sanket
+     */
     const demoAvailable = !usage?.demoUsed;
     const groupAvailable = !usage?.groupUsed;
     

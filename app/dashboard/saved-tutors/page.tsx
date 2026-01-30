@@ -40,18 +40,30 @@ export default async function SavedTutorsPage() {
                 You haven't saved any tutors yet.
             </div>
         ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="space-y-6">
                 {savedTutors.map((saved) => {
                     const profile = saved.tutor.teacherProfile;
                     if (!profile) return null;
                     
-                    // Transform to card props (mocking based on presumed component)
+                    const cardData = {
+                        id: saved.tutor.id,
+                        name: saved.tutor.name || "Unknown",
+                        image: saved.tutor.image || "",
+                        headline: profile.bio || "Teacher",
+                        rating: profile.rating || 0,
+                        reviewCount: profile._count.reviews,
+                        hourlyRate: profile.hourlyRate || 0,
+                        teaches: profile.expertise,
+                        speaks: profile.languages,
+                        description: profile.bio || "",
+                        country: (saved.tutor as any).country || "Unknown",
+                        gender: (saved.tutor as any).gender || "Unknown",
+                        experience: profile.experience || 0,
+                        isVerified: profile.isVerified
+                    };
+
                     return (
-                        <div key={saved.id} className="border rounded-lg p-4">
-                            <div className="font-semibold">{saved.tutor.name}</div>
-                            <div className="text-sm text-muted-foreground">{profile.subject || "Teacher"}</div>
-                            {/* Ideally use a shared TeacherCard component here */}
-                        </div>
+                        <HorizontalTeacherCard key={saved.id} teacher={cardData} />
                     );
                 })}
             </div>

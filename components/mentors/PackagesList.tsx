@@ -14,6 +14,10 @@ interface PackageProps {
 }
 
 export function PackagesList({ packages }: PackageProps) {
+    /**
+     * Renders a list of group classes/packages with join functionality and coupon support.
+     * Author: Sanket
+     */
     if (packages.length === 0) return null;
 
     return (
@@ -60,17 +64,27 @@ export function PackagesList({ packages }: PackageProps) {
                                 </div>
                             </div>
                         </CardContent>
-                        <CardFooter>
-                            <form action={async () => {
-                                const result = await requestToJoinGroup(pkg.id);
+                        <CardFooter className="flex-col gap-3">
+                            <div className="w-full">
+                                <label className="text-[10px] uppercase font-bold text-muted-foreground mb-1 block">Coupon Code</label>
+                                <input 
+                                    id={`coupon-${pkg.id}`}
+                                    type="text" 
+                                    placeholder="OPTIONAL"
+                                    className="w-full text-xs p-2 border rounded outline-none focus:border-primary uppercase"
+                                />
+                            </div>
+                            <Button className="w-full" onClick={async () => {
+                                const couponInput = document.getElementById(`coupon-${pkg.id}`) as HTMLInputElement;
+                                const result = await (requestToJoinGroup as any)(pkg.id, couponInput?.value);
                                 if (result.success) {
                                     toast.success("Request Sent", { description: "Teacher will review your request." });
                                 } else {
                                     toast.error(result.error);
                                 }
-                            }} className="w-full">
-                                <Button className="w-full">Join Class</Button>
-                            </form>
+                            }}>
+                                Join Class
+                            </Button>
                         </CardFooter>
                     </Card>
                 ))}

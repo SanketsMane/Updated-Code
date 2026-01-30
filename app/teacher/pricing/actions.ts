@@ -5,6 +5,10 @@ import { revalidatePath } from "next/cache";
 import { SessionType } from "@prisma/client";
 
 export async function updateTeacherPricing(formData: any) {
+    /**
+     * Server action to update teacher pricing and free trial settings.
+     * Author: Sanket
+     */
     const { teacherId, allowFreeDemo, allowFreeGroup, pricing } = formData;
 
     try {

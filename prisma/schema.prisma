@@ -76,6 +76,7 @@ model Issue {
   status      IssueStatus @default(Open)
   priority    Priority    @default(Medium)
   category    String
+  metadata    Json?
   
   isEscalated Boolean     @default(false)
   

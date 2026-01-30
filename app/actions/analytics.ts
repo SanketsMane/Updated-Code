@@ -398,7 +398,6 @@ export async function getPlatformAnalytics() {
       totalBlogPosts,
       activeUsers,
       liveSessions,
-      liveSessions,
       pendingPayouts: pendingPayouts._sum.requestedAmount || 0,
       totalFreeSessions,
       conversionRate: totalUsers > 0 ? Math.round((totalEnrollments / totalUsers) * 100) : 0,

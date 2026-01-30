@@ -33,6 +33,11 @@ const SESSION_TYPES = [
 ];
 
 export function PricingForm({ pricing, allowFreeDemo, allowFreeGroup, teacherId }: PricingFormProps) {
+    /**
+     * Teacher pricing configuration form.
+     * Allows toggling free trials and setting session rates.
+     * Author: Sanket
+     */
     const [isLoading, setIsLoading] = useState(false);
     
     // Initialize state

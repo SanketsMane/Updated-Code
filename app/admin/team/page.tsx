@@ -34,8 +34,7 @@ export default async function AdminTeamPage() {
     include: {
       teacherProfile: true, // Join teacher profile
       _count: {
-        select: { enrollment: true } // Count courses/enrollments if possible, but schema might vary. 
-        // AdminGetCourses used 'Course' model. User has 'Course' relation?
+        select: { enrollment: true } 
       }
     },
     orderBy: {
@@ -83,7 +82,7 @@ export default async function AdminTeamPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {teamMembers.filter(m => m.teacherProfile?.isVerified).length}
+              {teamMembers.filter(m => (m as any).teacherProfile?.isVerified).length}
             </div>
           </CardContent>
         </Card>
@@ -95,7 +94,7 @@ export default async function AdminTeamPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {teamMembers.filter(m => m.role === "teacher" && !m.teacherProfile?.isVerified).length}
+              {teamMembers.filter(m => m.role === "teacher" && (m as any).teacherProfile?.isVerified === false).length}
             </div>
           </CardContent>
         </Card>
@@ -125,7 +124,7 @@ export default async function AdminTeamPage() {
                           {member.name}
                           <Badge
                             variant="secondary"
-                            className={roleColors[member.role as keyof typeof roleColors] || roleColors.student}
+                            className={roleColors[(member.role as keyof typeof roleColors) || "student"] || roleColors.student}
                           >
                             {(member.role || "user").toUpperCase()}
                           </Badge>

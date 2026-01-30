@@ -12,3 +12,7 @@ export function formatDate(date: Date | string | number) {
     year: "numeric",
   }).format(new Date(date))
 }
+
+export function stableSort<T>(array: T[], compare: (a: T, b: T) => number): T[] {
+  return [...array].sort(compare);
+}

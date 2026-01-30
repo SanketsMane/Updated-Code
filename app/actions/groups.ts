@@ -82,7 +82,11 @@ export async function deleteGroupClass(groupId: string) {
  * @param groupId - Group class ID
  * @param paymentMethod - "stripe" or "wallet"
  */
-export async function joinGroupClass(groupId: string, paymentMethod: "stripe" | "wallet" = "stripe") {
+export async function joinGroupClass(groupId: string, paymentMethod: "stripe" | "wallet" = "stripe", couponCode?: string) {
+    /**
+     * Handles group class enrollment with coupon support and free trial limits.
+     * Author: Sanket
+     */
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session?.user) return { error: "Unauthorized" };
     const user = session.user;
@@ -138,23 +142,56 @@ export async function joinGroupClass(groupId: string, paymentMethod: "stripe" | 
             where: { classId: groupId, studentId: user.id }
         });
         if (existing) return { error: "Already requested or enrolled" };
+        
+        // --- Coupon Logic ---
+        let finalPrice = groupClass.price;
+        let couponId: string | undefined;
+
+        if (couponCode && finalPrice > 0) {
+            const coupon = await prisma.coupon.findUnique({
+                where: { code: couponCode, isActive: true }
+            });
+
+            if (coupon) {
+                const now = new Date();
+                const isValid = 
+                    (!coupon.expiryDate || now <= coupon.expiryDate) &&
+                    (coupon.usedCount < coupon.usageLimit);
+                
+                // Check if global or teacher-specific
+                const isApplicableForTeacher = !coupon.teacherId || coupon.teacherId === groupClass.teacherId;
+                // Check if applicable on GROUP class
+                const isApplicableOnType = coupon.applicableOn.includes("GROUP");
+
+                if (isValid && isApplicableForTeacher && isApplicableOnType) {
+                    let discount = 0;
+                    if (coupon.type === "PERCENTAGE") {
+                        discount = Math.round((groupClass.price * coupon.value) / 100);
+                    } else {
+                        discount = coupon.value;
+                    }
+                    finalPrice = Math.max(0, groupClass.price - discount);
+                    couponId = coupon.id;
+                }
+            }
+        }
 
         // If wallet payment or FREE class
-        if ((paymentMethod === "wallet" && groupClass.price > 0) || groupClass.price === 0) {
+        if ((paymentMethod === "wallet" && finalPrice > 0) || finalPrice === 0) {
             
             // If wallet
-            if (groupClass.price > 0) {
+            if (finalPrice > 0) {
                  const { deductFromWallet } = await import("./wallet");
                  await deductFromWallet(
                     user.id,
-                    groupClass.price,
+                    finalPrice,
                     "GROUP_ENROLLMENT",
                     `Joined group class: ${groupClass.title}`,
-                    { groupId: groupClass.id, groupTitle: groupClass.title }
+                    { groupId: groupClass.id, groupTitle: groupClass.title, couponId }
                 );
             }
 
-            // Transaction: Create Enrollment + Update FreeUsage
+            // Transaction: Create Enrollment + Update FreeUsage + Update CouponUsage
             await prisma.$transaction(async (tx) => {
                 // If free, mark usage
                 if (groupClass.price === 0) {
@@ -162,6 +199,21 @@ export async function joinGroupClass(groupId: string, paymentMethod: "stripe" | 
                         where: { studentId: user.id },
                         create: { studentId: user.id, groupUsed: true, groupSessionId: groupClass.id },
                         update: { groupUsed: true, groupSessionId: groupClass.id }
+                    });
+                }
+
+                // If coupon used
+                if (couponId) {
+                    await tx.couponUsage.create({
+                        data: {
+                            couponId,
+                            userId: user.id,
+                            orderId: `group_${groupClass.id}_${Date.now()}`
+                        }
+                    });
+                    await tx.coupon.update({
+                        where: { id: couponId },
+                        data: { usedCount: { increment: 1 } }
                     });
                 }
 
@@ -192,12 +244,13 @@ export async function joinGroupClass(groupId: string, paymentMethod: "stripe" | 
             data: {
                 classId: groupId,
                 studentId: user.id,
-                status: "Pending"
+                status: "Pending" // Note: Normally Stripe would handle completion, 
+                // but this simplified flow records it immediately.
             }
         });
 
         revalidatePath("/dashboard/groups");
-        return { success: true, message: "Join request sent" };
+        return { success: true, message: "Join request sent", finalPrice, couponId };
 
     } catch (error: any) {
         console.error("Join group error:", error);
@@ -211,9 +264,10 @@ export async function joinGroupClass(groupId: string, paymentMethod: "stripe" | 
 /**
  * Request to join a group (alias/wrapper for joinGroupClass with default method)
  * Used by PackagesList component
+ * Author: Sanket
  */
-export async function requestToJoinGroup(groupId: string) {
-    return joinGroupClass(groupId, "stripe");
+export async function requestToJoinGroup(groupId: string, couponCode?: string) {
+    return joinGroupClass(groupId, "stripe", couponCode);
 }
 
 export async function updateEnrollmentStatus(enrollmentId: string, status: "Active" | "Cancelled") {

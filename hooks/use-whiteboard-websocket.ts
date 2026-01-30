@@ -120,8 +120,12 @@ export const useWhiteboardWebSocket = ({
 
   // Get WebSocket URL from environment
   const getWebSocketUrl = () => {
+    /**
+     * Generates WebSocket URL with production-ready host fallback.
+     * Author: Sanket
+     */
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = process.env.NEXT_PUBLIC_WS_HOST || 'localhost:8080';
+    const host = process.env.NEXT_PUBLIC_WS_HOST || `${window.location.hostname}:8080`;
     return `${protocol}//${host}`;
   };
 
