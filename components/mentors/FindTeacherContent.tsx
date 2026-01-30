@@ -134,7 +134,8 @@ export function FindTeacherContent({ teachers, featuredMentors, allCategories = 
                     return b.reviewCount - a.reviewCount; // Popularity by review count
             }
         });
-    }, [searchQuery, selectedCategory, priceRange, sortBy, teachers]);
+    }, [searchQuery, selectedCategory, priceRange, sortBy, teachers, 
+        selectedLanguage, selectedGender, selectedCountry, minRating, experienceRange, isOnlineOnly]);
 
     // Scroll detection
     useEffect(() => {

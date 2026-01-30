@@ -25,14 +25,19 @@ async function main() {
 
     const teacher = await prisma.user.upsert({
         where: { email: "teacher@kidokool.com" },
-        update: {},
+        update: {
+            gender: "Female",
+            country: "United Kingdom",
+        },
         create: {
             id: "teacher-user",
-            name: "Sarah Jenkins", // Matching the UI provided in screenshots
+            name: "Sarah Jenkins",
             email: "teacher@kidokool.com",
             image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop",
             role: "teacher",
             emailVerified: true,
+            gender: "Female",
+            country: "United Kingdom",
             createdAt: new Date(),
             updatedAt: new Date(),
         },
@@ -40,7 +45,10 @@ async function main() {
 
     const teacher2 = await prisma.user.upsert({
         where: { email: "mike@kidokool.com" },
-        update: {},
+        update: {
+            gender: "Male",
+            country: "Singapore",
+        },
         create: {
             id: "teacher-mike",
             name: "Mike Chen",
@@ -48,6 +56,8 @@ async function main() {
             image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop",
             role: "teacher",
             emailVerified: true,
+            gender: "Male",
+            country: "Singapore",
             createdAt: new Date(),
             updatedAt: new Date(),
         },
@@ -59,9 +69,10 @@ async function main() {
         create: {
             userId: teacher.id,
             bio: "Professional software instructor with 10+ years of experience in web development and design.",
-            expertise: ["Senior Developer at Tech Corp", "Lead Instructor at CodeCamp"],
+            expertise: ["Development", "Web Design", "JavaScript"],
             languages: ["English", "Spanish"],
-            hourlyRate: 5000, // $50.00
+            experience: 12,
+            hourlyRate: 5000, 
             isVerified: true,
             isApproved: true,
             rating: 4.9,
@@ -71,8 +82,11 @@ async function main() {
                 monday: ["09:00-17:00"],
                 tuesday: ["09:00-17:00"],
             },
-        } as any, // casting as any because some array fields might be strict specific types in recent prisma
-        update: {},
+        } as any,
+        update: {
+            expertise: ["Development", "Web Design", "JavaScript"],
+            experience: 12,
+        },
     });
 
     await prisma.teacherProfile.upsert({
@@ -80,8 +94,9 @@ async function main() {
         create: {
             userId: teacher2.id,
             bio: "Expert React and Node.js developer with a passion for teaching.",
-            expertise: ["React", "Node.js", "Full Stack"],
+            expertise: ["Development", "React", "Node.js"],
             languages: ["English", "Mandarin"],
+            experience: 8,
             hourlyRate: 4500,
             isVerified: true,
             isApproved: true,
@@ -93,8 +108,31 @@ async function main() {
                 thursday: ["10:00-14:00"],
             },
         } as any,
-        update: {},
+        update: {
+            expertise: ["Development", "React", "Node.js"],
+            experience: 8,
+        },
     });
+
+    // 2.5 Seed Expertise and Languages
+    const expertiseList = ["Development", "Design", "Business", "Marketing", "Web Design", "JavaScript", "React", "Node.js", "Python", "Data Science"];
+    const languageList = ["English", "Spanish", "Mandarin", "French", "German", "Hindi", "Japanese"];
+
+    for (const exp of expertiseList) {
+        await prisma.expertise.upsert({
+            where: { name: exp },
+            update: { isActive: true },
+            create: { name: exp, isActive: true }
+        });
+    }
+
+    for (const lang of languageList) {
+        await prisma.language.upsert({
+            where: { name: lang },
+            update: { isActive: true },
+            create: { name: lang, isActive: true }
+        });
+    }
 
     // 3. Create Categories
     const categories = [

@@ -51,10 +51,10 @@ export default async function FindTeacherPage() {
         availability: t.availability || {}
     }));
 
-    const categories = await prisma.expertise.findMany({
+    const categories = await prisma.category.findMany({
         where: { isActive: true },
         select: { name: true },
-        orderBy: { name: 'asc' }
+        orderBy: { displayOrder: 'asc' }
     });
 
     const languages = await prisma.language.findMany({
@@ -65,7 +65,7 @@ export default async function FindTeacherPage() {
 
     return <FindTeacherContent 
         teachers={formattedTeachers} 
-        packages={packages} 
+        packages={packages as any} 
         featuredMentors={featuredMentors} 
         allCategories={categories.map(c => c.name)}
         allLanguages={languages.map(l => l.name)}
