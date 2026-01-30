@@ -135,21 +135,21 @@ export default async function VerificationCenterPage() {
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Identity</span>
-                  <span className="font-medium">5 pending</span>
+                  <span className="font-medium">{stats.verificationBreakdown?.identity || 0} pending</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Qualifications</span>
-                  <span className="font-medium">4 pending</span>
+                  <span className="font-medium">{stats.verificationBreakdown?.qualifications || 0} pending</span>
                 </div>
               </div>
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Experience</span>
-                  <span className="font-medium">3 pending</span>
+                  <span className="font-medium">{stats.verificationBreakdown?.experience || 0} pending</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Background</span>
-                  <span className="font-medium">2 pending</span>
+                  <span className="font-medium">{stats.verificationBreakdown?.background || 0} pending</span>
                 </div>
               </div>
             </div>
@@ -191,21 +191,21 @@ export default async function VerificationCenterPage() {
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Under Review</span>
-                  <span className="font-medium">3 requests</span>
+                  <span className="font-medium">{stats.payoutBreakdown?.underReview || 0} requests</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Approved</span>
-                  <span className="font-medium">5 requests</span>
+                  <span className="font-medium">{stats.payoutBreakdown?.approved || 0} requests</span>
                 </div>
               </div>
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Total Value</span>
-                  <span className="font-medium">$12,450</span>
+                  <span className="font-medium">${(stats.payoutBreakdown?.totalValue || 0).toLocaleString()}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Avg Request</span>
-                  <span className="font-medium">$1,556</span>
+                  <span className="font-medium">${Math.round(stats.payoutBreakdown?.avgRequest || 0).toLocaleString()}</span>
                 </div>
               </div>
             </div>

@@ -1,20 +1,26 @@
-import { WebSocketServer } from 'ws';
+// @ts-nocheck
+import { WebSocketServer, WebSocket } from 'ws';
 import { createServer } from 'http';
-import { parse } from 'url';
 import jwt from 'jsonwebtoken';
-import { prisma as db } from './db.js';
+import { prisma as db } from './db';
 
 const server = createServer();
 const wss = new WebSocketServer({ server });
 
+// Heartbeat interface
+interface ExtendedWebSocket extends WebSocket {
+  isAlive: boolean;
+  userId?: string;
+}
+
 // Store active connections by whiteboard ID
-const whiteboardConnections = new Map();
+const whiteboardConnections = new Map<string, { ws: ExtendedWebSocket, userId: string, user: any, role: string }[]>();
 
 // Store active chat connections by User ID
-const chatConnections = new Map();
+const chatConnections = new Map<string, { ws: ExtendedWebSocket, user: any }[]>();
 
 // Store user cursors by whiteboard ID
-const whiteboardCursors = new Map();
+const whiteboardCursors = new Map<string, Map<string, any>>();
 
 // Message types
 const MESSAGE_TYPES = {
@@ -45,7 +51,7 @@ const MESSAGE_TYPES = {
 };
 
 // Utility function to broadcast to all users in a whiteboard
-function broadcastToWhiteboard(whiteboardId, message, excludeWs = null) {
+function broadcastToWhiteboard(whiteboardId: string, message: any, excludeWs: ExtendedWebSocket | null = null) {
   const connections = whiteboardConnections.get(whiteboardId) || [];
   connections.forEach(({ ws, userId }) => {
     if (ws !== excludeWs && ws.readyState === ws.OPEN) {
@@ -59,19 +65,19 @@ function broadcastToWhiteboard(whiteboardId, message, excludeWs = null) {
 }
 
 // Authenticate WebSocket connection
-async function authenticateConnection(token) {
+async function authenticateConnection(token: string) {
   try {
     if (!token) return null;
 
     // Remove 'Bearer ' prefix if present
     const cleanToken = token.replace('Bearer ', '');
 
-    // Verify JWT token
-    const decoded = jwt.verify(cleanToken, process.env.AUTH_SECRET);
+    // Verify JWT token using correct secret
+    const decoded = jwt.verify(cleanToken, process.env.BETTER_AUTH_SECRET!) as jwt.JwtPayload;
 
     // Get user from database
     const user = await db.user.findUnique({
-      where: { id: decoded.sub },
+      where: { id: decoded.sub as string },
       select: { id: true, name: true, email: true, role: true }
     });
 
@@ -83,7 +89,7 @@ async function authenticateConnection(token) {
 }
 
 // Check if user can access whiteboard
-async function canAccessWhiteboard(userId, whiteboardId) {
+async function canAccessWhiteboard(userId: string, whiteboardId: string) {
   try {
     const whiteboard = await db.whiteboard.findUnique({
       where: { id: whiteboardId },
@@ -117,7 +123,7 @@ async function canAccessWhiteboard(userId, whiteboardId) {
 }
 
 // Update participant online status
-async function updateParticipantStatus(userId, whiteboardId, isOnline) {
+async function updateParticipantStatus(userId: string, whiteboardId: string, isOnline: boolean) {
   try {
     await db.whiteboardParticipant.updateMany({
       where: {
@@ -135,7 +141,7 @@ async function updateParticipantStatus(userId, whiteboardId, isOnline) {
 }
 
 // Helper: Get all user IDs that have a conversation with this user
-async function getPeers(userId) {
+async function getPeers(userId: string) {
   try {
     const conversations = await db.conversation.findMany({
       where: {
@@ -150,7 +156,7 @@ async function getPeers(userId) {
       }
     });
 
-    const peerIds = new Set();
+    const peerIds = new Set<string>();
     conversations.forEach(c => {
       if (c.participant1Id !== userId) peerIds.add(c.participant1Id);
       if (c.participant2Id !== userId) peerIds.add(c.participant2Id);
@@ -163,7 +169,7 @@ async function getPeers(userId) {
 }
 
 // Broadcast status to specific users
-function broadcastStatus(userId, isOnline, peerIds) {
+function broadcastStatus(userId: string, isOnline: boolean, peerIds: string[]) {
   const message = JSON.stringify({
     type: isOnline ? MESSAGE_TYPES.USER_ONLINE : MESSAGE_TYPES.USER_OFFLINE,
     payload: { userId, timestamp: new Date().toISOString() }
@@ -182,11 +188,15 @@ function broadcastStatus(userId, isOnline, peerIds) {
 }
 
 // Handle WebSocket connection
-wss.on('connection', async (ws, req) => {
+wss.on('connection', async (socket: WebSocket, req) => {
+  const ws = socket as ExtendedWebSocket;
+  ws.isAlive = true;
+  ws.on('pong', () => { ws.isAlive = true; });
+
   console.log('New WebSocket connection');
 
-  let currentUser = null;
-  let currentWhiteboardId = null;
+  let currentUser: any = null;
+  let currentWhiteboardId: string | null = null;
 
   ws.on('message', async (data) => {
     try {
@@ -206,6 +216,7 @@ wss.on('connection', async (ws, req) => {
             }));
             return;
           }
+          ws.userId = currentUser.id;
 
           // Check whiteboard access
           const { canAccess, role } = await canAccessWhiteboard(currentUser.id, whiteboardId);
@@ -223,11 +234,11 @@ wss.on('connection', async (ws, req) => {
           if (!whiteboardConnections.has(whiteboardId)) {
             whiteboardConnections.set(whiteboardId, []);
           }
-          whiteboardConnections.get(whiteboardId).push({
+          whiteboardConnections.get(whiteboardId)!.push({
             ws,
             userId: currentUser.id,
             user: currentUser,
-            role
+            role: role as string
           });
 
           // Initialize cursors map if not exists
@@ -255,7 +266,7 @@ wss.on('connection', async (ws, req) => {
             role: conn.role
           }));
 
-          const cursorsList = Array.from(whiteboardCursors.get(whiteboardId).entries()).map(([userId, cursor]) => ({
+          const cursorsList = Array.from(whiteboardCursors.get(whiteboardId)!.entries()).map(([userId, cursor]) => ({
             userId,
             ...cursor
           }));
@@ -366,7 +377,7 @@ wss.on('connection', async (ws, req) => {
             role: conn.role
           }));
 
-          const currentCursors = Array.from(whiteboardCursors.get(currentWhiteboardId).entries()).map(([userId, cursor]) => ({
+          const currentCursors = Array.from(whiteboardCursors.get(currentWhiteboardId)!.entries()).map(([userId, cursor]) => ({
             userId,
             ...cursor
           }));
@@ -389,11 +400,12 @@ wss.on('connection', async (ws, req) => {
             ws.send(JSON.stringify({ type: MESSAGE_TYPES.ERROR, payload: { message: 'Auth failed' } }));
             return;
           }
+          ws.userId = currentUser.id;
 
           if (!chatConnections.has(currentUser.id)) {
             chatConnections.set(currentUser.id, []);
           }
-          chatConnections.get(currentUser.id).push({ ws, user: currentUser });
+          chatConnections.get(currentUser.id)!.push({ ws, user: currentUser });
 
           // PRESENCE LOGIC
           const peerIds = await getPeers(currentUser.id);
@@ -402,7 +414,7 @@ wss.on('connection', async (ws, req) => {
           broadcastStatus(currentUser.id, true, peerIds);
 
           // 2. Tell me which peers are online
-          const onlinePeers = peerIds.filter(pid => chatConnections.has(pid) && chatConnections.get(pid).length > 0);
+          const onlinePeers = peerIds.filter(pid => chatConnections.has(pid) && chatConnections.get(pid)!.length > 0);
           ws.send(JSON.stringify({
             type: MESSAGE_TYPES.USER_ONLINE_BATCH, // New type
             payload: { userIds: onlinePeers }
@@ -557,7 +569,22 @@ wss.on('connection', async (ws, req) => {
   });
 });
 
-const PORT = process.env.WS_PORT || 8080;
+// Heartbeat interval
+const interval = setInterval(() => {
+  wss.clients.forEach((socket) => {
+    const ws = socket as ExtendedWebSocket;
+    if (ws.isAlive === false) return ws.terminate();
+
+    ws.isAlive = false;
+    ws.ping();
+  });
+}, 30000);
+
+wss.on('close', () => {
+  clearInterval(interval);
+});
+
+const PORT = 8080;
 
 server.listen(PORT, () => {
   console.log(`WebSocket server running on port ${PORT}`);

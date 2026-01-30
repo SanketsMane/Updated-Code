@@ -56,11 +56,25 @@ export default async function AdminDashboardPage() {
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
       </div>
 
-      {/* 1. Revenue Cards Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {revenueStats.map((stat, i) => (
           <RevenueCard key={i} {...stat} />
         ))}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+         <StatBox
+            title="Free Demos"
+            mainStat={{ label: "Claimed", value: stats.freeDemosUsed.toString(), subValue: "Students" }}
+            secondaryStat={{ label: "Available", value: (stats.totalUsers - stats.freeDemosUsed).toString(), subValue: "Potential" }}
+            accentColor="bg-teal-500"
+          />
+         <StatBox
+            title="Free Group Classes"
+            mainStat={{ label: "Claimed", value: stats.freeGroupsUsed.toString(), subValue: "Students" }}
+            secondaryStat={{ label: "Available", value: (stats.totalUsers - stats.freeGroupsUsed).toString(), subValue: "Potential" }}
+            accentColor="bg-cyan-500"
+          />
       </div>
 
       {/* 2. Content Stats Row */}
@@ -90,10 +104,13 @@ export default async function AdminDashboardPage() {
           <div className="bg-[#1e293b] text-white p-6 rounded-xl shadow-lg h-48 flex flex-col justify-center relative overflow-hidden">
             <div className="relative z-10">
               <h3 className="font-bold text-xl mb-1">System Status</h3>
-              <p className="text-slate-300 text-sm">All systems operational</p>
-              <div className="mt-4 flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
-                <span className="text-xs font-medium text-green-400">Live</span>
+              <p className="text-slate-300 text-sm">Database Connected & Operational</p>
+              <div className="mt-4 flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
+                  <span className="text-xs font-medium text-green-400">Live</span>
+                </div>
+                <p className="text-xs text-slate-400">Server Time: {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })} IST</p>
               </div>
             </div>
             <div className="absolute right-0 bottom-0 opacity-10">

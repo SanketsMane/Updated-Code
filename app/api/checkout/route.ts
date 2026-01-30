@@ -3,11 +3,12 @@ import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { env } from "@/lib/env";
+import { protectGeneral, getClientIP } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 
 const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-    apiVersion: "2025-08-27.basil", // Use latest consistent version
+    apiVersion: "2025-08-27.basil",
     typescript: true,
 });
 
@@ -23,6 +24,13 @@ export async function POST(req: Request) {
 
         if (!user || !user.id || !user.email) {
             return new NextResponse("Unauthorized", { status: 401 });
+        }
+
+        // Rate Limit Checkout: 5 per minute
+        const clientIP = getClientIP(req) || "unknown";
+        const startCheck = await protectGeneral(req, `${clientIP}:checkout`, { maxRequests: 5, windowMs: 60000 });
+        if (!startCheck.success) {
+             return new NextResponse("Too many checkout attempts", { status: 429 });
         }
 
         const { courseId, couponCode } = await req.json();

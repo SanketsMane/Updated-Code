@@ -18,7 +18,7 @@ interface iAppProps {
 import { motion } from "framer-motion";
 
 export function PublicCourseCard({ data }: iAppProps) {
-  const thumbnailUrl = useConstructUrl(data.fileKey);
+  const thumbnailUrl = useConstructUrl(data.fileKey || "");
 
   // Randomize some visuals for demo purposes if data missing
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

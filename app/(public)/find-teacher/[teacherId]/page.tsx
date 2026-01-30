@@ -5,6 +5,7 @@ import { FadeIn } from "@/components/ui/fade-in";
 import { Calendar, Clock, Award, Globe, Video, CheckCircle2 } from "lucide-react";
 import { BookingWidget } from "./_components/booking-widget";
 import { ReportTeacherButton } from "./_components/report-button";
+import { SaveTutorButton } from "./_components/save-tutor-button";
 
 export const dynamic = "force-dynamic";
 
@@ -43,6 +44,15 @@ export default async function TeacherProfilePage({ params }: PageProps) {
 
     // 2. Check current user (for booking)
     const session = await getSessionWithRole();
+
+    const isSaved = session?.user ? !!(await prisma.studentSavedTutor.findUnique({
+        where: {
+            studentId_tutorId: {
+                studentId: session.user.id,
+                tutorId: teacherProfile.user.id
+            }
+        }
+    })) : false;
 
     return (
         <div className="min-h-screen bg-background pb-20">

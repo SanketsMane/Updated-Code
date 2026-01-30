@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Confetti from "react-confetti";
 import { useWindowSize } from "react-use";
+import { updateLessonProgress } from "@/app/actions/progress";
 
 interface CoursePlayerProps {
     course: any; // Using permissive types for simpler integration
@@ -46,10 +47,11 @@ export function CoursePlayer({
             setShowConfetti(true);
             setTimeout(() => setShowConfetti(false), 5000);
 
-            // Call server action to mark complete (TODO: Implement action or use fetch)
-            // For now assuming we just navigate, but we should persist state.
-            // Since we don't have the action yet, we will just proceed.
-            // But real implementation needs an action call here.
+            try {
+                await updateLessonProgress(lessonId, true);
+            } catch (error) {
+                console.error("Failed to update progress", error);
+            }
         }
 
         if (nextLessonId) {

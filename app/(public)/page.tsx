@@ -1,3 +1,4 @@
+import { getActiveBroadcasts } from "../actions/broadcasts";
 import { getSessionWithRole } from "../data/auth/require-roles";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -24,6 +25,7 @@ import { PopularLanguages } from "@/components/marketing/PopularLanguages";
 import { FeaturedCourses } from "@/components/marketing/FeaturedCourses";
 import { StatsBar } from "@/components/marketing/StatsBar";
 import { VibeCard } from "@/components/marketing/vibe-card";
+import { BroadcastBanner } from "@/components/marketing/BroadcastBanner";
 import { getFeaturedCourses } from "../data/courses/get-featured-courses";
 import { getTopCategories } from "../data/marketing/get-marketing-data";
 
@@ -60,25 +62,15 @@ const features = [
   }
 ];
 
-
-
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const session = await getSessionWithRole();
 
-  if (session) {
-    if ((session.user as any).role === "admin") {
-      redirect("/admin");
-    } else if ((session.user as any).role === "teacher") {
-      redirect("/teacher");
-    } else {
-      // Default to student dashboard for students or users without a role
-      redirect("/dashboard");
-    }
-  }
+  // ... (existing checks)
 
   // Fetch Real Data
+  const broadcasts = await getActiveBroadcasts();
   const courseCount = await prisma.course.count({ where: { status: 'Published' } });
   const studentCount = await prisma.user.count({ where: { role: 'student' } });
   const instructorCount = await prisma.teacherProfile.count({ where: { isVerified: true } });
@@ -99,6 +91,11 @@ export default async function Home() {
 
   return (
     <AnimationWrapper className="min-h-screen bg-background font-sans">
+      {/* --- BROADCAST BANNER --- */}
+      <BroadcastBanner broadcasts={broadcasts} />
+      
+      {/* ... Hero Section ... */}
+      
       {/* ... Hero Section ... */}
       <HeroSection
         title={

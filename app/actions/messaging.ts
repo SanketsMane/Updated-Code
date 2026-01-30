@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { sendNotificationEmail } from "@/lib/email-notifications";
 
 async function requireAdmin() {
     const session = await auth.api.getSession({ headers: await headers() });
@@ -27,27 +28,69 @@ export async function sendMessage(prevState: any, formData: FormData) {
             return { error: "Subject and Message are required" };
         }
 
-        // In a real app, this would send an email or internal notification
-        // For now, we'll log it to a theoretical 'Message' table if it existed,
-        // or just simulate success since we don't have a specific Message model in the provided schema snippets yet.
-        // However, looking at the schema earlier, I didn't see a Message model.
-        // I will assume we should send an email using nodemailer if available, or just log for now.
-        // The requirement says "Common Message system". I'll simulate it with a DB entry if I can, or just success.
+        let recipients: { id: string; name: string | null; email: string | null }[] = [];
 
-        // Let's check schema again. The user mentioned "Common Message system".
-        // Since I can't easily add schema migrations without risk, I will mock the persistence 
-        // and assume it sends an email via a helper if available, or just returns success.
-        // To be useful, I'll log to console which would appear in server logs.
+        if (isBroadcast) {
+            const roleFilter = 
+                broadcastRole === 'teacher' ? { role: 'teacher' as const } :
+                broadcastRole === 'student' ? { role: 'student' as const } :
+                {}; // all
 
-        console.log(`[MESSAGE SYSTEM] From: ${admin.email}, To: ${isBroadcast ? broadcastRole : recipientId}`);
-        console.log(`Subject: ${subject}`);
-        console.log(`Body: ${message}`);
+            recipients = await prisma.user.findMany({
+                where: roleFilter,
+                select: { id: true, name: true, email: true }
+            });
+        } else {
+            if (!recipientId) return { error: "Recipient is required for single message" };
+            const user = await prisma.user.findUnique({
+                where: { id: recipientId },
+                select: { id: true, name: true, email: true }
+            });
+            if (user) recipients = [user];
+        }
 
-        // TODO: Integrate with real Email Service (e.g. Resend, SendGrid)
-        // await sendEmail({ to: recipientId, subject, body: message });
+        console.log(`[MESSAGE SYSTEM] Sending to ${recipients.length} users...`);
 
-        return { success: true, message: "Message sent successfully" };
+        // Process in parallel chunks to avoid timeout
+        const CHUNK_SIZE = 10;
+        for (let i = 0; i < recipients.length; i += CHUNK_SIZE) {
+            const chunk = recipients.slice(i, i + CHUNK_SIZE);
+            await Promise.all(chunk.map(async (user) => {
+                // 1. Send Email
+                if (user.email && user.name) {
+                    try {
+                        await sendNotificationEmail(
+                            user.email,
+                            user.name,
+                            subject, // Title
+                            subject, // Message Title
+                            message  // Message Body
+                        );
+                    } catch (e) {
+                        console.error(`Failed to send email to ${user.email}`, e);
+                    }
+                }
+
+                // 2. Create In-App Notification
+                try {
+                    await prisma.notification.create({
+                        data: {
+                            userId: user.id,
+                            title: subject,
+                            message: message,
+                            type: "System",
+                            isRead: false
+                        }
+                    });
+                } catch (e) {
+                    console.error(`Failed to create notification for ${user.id}`, e);
+                }
+            }));
+        }
+
+        return { success: true, message: `Message sent to ${recipients.length} users` };
     } catch (error: any) {
-        return { error: error.message };
+        console.error("SendMessage Error:", error);
+        return { error: error.message || "Failed to send message" };
     }
 }

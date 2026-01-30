@@ -14,14 +14,20 @@ import { Loader2 } from "lucide-react";
 export function CreateIssueForm() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [values, setValues] = useState({ category: "" });
 
     async function onSubmit(formData: FormData) {
         setLoading(true);
 
         const subject = formData.get("subject") as string;
-        const description = formData.get("description") as string;
+        let description = formData.get("description") as string;
         const category = formData.get("category") as string;
         const priority = formData.get("priority") as "Low" | "Medium" | "High" | "Critical";
+        const reason = formData.get("reason") as string;
+
+        if (category === "Dispute" && reason) {
+            description = `[Reason: ${reason}]\n\n${description}`;
+        }
 
         if (!subject || !description || !category || !priority) {
             toast.error("Please fill in all fields");
@@ -55,7 +61,7 @@ export function CreateIssueForm() {
         <form action={onSubmit} className="space-y-6 max-w-2xl">
             <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
-                <Select name="category" required>
+                <Select name="category" required onValueChange={(val) => setValues(prev => ({ ...prev, category: val }))}>
                     <SelectTrigger>
                         <SelectValue placeholder="Select a category" />
                     </SelectTrigger>
@@ -64,10 +70,29 @@ export function CreateIssueForm() {
                         <SelectItem value="Billing">Billing & Payments</SelectItem>
                         <SelectItem value="Content">Course Content</SelectItem>
                         <SelectItem value="Account">Account Support</SelectItem>
+                        <SelectItem value="Dispute">Class / Teacher Dispute</SelectItem>
                         <SelectItem value="Other">Other</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
+
+            {values.category === "Dispute" && (
+                <div className="space-y-2">
+                    <Label htmlFor="reason">Dispute Reason</Label>
+                    <Select name="reason" required>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select reason" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="Misbehavior">Misbehavior</SelectItem>
+                            <SelectItem value="Poor Teaching">Poor Teaching</SelectItem>
+                            <SelectItem value="No Show">Teacher No Show</SelectItem>
+                            <SelectItem value="Abuse">Abuse / Harassment</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+            )}
 
             <div className="space-y-2">
                 <Label htmlFor="priority">Priority</Label>

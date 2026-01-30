@@ -4,6 +4,17 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface CoursePurchaseButtonProps {
     courseId: string;
@@ -15,8 +26,10 @@ export const CoursePurchaseButton = ({
     price,
 }: CoursePurchaseButtonProps) => {
     const [isLoading, setIsLoading] = useState(false);
+    const [showCheckout, setShowCheckout] = useState(false);
+    const [couponCode, setCouponCode] = useState("");
 
-    const onClick = async () => {
+    const onEnroll = async () => {
         try {
             setIsLoading(true);
 
@@ -49,7 +62,10 @@ export const CoursePurchaseButton = ({
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify({ courseId }),
+                    body: JSON.stringify({ 
+                        courseId,
+                        couponCode: couponCode.trim() || undefined
+                    }),
                 });
 
                 if (!response.ok) {
@@ -71,16 +87,55 @@ export const CoursePurchaseButton = ({
         }
     };
 
+    if (price === 0) {
+        return (
+            <Button
+                onClick={onEnroll}
+                disabled={isLoading}
+                className="w-full text-lg h-12 font-bold"
+            >
+                {isLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                Enroll for Free
+            </Button>
+        );
+    }
+
     return (
-        <Button
-            onClick={onClick}
-            disabled={isLoading}
-            className="w-full text-lg h-12 font-bold"
-        >
-            {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            ) : null}
-            {price === 0 ? "Enroll for Free" : `Enroll for $${price}`}
-        </Button>
+        <Dialog open={showCheckout} onOpenChange={setShowCheckout}>
+            <DialogTrigger asChild>
+                <Button className="w-full text-lg h-12 font-bold">
+                    Enroll for ${price}
+                </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Complete Enrollment</DialogTitle>
+                    <DialogDescription>
+                        You are about to enroll in this course.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="coupon">Have a coupon?</Label>
+                        <Input
+                            id="coupon"
+                            placeholder="Enter coupon code"
+                            value={couponCode}
+                            onChange={(e) => setCouponCode(e.target.value)}
+                        />
+                    </div>
+                    <div className="flex items-center justify-between font-medium">
+                        <span>Course Price:</span>
+                        <span>${price}</span>
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button onClick={onEnroll} disabled={isLoading} className="w-full">
+                        {isLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                        Proceed to Payment
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 };

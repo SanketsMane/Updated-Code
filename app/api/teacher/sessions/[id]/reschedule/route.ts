@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { sendNotificationEmail } from "@/lib/email-notifications";
 
 export const dynamic = "force-dynamic";
 
@@ -159,9 +160,29 @@ export async function POST(
       }
     });
 
-    // TODO: Send rescheduling email to student with new time
-    // TODO: Update calendar invite
-    // TODO: Send notification
+    // Send Rescheduling Email
+    if (updatedSession.student && updatedSession.student.email && updatedSession.student.name) {
+        await sendNotificationEmail(
+            updatedSession.student.email,
+            updatedSession.student.name,
+            "Session Rescheduled",
+            "Your live session has been rescheduled",
+            `Your session with ${updatedSession.teacher.user.name} has been moved to ${newDate.toLocaleString()}.\nReason: ${reason || 'No reason provided'}.`
+        );
+    }
+
+    // Send In-App Notification
+    if (updatedSession.student) {
+        await prisma.notification.create({
+            data: {
+                userId: updatedSession.student.id,
+                title: "Session Rescheduled",
+                message: `Your session with ${updatedSession.teacher.user.name} is now at ${newDate.toLocaleString()}.`,
+                type: "Session",
+                isRead: false
+            }
+        });
+    }
 
     return NextResponse.json({
       message: "Session rescheduled successfully",
