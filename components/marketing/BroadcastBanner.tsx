@@ -52,7 +52,7 @@ export function BroadcastBanner({ broadcasts = [], className }: BroadcastBannerP
   return (
     <div className={cn("relative z-50 overflow-hidden bg-gradient-to-r from-indigo-900 via-violet-900 to-indigo-900 border-b border-indigo-500/30 text-white shadow-xl isolate", className)}>
         {/* Abstract Background Elements */}
-        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-soft-light pointer-events-none"></div>
+        {/* Removed missing noise.png texture to fix 404 error */}
         <div className="absolute -top-10 -left-10 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
         <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl pointer-events-none animate-pulse delay-1000"></div>
 
