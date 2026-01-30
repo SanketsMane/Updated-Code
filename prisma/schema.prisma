@@ -189,6 +189,11 @@ model Course {
   whiteboards      Whiteboard[]
   resources        Resource[]
   refundRequests   RefundRequest[]
+
+  @@index([userId])
+  @@index([categoryId])
+  @@index([status])
+  @@index([createdAt])
 }
 
 model Chapter {
@@ -203,6 +208,9 @@ model Chapter {
   quizzes     Quiz[]
   videoRooms  VideoRoom[]
   whiteboards Whiteboard[]
+
+  @@index([courseId])
+  @@index([position])
 }
 
 model Lesson {
@@ -221,6 +229,9 @@ model Lesson {
   quizzes        Quiz[]
   videoRooms     VideoRoom[]
   whiteboards    Whiteboard[]
+
+  @@index([chapterId])
+  @@index([position])
 }
 
 model Enrollment {
@@ -235,6 +246,8 @@ model Enrollment {
   User      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId])
+  @@index([courseId])
+  @@index([status])
 }
 
 model LessonProgress {
@@ -424,6 +437,10 @@ model Review {
   course     Course?         @relation("CourseReviews", fields: [courseId], references: [id], onDelete: Cascade)
   reviewer   User            @relation("UserReviews", fields: [reviewerId], references: [id], onDelete: Cascade)
   teacher    TeacherProfile? @relation("TeacherReviews", fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+  @@index([teacherId])
+  @@index([reviewerId])
 }
 
 model Category {
@@ -488,6 +505,10 @@ model Notification {
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
   user      User             @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
 }
 
 model Conversation {
@@ -528,6 +549,11 @@ model Message {
   replies                 Message[]     @relation("MessageThread")
   receiver                User          @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
   sender                  User          @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([conversationId])
+  @@index([createdAt])
 }
 
 model Certificate {
@@ -1548,4 +1574,27 @@ model CouponUsage {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   @@map("coupon_usage")
+}
+
+model Broadcast {
+  id          String        @id @default(cuid())
+  text        String
+  type        BroadcastType @default(Info)
+  isActive    Boolean       @default(true)
+  priority    Int           @default(0)
+  link        String?
+  buttonText  String?
+  couponCode  String?
+  expiresAt   DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([isActive])
+}
+
+enum BroadcastType {
+  Info
+  Offer
+  Alert
+  Coupon
 }

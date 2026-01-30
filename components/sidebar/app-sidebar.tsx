@@ -85,6 +85,11 @@ const data = {
       icon: IconTicket,
     },
     {
+      title: "Broadcasts",
+      url: "/admin/broadcasts",
+      icon: IconSpeakerphone,
+    },
+    {
       title: "Analytics",
       url: "/admin/analytics",
       icon: IconChartBar,
