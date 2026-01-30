@@ -1,6 +1,6 @@
 /**
  * Professional Email Service using Nodemailer
- * Replaces Resend with multi-provider support and professional templates
+ * Minimalist templates without gradients - Author: Sanket
  */
 
 // @ts-ignore
@@ -25,7 +25,7 @@ function createTransporter() {
 
   if (service === 'gmail') {
     // Gmail configuration
-    return nodemailer.createTransport({
+    return nodemailer.createTransporter({
       service: 'gmail',
       auth: {
         user: (process.env.EMAIL_USER || '').trim(),
@@ -34,7 +34,7 @@ function createTransporter() {
     });
   } else {
     // Custom SMTP configuration
-    return nodemailer.createTransport({
+    return nodemailer.createTransporter({
       host: (process.env.EMAIL_HOST || '').trim(),
       port: parseInt((process.env.EMAIL_PORT || '587').trim()),
       secure: (process.env.EMAIL_SECURE || 'false').trim() === 'true',
@@ -47,7 +47,8 @@ function createTransporter() {
 }
 
 /**
- * Professional email templates
+ * Minimalist email templates - Professional design without gradients
+ * Author: Sanket
  */
 const emailTemplates = {
   courseEnrollment: (data: TemplateData) => `
@@ -58,41 +59,48 @@ const emailTemplates = {
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <title>Course Enrollment Confirmation</title>
       <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4; }
-        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; margin: -20px -20px 30px -20px; }
-        .course-info { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #667eea; }
-        .cta-button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; font-weight: bold; }
-        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background-color: #f5f5f5; margin: 0; padding: 40px 20px; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e5e5e5; }
+        .header { background: #ffffff; padding: 32px 40px; border-bottom: 1px solid #e5e5e5; }
+        .logo { font-size: 20px; font-weight: 700; color: #000000; margin-bottom: 8px; }
+        .content { padding: 40px; }
+        .title { font-size: 18px; font-weight: 600; color: #000000; margin-bottom: 16px; }
+        .course-info { background: #f9f9f9; padding: 24px; border: 1px solid #e5e5e5; margin: 24px 0; }
+        .course-info h3 { font-size: 16px; font-weight: 600; color: #000000; margin: 0 0 12px 0; }
+        .course-info p { font-size: 14px; color: #666666; margin: 8px 0; }
+        .cta-button { display: inline-block; background: #000000; color: #ffffff; padding: 12px 24px; text-decoration: none; font-size: 14px; font-weight: 500; margin: 20px 0; }
+        .footer { border-top: 1px solid #e5e5e5; padding: 32px 40px; background: #fafafa; text-align: center; }
+        .footer-text { font-size: 13px; color: #666666; margin: 4px 0; }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
-          <h1>🎉 Welcome to Your New Course!</h1>
+          <div class="logo">KIDOKOOL</div>
         </div>
         
-        <p>Hi ${data.userName},</p>
-        
-        <p>Congratulations! You have successfully enrolled in:</p>
-        
-        <div class="course-info">
-          <h3>${data.courseTitle}</h3>
-          <p>${data.courseDescription}</p>
-          <p><strong>Enrollment Date:</strong> ${data.enrollmentDate}</p>
+        <div class="content">
+          <h1 class="title">Course Enrollment Confirmation</h1>
+          <p>Hi ${data.userName},</p>
+          <p>You have successfully enrolled in the following course:</p>
+          
+          <div class="course-info">
+            <h3>${data.courseTitle}</h3>
+            <p>${data.courseDescription}</p>
+            <p><strong>Enrollment Date:</strong> ${data.enrollmentDate}</p>
+          </div>
+          
+          <p>You can now access your course materials and start learning.</p>
+          
+          <div style="text-align: center;">
+            <a href="${data.courseUrl}" class="cta-button">Start Learning</a>
+          </div>
         </div>
-        
-        <p>You can now access your course materials and start learning immediately.</p>
-        
-        <div style="text-align: center;">
-          <a href="${data.courseUrl}" class="cta-button">Start Learning Now →</a>
-        </div>
-        
-        <p>If you have any questions, feel free to reach out to our support team.</p>
         
         <div class="footer">
-          <p>Thank you for choosing our platform!</p>
-          <p>Happy Learning! 📚</p>
+          <div class="footer-text"><strong>KIDOKOOL</strong></div>
+          <div class="footer-text">Learning Management System</div>
+          <div class="footer-text">© 2026 KIDOKOOL. All rights reserved.</div>
         </div>
       </div>
     </body>
@@ -105,57 +113,58 @@ const emailTemplates = {
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>Welcome to Our Platform</title>
+      <title>Welcome to KIDOKOOL</title>
       <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4; }
-        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .header { background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; margin: -20px -20px 30px -20px; }
-        .feature { display: flex; align-items: center; margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; }
-        .feature-icon { font-size: 24px; margin-right: 15px; }
-        .cta-button { display: inline-block; background: #4CAF50; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; font-weight: bold; }
-        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background-color: #f5f5f5; margin: 0; padding: 40px 20px; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e5e5e5; }
+        .header { background: #ffffff; padding: 32px 40px; border-bottom: 1px solid #e5e5e5; }
+        .logo { font-size: 20px; font-weight: 700; color: #000000; margin-bottom: 8px; }
+        .content { padding: 40px; }
+        .title { font-size: 18px; font-weight: 600; color: #000000; margin-bottom: 16px; }
+        .feature { padding: 16px 0; border-bottom: 1px solid #f0f0f0; }
+        .feature:last-child { border-bottom: none; }
+        .feature h4 { font-size: 15px; font-weight: 600; color: #000000; margin: 0 0 8px 0; }
+        .feature p { font-size: 14px; color: #666666; margin: 0; }
+        .cta-button { display: inline-block; background: #000000; color: #ffffff; padding: 12px 24px; text-decoration: none; font-size: 14px; font-weight: 500; margin: 20px 0; }
+        .footer { border-top: 1px solid #e5e5e5; padding: 32px 40px; background: #fafafa; text-align: center; }
+        .footer-text { font-size: 13px; color: #666666; margin: 4px 0; }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
-          <h1>🎉 Welcome to Our Learning Platform!</h1>
+          <div class="logo">KIDOKOOL</div>
         </div>
         
-        <p>Hi ${data.userName},</p>
-        
-        <p>Welcome to our learning community! We're excited to have you on board.</p>
-        
-        <div class="feature">
-          <div class="feature-icon">📚</div>
-          <div>
-            <h4>Access Quality Courses</h4>
+        <div class="content">
+          <h1 class="title">Welcome to KIDOKOOL</h1>
+          <p>Hi ${data.userName},</p>
+          <p>Welcome to our learning platform. We're excited to have you on board.</p>
+          
+          <div class="feature">
+            <h4>📚 Access Quality Courses</h4>
             <p>Explore our extensive library of professional courses.</p>
           </div>
-        </div>
-        
-        <div class="feature">
-          <div class="feature-icon">🎓</div>
-          <div>
-            <h4>Learn at Your Own Pace</h4>
+          
+          <div class="feature">
+            <h4>🎓 Learn at Your Own Pace</h4>
             <p>Study whenever and wherever you want.</p>
           </div>
-        </div>
-        
-        <div class="feature">
-          <div class="feature-icon">💬</div>
-          <div>
-            <h4>Community Support</h4>
+          
+          <div class="feature">
+            <h4>💬 Community Support</h4>
             <p>Connect with fellow learners and instructors.</p>
           </div>
-        </div>
-        
-        <div style="text-align: center;">
-          <a href="${data.platformUrl}" class="cta-button">Start Exploring →</a>
+          
+          <div style="text-align: center; margin-top: 32px;">
+            <a href="${data.platformUrl}" class="cta-button">Start Exploring</a>
+          </div>
         </div>
         
         <div class="footer">
-          <p>Happy Learning! 🚀</p>
+          <div class="footer-text"><strong>KIDOKOOL</strong></div>
+          <div class="footer-text">Learning Management System</div>
+          <div class="footer-text">© 2026 KIDOKOOL. All rights reserved.</div>
         </div>
       </div>
     </body>
@@ -170,39 +179,47 @@ const emailTemplates = {
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <title>Password Reset</title>
       <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4; }
-        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .header { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; margin: -20px -20px 30px -20px; }
-        .reset-info { background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107; }
-        .cta-button { display: inline-block; background: #ff6b6b; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; font-weight: bold; }
-        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
-        .security-note { background: #d1ecf1; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #17a2b8; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background-color: #f5f5f5; margin: 0; padding: 40px 20px; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e5e5e5; }
+        .header { background: #ffffff; padding: 32px 40px; border-bottom: 1px solid #e5e5e5; }
+        .logo { font-size: 20px; font-weight: 700; color: #000000; margin-bottom: 8px; }
+        .content { padding: 40px; }
+        .title { font-size: 18px; font-weight: 600; color: #000000; margin-bottom: 16px; }
+        .notice { background: #fafafa; border-left: 3px solid #000000; padding: 16px 20px; margin: 20px 0; }
+        .notice p { font-size: 14px; color: #333333; margin: 0; }
+        .cta-button { display: inline-block; background: #000000; color: #ffffff; padding: 12px 24px; text-decoration: none; font-size: 14px; font-weight: 500; margin: 20px 0; }
+        .footer { border-top: 1px solid #e5e5e5; padding: 32px 40px; background: #fafafa; text-align: center; }
+        .footer-text { font-size: 13px; color: #666666; margin: 4px 0; }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
-          <h1>🔐 Password Reset Request</h1>
+          <div class="logo">KIDOKOOL</div>
         </div>
         
-        <p>Hi ${data.userName},</p>
-        
-        <p>We received a request to reset your password. If you made this request, click the button below to reset your password:</p>
-        
-        <div style="text-align: center;">
-          <a href="${data.resetUrl}" class="cta-button">Reset Password →</a>
-        </div>
-        
-        <div class="reset-info">
-          <p><strong>Important:</strong> This password reset link will expire in ${data.expirationTime || '1 hour'}.</p>
-        </div>
-        
-        <div class="security-note">
-          <p><strong>Security Note:</strong> If you didn't request this password reset, please ignore this email. Your password will remain unchanged.</p>
+        <div class="content">
+          <h1 class="title">Password Reset Request</h1>
+          <p>Hi ${data.userName},</p>
+          <p>We received a request to reset your password. Click the button below to proceed:</p>
+          
+          <div style="text-align: center;">
+            <a href="${data.resetUrl}" class="cta-button">Reset Password</a>
+          </div>
+          
+          <div class="notice">
+            <p><strong>Important:</strong> This link will expire in ${data.expirationTime || '1 hour'}.</p>
+          </div>
+          
+          <div class="notice">
+            <p><strong>Security Note:</strong> If you didn't request this, please ignore this email.</p>
+          </div>
         </div>
         
         <div class="footer">
-          <p>For security reasons, this link will only work once.</p>
+          <div class="footer-text"><strong>KIDOKOOL</strong></div>
+          <div class="footer-text">Learning Management System</div>
+          <div class="footer-text">© 2026 KIDOKOOL. All rights reserved.</div>
         </div>
       </div>
     </body>
@@ -217,28 +234,39 @@ const emailTemplates = {
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <title>Notification</title>
       <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4; }
-        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .header { background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; margin: -20px -20px 30px -20px; }
-        .notification-content { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #74b9ff; }
-        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background-color: #f5f5f5; margin: 0; padding: 40px 20px; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e5e5e5; }
+        .header { background: #ffffff; padding: 32px 40px; border-bottom: 1px solid #e5e5e5; }
+        .logo { font-size: 20px; font-weight: 700; color: #000000; margin-bottom: 8px; }
+        .content { padding: 40px; }
+        .title { font-size: 18px; font-weight: 600; color: #000000; margin-bottom: 16px; }
+        .notification-box { background: #f9f9f9; border: 1px solid #e5e5e5; padding: 24px; margin: 20px 0; }
+        .notification-box h3 { font-size: 16px; font-weight: 600; color: #000000; margin: 0 0 12px 0; }
+        .notification-box p { font-size: 14px; color: #333333; margin: 0; }
+        .footer { border-top: 1px solid #e5e5e5; padding: 32px 40px; background: #fafafa; text-align: center; }
+        .footer-text { font-size: 13px; color: #666666; margin: 4px 0; }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
-          <h1>📢 ${data.title || 'Notification'}</h1>
+          <div class="logo">KIDOKOOL</div>
         </div>
         
-        <p>Hi ${data.userName},</p>
-        
-        <div class="notification-content">
-          <h3>${data.messageTitle}</h3>
-          <p>${data.message}</p>
+        <div class="content">
+          <h1 class="title">${data.title || 'Notification'}</h1>
+          <p>Hi ${data.userName},</p>
+          
+          <div class="notification-box">
+            <h3>${data.messageTitle}</h3>
+            <p>${data.message}</p>
+          </div>
         </div>
         
         <div class="footer">
-          <p>Thank you!</p>
+          <div class="footer-text"><strong>KIDOKOOL</strong></div>
+          <div class="footer-text">Learning Management System</div>
+          <div class="footer-text">© 2026 KIDOKOOL. All rights reserved.</div>
         </div>
       </div>
     </body>
@@ -253,49 +281,57 @@ const emailTemplates = {
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <title>Purchase Receipt</title>
       <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4; }
-        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .header { background: linear-gradient(135deg, #00b894 0%, #00a085 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; margin: -20px -20px 30px -20px; }
-        .receipt-details { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; }
-        .receipt-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
-        .receipt-row:last-child { border-bottom: none; font-weight: bold; }
-        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background-color: #f5f5f5; margin: 0; padding: 40px 20px; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e5e5e5; }
+        .header { background: #ffffff; padding: 32px 40px; border-bottom: 1px solid #e5e5e5; }
+        .logo { font-size: 20px; font-weight: 700; color: #000000; margin-bottom: 8px; }
+        .content { padding: 40px; }
+        .title { font-size: 18px; font-weight: 600; color: #000000; margin-bottom: 16px; }
+        .receipt-table { width: 100%; border: 1px solid #e5e5e5; margin: 20px 0; }
+        .receipt-row { display: flex; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid #f0f0f0; }
+        .receipt-row:last-child { border-bottom: none; background: #fafafa; font-weight: 600; }
+        .receipt-row span { font-size: 14px; color: #333333; }
+        .footer { border-top: 1px solid #e5e5e5; padding: 32px 40px; background: #fafafa; text-align: center; }
+        .footer-text { font-size: 13px; color: #666666; margin: 4px 0; }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
-          <h1>🧾 Payment Receipt</h1>
+          <div class="logo">KIDOKOOL</div>
         </div>
         
-        <p>Hi ${data.userName},</p>
-        
-        <p>Thank you for your purchase! Here are your receipt details:</p>
-        
-        <div class="receipt-details">
-          <div class="receipt-row">
-            <span>Course:</span>
-            <span>${data.courseTitle}</span>
+        <div class="content">
+          <h1 class="title">Payment Receipt</h1>
+          <p>Hi ${data.userName},</p>
+          <p>Thank you for your purchase. Here are your receipt details:</p>
+          
+          <div class="receipt-table">
+            <div class="receipt-row">
+              <span>Course:</span>
+              <span>${data.courseTitle}</span>
+            </div>
+            <div class="receipt-row">
+              <span>Purchase Date:</span>
+              <span>${data.purchaseDate}</span>
+            </div>
+            <div class="receipt-row">
+              <span>Transaction ID:</span>
+              <span>${data.transactionId}</span>
+            </div>
+            <div class="receipt-row">
+              <span>Amount Paid:</span>
+              <span>$${data.amount}</span>
+            </div>
           </div>
-          <div class="receipt-row">
-            <span>Purchase Date:</span>
-            <span>${data.purchaseDate}</span>
-          </div>
-          <div class="receipt-row">
-            <span>Transaction ID:</span>
-            <span>${data.transactionId}</span>
-          </div>
-          <div class="receipt-row">
-            <span>Amount Paid:</span>
-            <span>$${data.amount}</span>
-          </div>
+          
+          <p>You can now access your course and start learning.</p>
         </div>
-        
-        <p>You can now access your course and start learning immediately!</p>
         
         <div class="footer">
-          <p>Keep this receipt for your records.</p>
-          <p>Happy Learning! 🎓</p>
+          <div class="footer-text"><strong>KIDOKOOL</strong></div>
+          <div class="footer-text">Learning Management System</div>
+          <div class="footer-text">© 2026 KIDOKOOL. All rights reserved.</div>
         </div>
       </div>
     </body>
@@ -310,48 +346,57 @@ const emailTemplates = {
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <title>Teacher Verification Submission</title>
       <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4; }
-        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .header { background: linear-gradient(135deg, #a55eea 0%, #8854d0 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; margin: -20px -20px 30px -20px; }
-        .doc-section { background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #a55eea; }
-        .doc-link { display: inline-block; background: #fff; border: 1px solid #ddd; padding: 8px 15px; border-radius: 5px; text-decoration: none; color: #333; margin: 5px 0; font-weight: bold; }
-        .doc-link:hover { background: #f0f0f0; }
-        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background-color: #f5f5f5; margin: 0; padding: 40px 20px; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e5e5e5; }
+        .header { background: #ffffff; padding: 32px 40px; border-bottom: 1px solid #e5e5e5; }
+        .logo { font-size: 20px; font-weight: 700; color: #000000; margin-bottom: 8px; }
+        .content { padding: 40px; }
+        .title { font-size: 18px; font-weight: 600; color: #000000; margin-bottom: 16px; }
+        .doc-section { background: #f9f9f9; border: 1px solid #e5e5e5; padding: 20px; margin: 16px 0; }
+        .doc-section h3 { font-size: 15px; font-weight: 600; color: #000000; margin: 0 0 12px 0; }
+        .doc-section p { font-size: 14px; color: #666666; margin: 0; }
+        .cta-button { display: inline-block; background: #000000; color: #ffffff; padding: 12px 24px; text-decoration: none; font-size: 14px; font-weight: 500; margin: 20px 0; }
+        .footer { border-top: 1px solid #e5e5e5; padding: 32px 40px; background: #fafafa; text-align: center; }
+        .footer-text { font-size: 13px; color: #666666; margin: 4px 0; }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
-          <h1>📋 Teacher Verification Request</h1>
+          <div class="logo">KIDOKOOL</div>
         </div>
         
-        <p>Hi Admin,</p>
-        
-        <p><strong>${data.teacherName}</strong> (${data.teacherEmail}) has submitted their documents for verification.</p>
-        
-        <div class="doc-section">
-          <h3>Identity Document</h3>
-          <p>${data.identityDocHtml}</p>
-        </div>
+        <div class="content">
+          <h1 class="title">Teacher Verification Request</h1>
+          <p>Hi Admin,</p>
+          <p><strong>${data.teacherName}</strong> (${data.teacherEmail}) has submitted documents for verification.</p>
+          
+          <div class="doc-section">
+            <h3>Identity Document</h3>
+            <p>${data.identityDocHtml}</p>
+          </div>
 
-        <div class="doc-section">
-          <h3>Qualifications</h3>
-          <p>${data.qualificationDocsHtml}</p>
-        </div>
+          <div class="doc-section">
+            <h3>Qualifications</h3>
+            <p>${data.qualificationDocsHtml}</p>
+          </div>
 
-        <div class="doc-section">
+          <div class="doc-section">
             <h3>Experience</h3>
             <p>${data.experienceDocsHtml}</p>
+          </div>
+          
+          <p>Please review these documents in the admin dashboard.</p>
+          
+          <div style="text-align: center;">
+            <a href="${data.adminDashboardUrl}" class="cta-button">Go to Admin Dashboard</a>
+          </div>
         </div>
         
-        <p>Please review these documents in the admin dashboard and approve/reject the teacher.</p>
-        
-        <div style="text-align: center; margin-top: 20px;">
-           <a href="${data.adminDashboardUrl}" style="background: #a55eea; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Go to Admin Dashboard</a>
-        </div>
-
         <div class="footer">
-          <p>KIDOKOOL Admin Notification</p>
+          <div class="footer-text"><strong>KIDOKOOL</strong></div>
+          <div class="footer-text">Admin Notification</div>
+          <div class="footer-text">© 2026 KIDOKOOL. All rights reserved.</div>
         </div>
       </div>
     </body>
@@ -366,34 +411,46 @@ const emailTemplates = {
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <title>New Course Submission</title>
       <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4; }
-        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .header { background: linear-gradient(135deg, #0984e3 0%, #74b9ff 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; margin: -20px -20px 30px -20px; }
-        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
-        .cta-button { display: inline-block; background: #0984e3; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; font-weight: bold; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background-color: #f5f5f5; margin: 0; padding: 40px 20px; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e5e5e5; }
+        .header { background: #ffffff; padding: 32px 40px; border-bottom: 1px solid #e5e5e5; }
+        .logo { font-size: 20px; font-weight: 700; color: #000000; margin-bottom: 8px; }
+        .content { padding: 40px; }
+        .title { font-size: 18px; font-weight: 600; color: #000000; margin-bottom: 16px; }
+        .info-box { background: #f9f9f9; border: 1px solid #e5e5e5; padding: 20px; margin: 20px 0; }
+        .info-box p { font-size: 14px; color: #333333; margin: 8px 0; }
+        .cta-button { display: inline-block; background: #000000; color: #ffffff; padding: 12px 24px; text-decoration: none; font-size: 14px; font-weight: 500; margin: 20px 0; }
+        .footer { border-top: 1px solid #e5e5e5; padding: 32px 40px; background: #fafafa; text-align: center; }
+        .footer-text { font-size: 13px; color: #666666; margin: 4px 0; }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
-          <h1>🎓 New Course Submitted</h1>
+          <div class="logo">KIDOKOOL</div>
         </div>
         
-        <p>Hi Admin,</p>
-        
-        <p>A new course has been submitted for review.</p>
-        
-        <p><strong>Course Title:</strong> ${data.courseTitle}</p>
-        <p><strong>Instructor:</strong> ${data.teacherName} (${data.teacherEmail})</p>
-        
-        <p>Please review the course content and approve or reject it.</p>
-        
-        <div style="text-align: center;">
-          <a href="${data.courseLink}" class="cta-button">Review Course</a>
+        <div class="content">
+          <h1 class="title">New Course Submitted</h1>
+          <p>Hi Admin,</p>
+          <p>A new course has been submitted for review.</p>
+          
+          <div class="info-box">
+            <p><strong>Course Title:</strong> ${data.courseTitle}</p>
+            <p><strong>Instructor:</strong> ${data.teacherName} (${data.teacherEmail})</p>
+          </div>
+          
+          <p>Please review the course content and approve or reject it.</p>
+          
+          <div style="text-align: center;">
+            <a href="${data.courseLink}" class="cta-button">Review Course</a>
+          </div>
         </div>
         
         <div class="footer">
-          <p>KIDOKOOL Admin Notification</p>
+          <div class="footer-text"><strong>KIDOKOOL</strong></div>
+          <div class="footer-text">Admin Notification</div>
+          <div class="footer-text">© 2026 KIDOKOOL. All rights reserved.</div>
         </div>
       </div>
     </body>

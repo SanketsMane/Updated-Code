@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify Your Login</title>
+    <title>Email Verification - KIDOKOOL</title>
     <style>
+        /* Author: Sanket - Minimalist email template without gradients */
         * {
             margin: 0;
             padding: 0;
@@ -12,205 +13,126 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+            background-color: #f5f5f5;
+            padding: 40px 20px;
             line-height: 1.6;
         }
         
         .email-container {
             max-width: 600px;
-            width: 100%;
-            background: #ffffff;
-            border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-            overflow: hidden;
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #1e3a8a 0%, #4f46e5 50%, #06b6d4 100%);
-            padding: 48px 40px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            animation: pulse 8s ease-in-out infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.1); opacity: 0.8; }
-        }
-        
-        .icon-container {
-            position: relative;
-            z-index: 1;
-            margin-bottom: 20px;
-        }
-        
-        .shield-icon {
-            width: 80px;
-            height: 80px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: #ffffff;
+            border: 1px solid #e5e5e5;
         }
         
-        .shield-icon svg {
-            width: 48px;
-            height: 48px;
-            fill: #ffffff;
-            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.1));
+        /* Header - Clean and minimal */
+        .header {
+            background: #ffffff;
+            padding: 40px 40px 32px;
+            border-bottom: 1px solid #e5e5e5;
         }
         
-        .header h1 {
-            position: relative;
-            z-index: 1;
-            color: #ffffff;
-            font-size: 32px;
+        .logo {
+            font-size: 24px;
             font-weight: 700;
+            color: #000000;
             letter-spacing: -0.5px;
-            margin: 0;
+            margin-bottom: 8px;
         }
         
+        .header-subtitle {
+            font-size: 14px;
+            color: #666666;
+            font-weight: 400;
+        }
+        
+        /* Content */
         .content {
-            padding: 48px 40px;
+            padding: 40px;
         }
         
-        .greeting {
-            font-size: 16px;
-            color: #1e293b;
+        .title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #000000;
             margin-bottom: 16px;
-            font-weight: 500;
         }
         
         .message {
             font-size: 15px;
-            color: #64748b;
+            color: #333333;
             margin-bottom: 32px;
-            line-height: 1.7;
+            line-height: 1.6;
         }
         
+        /* OTP Box - Simple and clean */
         .otp-container {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            border: 2px solid #e2e8f0;
-            border-radius: 16px;
+            background: #f9f9f9;
+            border: 2px solid #e5e5e5;
             padding: 32px;
             text-align: center;
             margin-bottom: 32px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .otp-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #4f46e5 0%, #06b6d4 100%);
         }
         
         .otp-label {
-            font-size: 13px;
+            font-size: 12px;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: #64748b;
+            letter-spacing: 1px;
+            color: #666666;
             font-weight: 600;
             margin-bottom: 16px;
         }
         
         .otp-code {
-            font-size: 48px;
+            font-size: 42px;
             font-weight: 700;
-            letter-spacing: 12px;
-            color: #1e293b;
+            letter-spacing: 8px;
+            color: #000000;
             font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
             margin: 0;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
         
         .expiry-notice {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 20px;
+            margin-top: 16px;
             font-size: 13px;
-            color: #64748b;
+            color: #666666;
         }
         
-        .expiry-notice svg {
-            width: 16px;
-            height: 16px;
-            fill: #64748b;
-        }
-        
+        /* Security Notice - Minimal alert box */
         .security-notice {
-            background: #fef3c7;
-            border-left: 4px solid #f59e0b;
+            background: #fafafa;
+            border-left: 3px solid #000000;
             padding: 16px 20px;
-            border-radius: 8px;
             margin-bottom: 32px;
         }
         
         .security-notice p {
             font-size: 14px;
-            color: #92400e;
+            color: #333333;
             margin: 0;
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
         }
         
-        .security-notice svg {
-            width: 18px;
-            height: 18px;
-            fill: #f59e0b;
-            flex-shrink: 0;
-            margin-top: 2px;
+        .security-notice strong {
+            color: #000000;
         }
         
         .help-text {
             font-size: 14px;
-            color: #64748b;
+            color: #666666;
             text-align: center;
-            margin-bottom: 24px;
         }
         
         .help-text a {
-            color: #4f46e5;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        
-        .help-text a:hover {
+            color: #000000;
             text-decoration: underline;
         }
         
+        /* Footer - Professional and clean */
         .footer {
-            border-top: 1px solid #e2e8f0;
+            border-top: 1px solid #e5e5e5;
             padding: 32px 40px;
-            background: #f8fafc;
+            background: #fafafa;
         }
         
         .footer-content {
@@ -218,60 +140,60 @@
         }
         
         .brand-name {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 12px;
+            color: #000000;
+            margin-bottom: 8px;
             letter-spacing: -0.3px;
         }
         
         .footer-text {
             font-size: 13px;
-            color: #64748b;
+            color: #666666;
             line-height: 1.6;
+            margin-bottom: 16px;
         }
         
         .footer-links {
-            margin-top: 16px;
             display: flex;
             justify-content: center;
             gap: 20px;
+            flex-wrap: wrap;
         }
         
         .footer-links a {
-            font-size: 13px;
-            color: #64748b;
+            font-size: 12px;
+            color: #666666;
             text-decoration: none;
+            border-bottom: 1px solid transparent;
         }
         
         .footer-links a:hover {
-            color: #4f46e5;
+            color: #000000;
+            border-bottom: 1px solid #000000;
         }
         
+        .copyright {
+            font-size: 12px;
+            color: #999999;
+            margin-top: 16px;
+        }
+        
+        /* Responsive */
         @media only screen and (max-width: 600px) {
-            .email-container {
-                border-radius: 16px;
+            body {
+                padding: 20px 10px;
             }
             
-            .header {
-                padding: 36px 24px;
-            }
-            
-            .header h1 {
-                font-size: 26px;
-            }
-            
-            .content {
-                padding: 32px 24px;
+            .header,
+            .content,
+            .footer {
+                padding: 24px 20px;
             }
             
             .otp-code {
                 font-size: 36px;
-                letter-spacing: 8px;
-            }
-            
-            .footer {
-                padding: 24px;
+                letter-spacing: 6px;
             }
             
             .footer-links {
@@ -283,50 +205,37 @@
 </head>
 <body>
     <div class="email-container">
-        <!-- Header with Gradient -->
+        <!-- Header -->
         <div class="header">
-            <div class="icon-container">
-                <div class="shield-icon">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm0 2.18l6 2.25v4.66c0 4.16-2.84 8.05-6 9.02-3.16-.97-6-4.86-6-9.02V6.43l6-2.25zm-1 4.82v6h2V9h-2zm0 8v2h2v-2h-2z"/>
-                    </svg>
-                </div>
-            </div>
-            <h1>Verify Your Login</h1>
+            <div class="logo">KIDOKOOL</div>
+            <div class="header-subtitle">Learning Management System</div>
         </div>
         
         <!-- Main Content -->
         <div class="content">
-            <p class="greeting">Hello,</p>
+            <h1 class="title">📧 Email Verification</h1>
             <p class="message">
-                Use the verification code below to securely continue. This code will expire in <strong>10 minutes</strong> for your protection.
+                Hi there,<br><br>
+                Please use the following OTP to verify your email address:
             </p>
             
-            <!-- OTP Code Card -->
+            <!-- OTP Code -->
             <div class="otp-container">
                 <div class="otp-label">Verification Code</div>
-                <p class="otp-code">470220</p>
-                <div class="expiry-notice">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
-                    </svg>
-                    <span>Expires in 10 minutes</span>
-                </div>
+                <p class="otp-code">{{OTP}}</p>
+                <div class="expiry-notice">This OTP will expire in 10 minutes for security reasons.</div>
             </div>
             
-            <!-- Security Warning -->
+            <!-- Security Notice -->
             <div class="security-notice">
                 <p>
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/>
-                    </svg>
-                    <span><strong>Security Notice:</strong> Do not share this code with anyone. Our team will never ask for your verification code.</span>
+                    <strong>Security Notice:</strong> If you didn't request this verification, please ignore this email.
                 </p>
             </div>
             
             <!-- Help Text -->
             <p class="help-text">
-                Didn't request this code? <a href="#">Contact our support team</a>
+                Need help? <a href="mailto:support@kidokool.com">Contact Support</a>
             </p>
         </div>
         
@@ -336,13 +245,17 @@
                 <div class="brand-name">KIDOKOOL</div>
                 <p class="footer-text">
                     Professional Learning Management System<br>
-                    Secure. Trusted. Enterprise-grade.
+                    Empowering Education Through Technology
                 </p>
                 <div class="footer-links">
                     <a href="#">Privacy Policy</a>
                     <a href="#">Terms of Service</a>
                     <a href="#">Help Center</a>
+                    <a href="#">Contact Us</a>
                 </div>
+                <p class="copyright">
+                    © 2026 KIDOKOOL. All rights reserved.
+                </p>
             </div>
         </div>
     </div>
