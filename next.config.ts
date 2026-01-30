@@ -7,8 +7,18 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
 
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
+  },
+
   images: {
     remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.s3.**.amazonaws.com',
+      },
       {
         protocol: "https",
         hostname: "utfs.io",
@@ -49,6 +59,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "kidokool-sanket-dev.s3.us-west-2.amazonaws.com",
+      },
+      {
+        protocol: "https",
+        hostname: "ui-avatars.com",
       }
     ],
   },
