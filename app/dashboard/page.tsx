@@ -9,6 +9,7 @@ import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { getEnrolledCourses } from "../data/user/get-enrolled-courses";
 import { CourseProgressCard } from "./_components/CourseProgressCard";
+import { FreeClassWidget } from "./_components/FreeClassWidget";
 import { Input } from "@/components/ui/input";
 import { MotionWrapper } from "@/components/ui/motion-wrapper";
 import { ArrowRight, PlayCircle, BookOpen, Clock, Target } from "lucide-react";
@@ -35,6 +36,7 @@ export default async function DashboardPage() {
   const analytics = await getUserAnalytics(userId);
   const enrolledCourses = await getEnrolledCourses();
   const scheduleItems = await getStudentSchedule(userId);
+  const freeUsage = await prisma.freeClassUsage.findUnique({ where: { studentId: userId } });
 
   // Recent activity adapted from analytics
   // const recentActivity = analytics.recentActivity ... (TODO: Map this if needed for a widget)
@@ -184,8 +186,12 @@ export default async function DashboardPage() {
             </div>
           </div>
 
-          {/* Replaced WalletWidget with Enrollment Stats since no wallet exists */}
-          <StatBox
+            {/* Replaced WalletWidget with Enrollment Stats since no wallet exists */}
+            {/* Free Class Usage Widget */}
+             <FreeClassWidget usage={freeUsage} />
+
+             {/* Stat Box replaced Wallet */}
+            <StatBox
             title="Overview"
             mainStat={{ label: "Active Courses", value: enrolledCourses.length.toString(), subValue: "In Progress" }}
             secondaryStat={{ label: "Total Completed", value: analytics.stats.completedCourses.toString(), subValue: "Lifetime" }}

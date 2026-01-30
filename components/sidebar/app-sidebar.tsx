@@ -80,6 +80,11 @@ const data = {
       icon: IconCreditCard,
     },
     {
+      title: "Coupons",
+      url: "/admin/coupons",
+      icon: IconTicket,
+    },
+    {
       title: "Analytics",
       url: "/admin/analytics",
       icon: IconChartBar,

@@ -321,6 +321,7 @@ export async function getPlatformAnalytics() {
     activeUsers,
     liveSessions,
     pendingPayouts,
+    totalFreeSessions,
   ] = await Promise.all([
     prisma.user.count(),
     prisma.course.count(),
@@ -373,6 +374,11 @@ export async function getPlatformAnalytics() {
       _sum: {
         requestedAmount: true
       }
+    }),
+    
+    // Total Free Sessions
+    prisma.liveSession.count({
+        where: { price: 0 }
     })
   ]);
 
@@ -392,7 +398,9 @@ export async function getPlatformAnalytics() {
       totalBlogPosts,
       activeUsers,
       liveSessions,
+      liveSessions,
       pendingPayouts: pendingPayouts._sum.requestedAmount || 0,
+      totalFreeSessions,
       conversionRate: totalUsers > 0 ? Math.round((totalEnrollments / totalUsers) * 100) : 0,
     },
     userGrowthData,

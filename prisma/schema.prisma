@@ -58,6 +58,10 @@ model User {
   refundRequests              RefundRequest[]
   issues                      Issue[]
   wallet                      Wallet?
+  savedTutors                 StudentSavedTutor[]      @relation("StudentSavedTutors")
+  savedByStudents             StudentSavedTutor[]      @relation("TutorSavedBy")
+  freeClassUsage              FreeClassUsage?
+  couponUsage                 CouponUsage[]
 
   @@map("user")
 }
@@ -275,6 +279,9 @@ model TeacherProfile {
   payoutRequests      PayoutRequest[]       @relation("TeacherPayouts")
   verification        TeacherVerification?  @relation("TeacherVerification")
   resources           Resource[]            @relation("TeacherResources")
+  pricing             TeacherPricing[]
+  allowFreeDemo       Boolean               @default(true)
+  allowFreeGroup      Boolean               @default(true)
 }
 
 model LiveSession {
@@ -370,7 +377,7 @@ model GroupClass {
   language    String?
   scheduledAt DateTime
   duration    Int
-  maxStudents Int               @default(20)
+  maxStudents Int               @default(12)
   price       Int
   status      ClassStatus       @default(Scheduled)
   meetingUrl  String?
@@ -598,6 +605,7 @@ model SiteSettings {
   linkedin       String?
   youtube        String?
   footerLinks    Json?
+  maxGroupClassSize Int @default(12)
   updatedAt      DateTime @updatedAt
 }
 
@@ -1450,4 +1458,93 @@ model Language {
   updatedAt DateTime @updatedAt
 
   @@map("languages")
+}
+
+model Coupon {
+  id              String       @id @default(cuid())
+  code            String       @unique
+  type            CouponType
+  value           Int          // Amount or percentage
+  applicableOn    String[]     // ["DEMO", "30MIN", "60MIN", "GROUP", "CRASH", "FULL"]
+  teacherId       String?      // Null means global
+  expiryDate      DateTime
+  usageLimit      Int          @default(100)
+  usedCount       Int          @default(0)
+  perUserLimit    Int          @default(1)
+  isActive        Boolean      @default(true)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  usage           CouponUsage[]
+
+  @@map("coupons")
+}
+
+enum CouponType {
+  FIXED
+  PERCENTAGE
+}
+
+model FreeClassUsage {
+  id              String   @id @default(cuid())
+  studentId       String   @unique
+  demoUsed        Boolean  @default(false)
+  groupUsed       Boolean  @default(false)
+  demoSessionId   String?  // Reference to the session used
+  groupSessionId  String?  // Reference to the group class used
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  student         User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@map("free_class_usage")
+}
+
+model StudentSavedTutor {
+  id        String   @id @default(cuid())
+  studentId String
+  tutorId   String
+  createdAt DateTime @default(now())
+  
+  student   User     @relation("StudentSavedTutors", fields: [studentId], references: [id], onDelete: Cascade)
+  tutor     User     @relation("TutorSavedBy", fields: [tutorId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, tutorId])
+  @@map("student_saved_tutors")
+}
+
+model TeacherPricing {
+  id          String      @id @default(cuid())
+  teacherId   String
+  type        SessionType
+  price       Int
+  duration    Int         // Duration in minutes
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  teacher     TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@unique([teacherId, type])
+  @@map("teacher_pricing")
+}
+
+enum SessionType {
+  DEMO
+  THIRTY_MIN
+  SIXTY_MIN
+  GROUP
+  CRASH_COURSE
+  FULL_COURSE
+}
+
+model CouponUsage {
+  id        String   @id @default(cuid())
+  couponId  String
+  userId    String
+  orderId   String?
+  usedAt    DateTime @default(now())
+  
+  coupon    Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("coupon_usage")
 }

@@ -38,6 +38,7 @@ export async function updateSiteSettings(prevState: any, formData: FormData) {
         const instagram = formData.get("instagram") as string;
         const linkedin = formData.get("linkedin") as string;
         const youtube = formData.get("youtube") as string;
+        const maxGroupClassSize = parseInt(formData.get("maxGroupClassSize") as string) || 12;
 
         const existing = await prisma.siteSettings.findFirst();
 
@@ -57,6 +58,7 @@ export async function updateSiteSettings(prevState: any, formData: FormData) {
                     linkedin,
                     youtube,
                     footerLinks: JSON.parse(formData.get("footerLinks") as string || "{}"),
+                    maxGroupClassSize,
                 },
             });
         } else {
@@ -74,6 +76,7 @@ export async function updateSiteSettings(prevState: any, formData: FormData) {
                     linkedin,
                     youtube,
                     footerLinks: JSON.parse(formData.get("footerLinks") as string || "{}"),
+                    maxGroupClassSize,
                 },
             });
         }

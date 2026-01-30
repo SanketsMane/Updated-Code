@@ -15,6 +15,7 @@ export async function createIssue(data: {
     description: string;
     category: string;
     priority: Priority;
+    metadata?: any;
 }) {
     const session = await auth.api.getSession({
         headers: await headers()
@@ -32,6 +33,7 @@ export async function createIssue(data: {
                 description: data.description,
                 category: data.category,
                 priority: data.priority,
+                metadata: data.metadata || {},
                 status: "Open",
             },
             include: { reporter: true }

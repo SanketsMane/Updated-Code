@@ -4,6 +4,7 @@ import { getSessionWithRole } from "@/app/data/auth/require-roles";
 import { FadeIn } from "@/components/ui/fade-in";
 import { Calendar, Clock, Award, Globe, Video, CheckCircle2 } from "lucide-react";
 import { BookingWidget } from "./_components/booking-widget";
+import { ReportTeacherButton } from "./_components/report-button";
 
 export const dynamic = "force-dynamic";
 
@@ -117,14 +118,16 @@ export default async function TeacherProfilePage({ params }: PageProps) {
 
                 {/* Sidebar: Booking Widget */}
                 <div className="relative">
-                    <div className="sticky top-24">
+                    <div className="sticky top-24 space-y-4">
                         <BookingWidget
-                            teacherId={teacherProfile.user.id} // User ID for booking relationship? 
-                            // Schema: LiveSession has teacherId (TeacherProfile.id) usually? 
-                            // Let's double check schema. LiveSession.teacherId -> TeacherProfile.id
+                            teacherId={teacherProfile.user.id} 
                             teacherProfileId={teacherProfile.id}
                             hourlyRate={teacherProfile.hourlyRate || 0}
                             userName={teacherProfile.user.name}
+                        />
+                        <ReportTeacherButton 
+                            teacherId={teacherProfile.user.id} 
+                            teacherName={teacherProfile.user.name}
                         />
                     </div>
                 </div>

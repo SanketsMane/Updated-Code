@@ -61,6 +61,17 @@ export function SettingsForm({ settings }: { settings: SiteSettings | null }) {
                             />
                             <p className="text-xs text-muted-foreground">Recommended size: 200x50px transparent PNG</p>
                         </div>
+                        <div className="space-y-2">
+                             <Label htmlFor="maxGroupClassSize">Global Max Group Class Size</Label>
+                             <Input 
+                                id="maxGroupClassSize" 
+                                name="maxGroupClassSize" 
+                                type="number" 
+                                min="1"
+                                defaultValue={settings?.maxGroupClassSize || 12} 
+                             />
+                             <p className="text-xs text-muted-foreground">Maximum students allowed in any group class. Defaults to 12.</p>
+                        </div>
                     </CardContent>
                 </Card>
 

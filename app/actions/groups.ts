@@ -85,63 +85,109 @@ export async function deleteGroupClass(groupId: string) {
 export async function joinGroupClass(groupId: string, paymentMethod: "stripe" | "wallet" = "stripe") {
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session?.user) return { error: "Unauthorized" };
-    const user = session.user; // Assuming session.user is the user object
+    const user = session.user;
 
     try {
-        // const user = await requireUser(); // Assuming requireUser is defined elsewhere
-
-        const groupClass = await prisma.groupClass.findUnique({
-            where: { id: groupId },
-            include: { teacher: true }
-        });
+        // 1. Fetch Group + Enrollments + Teacher + SiteSettings
+        const [groupClass, siteSettings, freeUsage] = await Promise.all([
+            prisma.groupClass.findUnique({
+                where: { id: groupId },
+                include: { 
+                    teacher: true,
+                    enrollments: { where: { status: { in: ["Active", "Pending"] } } }
+                }
+            }),
+            prisma.siteSettings.findFirst(),
+            prisma.freeClassUsage.findUnique({ where: { studentId: user.id } })
+        ]);
 
         if (!groupClass) return { error: "Group class not found" };
 
-        // Check if already enrolled or requested
-        const existing = await prisma.groupEnrollment.findFirst({
-            where: { classId: groupId, studentId: user.id } // Changed groupId to classId to match schema
-        });
+        // 2. Capacity Check
+        const globalLimit = siteSettings?.maxGroupClassSize || 12;
+        const classLimit = groupClass.maxStudents || globalLimit;
+        // Enforce global limit as hard cap if class limit is higher? 
+        // "Max Group Class Size = 12 ... Controlled only by Admin"
+        // So we take the minimum? Or just SiteSettings? 
+        // "System must auto-block booking after 12 students" logic implies strictly 12.
+        // But what if Admin sets it to 15?
+        // Let's use Math.min(classLimit, globalLimit) to be safe, respecting the lowest constraint.
+        const effectiveLimit = Math.min(classLimit, globalLimit);
 
+        if (groupClass.enrollments.length >= effectiveLimit) {
+            return { error: `Class is full (Max ${effectiveLimit} students)` };
+        }
+
+        // 3. Free Usage Check
+        if (groupClass.price === 0) {
+            // Check checking lifetime limit
+            if (freeUsage?.groupUsed) {
+                return { error: "You have already used your free group class." };
+            }
+            // Check teacher permission (though if price is 0, teacher probably allowed it)
+            if (!groupClass.teacher.allowFreeGroup) {
+               // This case is rare: price 0 but allowFreeGroup false? 
+               // Maybe teacher disabled it after creating?
+               // Let's enforce it.
+               return { error: "This teacher does not accept free group trials." };
+            }
+        }
+
+        // Check if already enrolled
+        const existing = await prisma.groupEnrollment.findFirst({
+            where: { classId: groupId, studentId: user.id }
+        });
         if (existing) return { error: "Already requested or enrolled" };
 
-        // If wallet payment, process immediately
-        if (paymentMethod === "wallet" && groupClass.price > 0) {
-            const { deductFromWallet } = await import("./wallet");
-
-            // Deduct from wallet and create enrollment atomically
-            await prisma.$transaction(async (tx) => {
-                await deductFromWallet(
+        // If wallet payment or FREE class
+        if ((paymentMethod === "wallet" && groupClass.price > 0) || groupClass.price === 0) {
+            
+            // If wallet
+            if (groupClass.price > 0) {
+                 const { deductFromWallet } = await import("./wallet");
+                 await deductFromWallet(
                     user.id,
                     groupClass.price,
                     "GROUP_ENROLLMENT",
                     `Joined group class: ${groupClass.title}`,
                     { groupId: groupClass.id, groupTitle: groupClass.title }
                 );
+            }
+
+            // Transaction: Create Enrollment + Update FreeUsage
+            await prisma.$transaction(async (tx) => {
+                // If free, mark usage
+                if (groupClass.price === 0) {
+                    await tx.freeClassUsage.upsert({
+                        where: { studentId: user.id },
+                        create: { studentId: user.id, groupUsed: true, groupSessionId: groupClass.id },
+                        update: { groupUsed: true, groupSessionId: groupClass.id }
+                    });
+                }
 
                 await tx.groupEnrollment.create({
                     data: {
                         classId: groupId,
                         studentId: user.id,
-                        status: "Active" // Auto-approve for wallet payments
+                        status: "Active"
                     }
                 });
 
-                // Create notification
                 await tx.notification.create({
                     data: {
                         userId: user.id,
                         title: "Joined Group Class",
-                        message: `You've successfully joined "${groupClass.title}" using your wallet.`,
+                        message: `You've successfully joined "${groupClass.title}".`,
                         type: "Session"
                     }
                 });
             });
 
             revalidatePath("/dashboard/groups");
-            return { success: true, message: "Successfully joined group class using wallet" };
+            return { success: true, message: "Successfully joined group class" };
         }
 
-        // Otherwise, create pending enrollment (requires approval or Stripe payment)
+        // Stripe Flow (Pending)
         await prisma.groupEnrollment.create({
             data: {
                 classId: groupId,
@@ -152,6 +198,7 @@ export async function joinGroupClass(groupId: string, paymentMethod: "stripe" | 
 
         revalidatePath("/dashboard/groups");
         return { success: true, message: "Join request sent" };
+
     } catch (error: any) {
         console.error("Join group error:", error);
         if (error.message?.includes("Insufficient balance")) {

@@ -45,6 +45,45 @@ export function BookingPageClient({ session }: BookingPageClientProps) {
   const [loading, setLoading] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [agreedToRefund, setAgreedToRefund] = useState(false);
+  
+  // Coupon State
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{ id: string; code: string; discountAmount: number } | null>(null);
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setValidatingCoupon(true);
+    try {
+        const res = await fetch("/api/coupons/apply", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                code: couponCode,
+                originalPrice: session.price,
+                context: {
+                    type: "SESSION", // Or specific detailed type if available
+                    teacherId: session.teacher.user.image ? "unknown" : "unknown" // Need teacherId in session prop, checking interface
+                }
+            })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Invalid coupon");
+
+        setAppliedCoupon({
+            id: data.couponId,
+            code: data.code,
+            discountAmount: data.discountAmount
+        });
+        toast.success("Coupon applied successfully!");
+    } catch (error: any) {
+        toast.error(error.message);
+        setAppliedCoupon(null);
+    } finally {
+        setValidatingCoupon(false);
+    }
+  };
 
   const handleBooking = async () => {
     if (!agreedToTerms || !agreedToRefund) {
@@ -58,7 +97,10 @@ export function BookingPageClient({ session }: BookingPageClientProps) {
       // Create checkout session
       const response = await fetch(`/api/sessions/${session.id}/checkout`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            couponCode: appliedCoupon?.code
+        })
       });
 
       if (!response.ok) {
@@ -78,6 +120,7 @@ export function BookingPageClient({ session }: BookingPageClientProps) {
 
   const platformFee = Math.round(session.price * 0.05); // 5% platform fee
   const total = session.price;
+  const finalTotal = appliedCoupon ? (total - appliedCoupon.discountAmount) : total;
 
   return (
     <div className="min-h-screen bg-background">
@@ -243,6 +286,46 @@ export function BookingPageClient({ session }: BookingPageClientProps) {
                       <span className="text-muted-foreground">Session Price</span>
                       <span className="font-medium">${(session.price / 100).toFixed(2)}</span>
                     </div>
+
+                     {/* Coupon Section */}
+                    {appliedCoupon ? (
+                         <div className="flex justify-between text-green-600">
+                             <div className="flex items-center gap-1">
+                                 <span className="text-sm">Coupon ({appliedCoupon.code})</span>
+                                 <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-4 w-4 p-0 text-muted-foreground hover:text-destructive"
+                                    onClick={() => setAppliedCoupon(null)}
+                                 >
+                                    <span className="sr-only">Remove</span>
+                                    ×
+                                 </Button>
+                             </div>
+                             <span className="font-medium">-${(appliedCoupon.discountAmount / 100).toFixed(2)}</span>
+                         </div>
+                    ) : (
+                        <div className="flex gap-2">
+                            <div className="flex-1">
+                                <input 
+                                    type="text" 
+                                    placeholder="Discount Code"
+                                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                    value={couponCode}
+                                    onChange={(e) => setCouponCode(e.target.value)}
+                                />
+                            </div>
+                            <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={handleApplyCoupon}
+                                disabled={validatingCoupon || !couponCode}
+                            >
+                                {validatingCoupon ? <Loader2 className="h-3 w-3 animate-spin" /> : "Apply"}
+                            </Button>
+                        </div>
+                    )}
+                    
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Platform Fee (5%)</span>
                       <span className="font-medium">${(platformFee / 100).toFixed(2)}</span>
@@ -252,7 +335,7 @@ export function BookingPageClient({ session }: BookingPageClientProps) {
                       <span className="font-bold text-lg">Total</span>
                       <div className="text-right">
                         <div className="font-bold text-2xl text-green-600">
-                          ${(total / 100).toFixed(2)}
+                          ${(finalTotal / 100).toFixed(2)}
                         </div>
                         <span className="text-xs text-muted-foreground">USD</span>
                       </div>
