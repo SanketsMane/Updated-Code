@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Find Expert Tutors - KIDOKOOL",
+    title: "Find Expert Tutors - Examsphere",
     description: "Connect with verified tutors for personalized 1-on-1 learning sessions. Master any subject with expert guidance.",
 };
 

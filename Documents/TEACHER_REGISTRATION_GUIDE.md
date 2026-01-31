@@ -175,7 +175,7 @@ The LMS now has a complete teacher self-registration system that allows qualifie
 EMAIL_SERVICE="gmail"
 EMAIL_USER="your-email@gmail.com"
 EMAIL_PASS="your-app-password"
-EMAIL_FROM="KIDOKOOL <your-email@gmail.com>"
+EMAIL_FROM="Examsphere <your-email@gmail.com>"
 
 # Base URL (for email links)
 BETTER_AUTH_URL="http://localhost:3001"
@@ -190,4 +190,4 @@ BETTER_AUTH_URL="http://localhost:3001"
 
 ## 🎉 Success! 
 
-The teacher registration system is now fully functional and provides a professional, comprehensive way for qualified individuals to apply to become teachers on the KIDOKOOL platform.
+The teacher registration system is now fully functional and provides a professional, comprehensive way for qualified individuals to apply to become teachers on the Examsphere platform.

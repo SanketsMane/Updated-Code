@@ -139,7 +139,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // If teacher -> Go to Teacher Dashboard
   // If student -> Go to Teacher Registration
   secondaryNav.unshift({
-    title: role === "teacher" ? "Instructor Dashboard" : "Teach on Kidokool",
+    title: role === "teacher" ? "Instructor Dashboard" : "Teach on Examsphere",
     url: role === "teacher" ? "/teacher" : "/register/teacher",
     icon: IconSchool,
   });
@@ -155,7 +155,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
               <Link href="/">
                 <Image src={Logo} alt="Logo" className="size-5" />
-                <span className="text-base font-semibold">KIDOKOOL.</span>
+                <span className="text-base font-semibold">Examsphere.</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

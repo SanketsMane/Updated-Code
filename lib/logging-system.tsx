@@ -1,4 +1,4 @@
-// Advanced Error Tracking and Logging System for KIDOKOOL
+// Advanced Error Tracking and Logging System for Examsphere
 import React from 'react';
 import { writeFile, mkdir, appendFile } from 'fs/promises';
 import path from 'path';

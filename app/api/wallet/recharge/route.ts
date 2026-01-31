@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
                         currency: "inr",
                         product_data: {
                             name: "Wallet Recharge",
-                            description: `Add ₹${amount} to your KIDOKOOL wallet`,
+                            description: `Add ₹${amount} to your Examsphere wallet`,
                         },
                         unit_amount: amount * 100, // Convert to paise
                     },

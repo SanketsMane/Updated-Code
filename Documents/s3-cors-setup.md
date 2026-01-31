@@ -4,14 +4,14 @@
 Getting **403 Forbidden** error when uploading files to S3 using presigned URLs.
 
 ## Root Cause
-The S3 bucket `kidokool-sanket-dev` needs CORS (Cross-Origin Resource Sharing) configuration to allow uploads from the browser.
+The S3 bucket `Examsphere-sanket-dev` needs CORS (Cross-Origin Resource Sharing) configuration to allow uploads from the browser.
 
 ## Solution: Configure CORS on S3 Bucket
 
 ### Option 1: Via AWS Console (Recommended)
 
 1. **Go to AWS S3 Console**: https://console.aws.amazon.com/s3/
-2. **Select your bucket**: `kidokool-sanket-dev`
+2. **Select your bucket**: `Examsphere-sanket-dev`
 3. **Navigate to**: Permissions tab → CORS configuration
 4. **Add the following CORS configuration**:
 
@@ -48,7 +48,7 @@ The S3 bucket `kidokool-sanket-dev` needs CORS (Cross-Origin Resource Sharing) c
 Run this command (replace with your actual production domain):
 
 ```bash
-aws s3api put-bucket-cors --bucket kidokool-sanket-dev --cors-configuration file://cors.json --region eu-north-1
+aws s3api put-bucket-cors --bucket Examsphere-sanket-dev --cors-configuration file://cors.json --region eu-north-1
 ```
 
 Where `cors.json` contains:
@@ -80,7 +80,7 @@ Where `cors.json` contains:
 ## Production Deployment
 
 When deploying to production, update `AllowedOrigins` to include:
-- Your production domain (e.g., `https://kidokool.com`)
+- Your production domain (e.g., `https://Examsphere.com`)
 - Remove localhost origins for security
 
 ## Additional Security Notes

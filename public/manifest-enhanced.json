@@ -1,6 +1,6 @@
 {
-  "name": "KIDOKOOL - Professional Learning Platform",
-  "short_name": "KIDOKOOL",
+  "name": "Examsphere - Professional Learning Platform",
+  "short_name": "Examsphere",
   "description": "Advanced learning management system with video conferencing, collaborative whiteboard, and analytics",
   "start_url": "/dashboard",
   "display": "standalone",
@@ -145,7 +145,7 @@
   },
   "protocol_handlers": [
     {
-      "protocol": "web+kidokool",
+      "protocol": "web+Examsphere",
       "url": "/handle-protocol?protocol=%s"
     }
   ],

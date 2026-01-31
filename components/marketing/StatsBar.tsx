@@ -14,22 +14,22 @@ const stats = [
         color: "text-blue-500",
     },
     {
-        label: "Active Students",
+        label: "Active Aspirants",
         value: 15000,
         suffix: "+",
         icon: Users,
         color: "text-blue-500",
     },
     {
-        label: "Expert Instructors",
+        label: "Expert Faculty",
         value: 120,
         suffix: "+",
         icon: Award,
-        color: "text-blue-500", // The screenshot shows blue for all
+        color: "text-blue-500",
     },
     {
-        label: "Countries",
-        value: 120,
+        label: "Clinical Recalls",
+        value: 5000,
         suffix: "+",
         icon: Globe,
         color: "text-blue-500",
@@ -59,13 +59,13 @@ function Counter({ value, suffix }: { value: number, suffix: string }) {
 
 export function StatsBar() {
     return (
-        <section className="bg-white dark:bg-card border-b border-gray-100 dark:border-gray-800">
+        <section className="bg-white dark:bg-card border-b border-slate-200 dark:border-gray-800">
             <div className="container mx-auto">
-                <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-gray-100 dark:divide-gray-800">
+                <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-slate-200 dark:divide-gray-800">
                     {stats.map((stat, idx) => (
                         <div
                             key={idx}
-                            className="group py-10 px-4 flex flex-col items-center justify-center text-center hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors cursor-default"
+                            className="group py-10 px-4 flex flex-col items-center justify-center text-center hover:bg-slate-50/80 dark:hover:bg-white/5 transition-colors cursor-default"
                         >
                             <motion.div
                                 initial={{ scale: 1 }}
@@ -80,7 +80,7 @@ export function StatsBar() {
                                 <Counter value={stat.value} suffix={stat.suffix} />
                             </div>
 
-                            <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                            <p className="text-xs font-bold text-slate-500 dark:text-gray-500 uppercase tracking-widest">
                                 {stat.label}
                             </p>
                         </div>

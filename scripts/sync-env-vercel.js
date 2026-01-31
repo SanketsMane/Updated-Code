@@ -26,7 +26,7 @@ envContent.split('\n').forEach(line => {
 });
 
 // Overrides
-envVars['BETTER_AUTH_URL'] = 'https://kidokool-lms.vercel.app';
+envVars['BETTER_AUTH_URL'] = 'https://Examsphere-lms.vercel.app';
 
 const keys = Object.keys(envVars);
 

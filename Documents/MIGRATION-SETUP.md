@@ -1,4 +1,4 @@
-# KIDOKOOL LMS - Post-Migration Setup Guide
+# Examsphere LMS - Post-Migration Setup Guide
 
 ## 🎉 Migration Summary
 
@@ -48,7 +48,7 @@ BETTER_AUTH_URL="http://localhost:3000"
 EMAIL_SERVICE="gmail"
 EMAIL_USER="youremail@gmail.com"
 EMAIL_PASS="your-16-character-app-password"
-EMAIL_FROM="KIDOKOOL <youremail@gmail.com>"
+EMAIL_FROM="Examsphere <youremail@gmail.com>"
 ```
 
 **Option B: Mailtrap (Recommended for development)**
@@ -58,7 +58,7 @@ EMAIL_PORT="2525"
 EMAIL_SECURE="false"
 EMAIL_USER="your-mailtrap-username"
 EMAIL_PASS="your-mailtrap-password"
-EMAIL_FROM="KIDOKOOL <test@example.com>"
+EMAIL_FROM="Examsphere <test@example.com>"
 ```
 
 ### 3. **Database Setup**

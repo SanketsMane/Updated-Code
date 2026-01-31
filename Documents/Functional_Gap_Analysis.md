@@ -1,4 +1,4 @@
-# 🔍 Functional Gap Analysis: KIDOKOOL LMS
+# 🔍 Functional Gap Analysis: Examsphere LMS
 
 After a deep-dive audit of the frontend, backend actions, and database integration, I have identified exactly why some functionalities feel like "just UI." While the **infrastructure and database models** are production-grade, several "connectors" are currently bypassed or mocked for easier demonstration.
 

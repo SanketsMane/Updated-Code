@@ -20,9 +20,10 @@ import { Search, X, Filter, Star } from "lucide-react";
 
 
 const levels = [
-  "Beginner",
-  "Intermediate",
-  "Advanced"
+  "Pre-Clinical",
+  "Para-Clinical",
+  "Clinical Student",
+  "Intern / Post-Intern"
 ];
 
 const priceRanges = [

@@ -98,7 +98,7 @@ Next.js requires consistent dynamic parameter names within the same route segmen
    - Look up `courseId` from database using slug
 4. **Deleted Conflicting Folder**: Used PowerShell's `-LiteralPath` parameter to properly delete `[courseId]` folder:
    ```powershell
-   Remove-Item -LiteralPath "c:\Users\rohan\Documents\Kidokool-latest\app\api\courses\[courseId]" -Recurse -Force
+   Remove-Item -LiteralPath "c:\Users\rohan\Documents\Examsphere-latest\app\api\courses\[courseId]" -Recurse -Force
    ```
    *(Note: Standard `-Path` parameter treated `[courseId]` as a wildcard pattern)*
 5. **Cleared Next.js Cache**: Deleted `.next` folder to remove stale route definitions

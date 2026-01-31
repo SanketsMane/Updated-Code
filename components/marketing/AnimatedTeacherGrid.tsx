@@ -46,7 +46,7 @@ export function AnimatedTeacherGrid({ teachers }: Props) {
                         hidden: { opacity: 0, y: 20 },
                         visible: { opacity: 1, y: 0 }
                     }}
-                    className="group flex flex-col h-full bg-white dark:bg-card border border-gray-100 dark:border-gray-800 rounded-[2rem] overflow-hidden hover:shadow-xl transition-all duration-300"
+                    className="group flex flex-col h-full bg-white dark:bg-card border border-slate-200 dark:border-gray-800 rounded-[2rem] overflow-hidden hover:shadow-xl transition-all duration-300"
                 >
                     {/* Header / Avatar */}
                     <div className="p-6 flex items-start gap-4">
@@ -91,7 +91,7 @@ export function AnimatedTeacherGrid({ teachers }: Props) {
                             ))}
                         </div>
 
-                        <div className="flex items-center justify-between text-sm text-muted-foreground mt-auto pt-5 border-t border-gray-100 dark:border-gray-800">
+                        <div className="flex items-center justify-between text-sm text-muted-foreground mt-auto pt-5 border-t border-slate-200 dark:border-gray-800">
                             <div className="flex items-center gap-1.5 bg-secondary/50 px-2 py-1 rounded-md">
                                 <Clock className="w-4 h-4 text-primary" />
                                 <span className="font-medium">60 min</span>

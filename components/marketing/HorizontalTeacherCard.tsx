@@ -51,7 +51,7 @@ export function HorizontalTeacherCard({ teacher }: TeacherCardProps) {
             className="group relative flex flex-col md:flex-row bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
         >
             {/* Left: Profile Image Section */}
-            <div className="relative w-full md:w-64 p-4 flex flex-col items-center bg-gray-50/50 dark:bg-slate-900/50 border-r border-gray-100 dark:border-gray-800">
+            <div className="relative w-full md:w-64 p-4 flex flex-col items-center bg-gray-50/50 dark:bg-slate-900/50 border-r border-slate-200 dark:border-gray-800">
                 <div className="relative w-full aspect-[4/3] mb-4">
                     <div className="w-full h-full rounded-lg overflow-hidden shadow-sm relative">
                         <Image
@@ -69,7 +69,7 @@ export function HorizontalTeacherCard({ teacher }: TeacherCardProps) {
                     </div>
 
                     {teacher.isVerified && (
-                        <div className="absolute -top-2 -right-2 bg-white dark:bg-[#1e293b] rounded-full p-1 shadow-sm border border-gray-100 dark:border-gray-800" title="Verified Expert">
+                        <div className="absolute -top-2 -right-2 bg-white dark:bg-[#1e293b] rounded-full p-1 shadow-sm border border-slate-200 dark:border-gray-800" title="Verified Expert">
                             <IconShieldCheck className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                         </div>
                     )}
@@ -141,7 +141,7 @@ export function HorizontalTeacherCard({ teacher }: TeacherCardProps) {
                             transition={{ duration: 0.2 }}
                             className="mt-4 overflow-hidden"
                         >
-                            <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
+                            <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
                                 <div className="flex items-center gap-2 mb-2">
                                     <IconCalendar className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                                     <span className="font-semibold text-sm text-slate-700 dark:text-slate-200">
@@ -169,7 +169,7 @@ export function HorizontalTeacherCard({ teacher }: TeacherCardProps) {
             </div>
 
             {/* Right: Action Section */}
-            <div className="w-full md:w-56 p-5 border-l border-gray-100 dark:border-gray-800 flex flex-col justify-center items-center gap-3 bg-gray-50/10">
+            <div className="w-full md:w-56 p-5 border-l border-slate-200 dark:border-gray-800 flex flex-col justify-center items-center gap-3 bg-gray-50/10">
                 <div className="text-center mb-1">
                     <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Hourly Rate</p>
                     <div className="text-3xl font-bold text-slate-800 dark:text-white">

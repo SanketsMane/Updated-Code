@@ -20,14 +20,6 @@ const navigationItems: IMenu[] = [
     id: 2,
     title: "Courses",
     url: "/courses",
-    dropdown: true,
-    items: [
-      { id: 21, title: "All Courses", url: "/courses" },
-      { id: 22, title: "Programming", url: "/courses?category=Programming" },
-      { id: 23, title: "Business", url: "/courses?category=Business" },
-      { id: 24, title: "Design", url: "/courses?category=Design" },
-      { id: 25, title: "Health & Fitness", url: "/courses?category=Health" },
-    ]
   },
   {
     id: 3,
@@ -50,9 +42,9 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto flex h-16 items-center px-4 md:px-8 gap-4">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 mr-4 shrink-0">
-          <Image src={Logo} alt="KIDOKOOL" className="w-8 h-8 md:w-10 md:h-10" />
+          <Image src={Logo} alt="Examsphere" className="w-8 h-8 md:w-10 md:h-10" />
           <span className="font-bold text-xl text-foreground hidden sm:block">
-            KIDOKOOL
+            Examsphere
           </span>
         </Link>
 

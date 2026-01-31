@@ -119,7 +119,7 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
   }
 
   // Additional security headers
-  response.headers.set('X-Powered-By', 'KIDOKOOL');
+  response.headers.set('X-Powered-By', 'Examsphere');
   response.headers.set('Vary', 'Accept-Encoding, Origin');
 
   return response;

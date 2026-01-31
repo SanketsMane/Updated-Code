@@ -3,7 +3,7 @@
 process.env.EMAIL_SERVICE = "gmail";
 process.env.EMAIL_USER = "bksun170882@gmail.com";
 process.env.EMAIL_PASS = "gnzzipmrmhajejwc";
-process.env.EMAIL_FROM = "KIDOKOOL <bksun170882@gmail.com>";
+process.env.EMAIL_FROM = "Examsphere <bksun170882@gmail.com>";
 
 import { sendEmail } from '../lib/email';
 
@@ -13,7 +13,7 @@ async function main() {
 
     const success = await sendEmail({
         to: "bksun170882@gmail.com", // Send to self
-        subject: "Test Email from KIDOKOOL Local Debug",
+        subject: "Test Email from Examsphere Local Debug",
         html: "<h1>It Works!</h1><p>This is a test email to verify credentials.</p>"
     });
 

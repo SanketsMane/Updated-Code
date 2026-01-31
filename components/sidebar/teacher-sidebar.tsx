@@ -151,7 +151,7 @@ export function TeacherSidebar({ ...props }: React.ComponentProps<typeof Sidebar
             >
               <Link href="/teacher">
                 <Image src={Logo} alt="Logo" className="size-5" />
-                <span className="text-base font-semibold">KIDOKOOL.</span>
+                <span className="text-base font-semibold">Examsphere.</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

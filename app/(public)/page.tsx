@@ -17,17 +17,16 @@ import { prisma } from "@/lib/db";
 import { CategoryCard } from "@/components/ui/category-card";
 import { SectionHeading } from "@/components/ui/section-heading";
 import HeroSection from "@/components/ui/hero-section-9";
-import { ServicesSection } from "@/components/marketing/ServicesSection";
 import { FeaturesGrid } from "@/components/marketing/FeaturesGrid";
 import { AnimationWrapper } from "@/components/ui/animation-wrapper";
 import { CategoriesGrid } from "@/components/marketing/CategoriesGrid";
-import { PopularLanguages } from "@/components/marketing/PopularLanguages";
-import { FeaturedCourses } from "@/components/marketing/FeaturedCourses";
+import { PopularMedicalSubjects } from "@/components/marketing/PopularMedicalSubjects";
+import VersionXSection from "@/components/marketing/VersionXSection";
 import { StatsBar } from "@/components/marketing/StatsBar";
 import { VibeCard } from "@/components/marketing/vibe-card";
 import { BroadcastBanner } from "@/components/marketing/BroadcastBanner";
-import { getFeaturedCourses } from "../data/courses/get-featured-courses";
 import { getTopCategories } from "../data/marketing/get-marketing-data";
+import KalviHero from "@/components/marketing/KalviHero";
 
 const features = [
   {
@@ -69,19 +68,26 @@ export default async function Home() {
 
   // ... (existing checks)
 
-  // Fetch Real Data
-  const broadcasts = await getActiveBroadcasts();
-  const courseCount = await prisma.course.count({ where: { status: 'Published' } });
-  const studentCount = await prisma.user.count({ where: { role: 'student' } });
-  const instructorCount = await prisma.teacherProfile.count({ where: { isVerified: true } });
-
-  const featuredCourses = await getFeaturedCourses();
-  const categories = await getTopCategories();
-  const testimonials = await prisma.testimonial.findMany({
-    where: { isActive: true, isFeatured: true },
-    orderBy: { createdAt: 'desc' },
-    take: 9
-  });
+  // Fetch Real Data in Parallel for maximum speed
+  const [
+    broadcasts,
+    courseCount,
+    studentCount,
+    instructorCount,
+    categories,
+    testimonials
+  ] = await Promise.all([
+    getActiveBroadcasts(),
+    prisma.course.count({ where: { status: 'Published' } }),
+    prisma.user.count({ where: { role: 'student' } }),
+    prisma.teacherProfile.count({ where: { isVerified: true } }),
+    getTopCategories(),
+    prisma.testimonial.findMany({
+      where: { isActive: true, isFeatured: true },
+      orderBy: { createdAt: 'desc' },
+      take: 9
+    })
+  ]);
 
   const stats = [
     { icon: BookOpen, label: "Total Courses", value: `${courseCount}+` },
@@ -94,51 +100,8 @@ export default async function Home() {
       {/* --- BROADCAST BANNER --- */}
       <BroadcastBanner broadcasts={broadcasts} />
       
-      {/* ... Hero Section ... */}
-      
-      {/* ... Hero Section ... */}
-      <HeroSection
-        title={
-          <>
-            A new way to learn <br /> <span className="text-primary">& get knowledge</span>
-          </>
-        }
-        subtitle="EduFlex is here for you with various courses & materials from skilled tutors all around the world."
-        actions={[
-          {
-            text: 'Join the Class',
-            href: '/register',
-            variant: 'default' as const,
-          },
-          {
-            text: 'Browse Courses',
-            href: '/courses',
-            variant: 'outline' as const,
-          },
-        ]}
-        stats={[
-          {
-            value: '15,2K',
-            label: 'Active students',
-            icon: <Users className="h-5 w-5 text-muted-foreground" />,
-          },
-          {
-            value: '4,5K',
-            label: 'Tutors',
-            icon: <Award className="h-5 w-5 text-muted-foreground" />, // Using Award instead of Briefcase if Briefcase not imported, using existing import
-          },
-          {
-            value: 'Resources',
-            label: '',
-            icon: <BookOpen className="h-5 w-5 text-muted-foreground" />, // Using BookOpen as LinkIcon equivalent
-          },
-        ]}
-        images={[
-          'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071&auto=format&fit=crop',
-          'https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=2070&auto=format&fit=crop',
-          'https://plus.unsplash.com/premium_photo-1663054774427-55adfb2be76f?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cGVvcGxlfGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=900?q=80&w=2070&auto=format&fit=crop',
-        ]}
-      />
+      {/* --- HERO SECTION (Kalvi Inspired) --- */}
+      <KalviHero />
 
       {/* ... Stats Bar ... */}
       <StatsBar />
@@ -149,13 +112,12 @@ export default async function Home() {
       {/* ... Features ... */}
       <FeaturesGrid />
 
-      <FeaturedCourses courses={featuredCourses} />
+      <VersionXSection />
 
       <CategoriesGrid categories={categories} />
 
-      <PopularLanguages />
+      <PopularMedicalSubjects />
 
-      <ServicesSection />
 
       {/* --- REVIEWS --- */}
       <TestimonialsSectionV2 testimonials={testimonials} />
@@ -172,12 +134,12 @@ export default async function Home() {
                 <div className="h-12 w-12 bg-primary/20 rounded-xl flex items-center justify-center text-primary mb-6">
                   <BookOpen className="h-6 w-6" />
                 </div>
-                <h3 className="text-3xl font-bold mb-4">Learner</h3>
+                <h3 className="text-3xl font-bold mb-4">PG Aspirant</h3>
                 <p className="text-muted-foreground mb-8 text-lg">
-                  Access thousands of courses from industry experts and start your journey today.
+                  Access premium NEET PG courses from top medical educators and accelerate your preparation today.
                 </p>
                 <Link href="/register" className="inline-flex items-center px-6 py-3 rounded-lg bg-primary text-white font-bold hover:bg-primary/90 transition-colors">
-                  Start Learning <ArrowRight className="ml-2 h-4 w-4" />
+                  Start Prep Now <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </div>
               <div className="absolute right-0 bottom-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px] group-hover:bg-primary/10 transition-colors" />
@@ -189,12 +151,12 @@ export default async function Home() {
                 <div className="h-12 w-12 bg-white/10 rounded-xl flex items-center justify-center text-white mb-6">
                   <Users className="h-6 w-6" />
                 </div>
-                <h3 className="text-3xl font-bold mb-4">Instructor</h3>
+                <h3 className="text-3xl font-bold mb-4">Medical Educator</h3>
                 <p className="text-gray-300 mb-8 text-lg">
-                  Share your knowledge, inspire students, and earn money by teaching what you love.
+                  Share your clinical expertise, mentor future specialists, and build your medical legacy on Examsphere.
                 </p>
                 <Link href="/teacher/register" className="inline-flex items-center px-6 py-3 rounded-lg bg-white text-slate-900 font-bold hover:bg-gray-100 transition-colors">
-                  Become an Instructor <ArrowRight className="ml-2 h-4 w-4" />
+                  Join as Faculty <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </div>
               <div className="absolute right-0 bottom-0 w-64 h-64 bg-primary/20 rounded-full blur-[80px]" />

@@ -10,12 +10,12 @@ async function main() {
     const password = await hash("password123", 10);
 
     const admin = await prisma.user.upsert({
-        where: { email: "admin@kidokool.com" },
+        where: { email: "admin@Examsphere.com" },
         update: {},
         create: {
             id: "admin-user",
             name: "Admin User",
-            email: "admin@kidokool.com",
+            email: "admin@Examsphere.com",
             role: "admin",
             emailVerified: true,
             createdAt: new Date(),
@@ -24,7 +24,7 @@ async function main() {
     });
 
     const teacher = await prisma.user.upsert({
-        where: { email: "teacher@kidokool.com" },
+        where: { email: "teacher@Examsphere.com" },
         update: {
             gender: "Female",
             country: "United Kingdom",
@@ -32,7 +32,7 @@ async function main() {
         create: {
             id: "teacher-user",
             name: "Sarah Jenkins",
-            email: "teacher@kidokool.com",
+            email: "teacher@Examsphere.com",
             image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop",
             role: "teacher",
             emailVerified: true,
@@ -44,7 +44,7 @@ async function main() {
     });
 
     const teacher2 = await prisma.user.upsert({
-        where: { email: "mike@kidokool.com" },
+        where: { email: "mike@Examsphere.com" },
         update: {
             gender: "Male",
             country: "Singapore",
@@ -52,7 +52,7 @@ async function main() {
         create: {
             id: "teacher-mike",
             name: "Mike Chen",
-            email: "mike@kidokool.com",
+            email: "mike@Examsphere.com",
             image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop",
             role: "teacher",
             emailVerified: true,

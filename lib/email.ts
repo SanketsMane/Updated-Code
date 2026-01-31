@@ -76,7 +76,7 @@ const emailTemplates = {
     <body>
       <div class="container">
         <div class="header">
-          <div class="logo">KIDOKOOL</div>
+          <div class="logo">Examsphere</div>
         </div>
         
         <div class="content">
@@ -98,9 +98,9 @@ const emailTemplates = {
         </div>
         
         <div class="footer">
-          <div class="footer-text"><strong>KIDOKOOL</strong></div>
+          <div class="footer-text"><strong>Examsphere</strong></div>
           <div class="footer-text">Learning Management System</div>
-          <div class="footer-text">© 2026 KIDOKOOL. All rights reserved.</div>
+          <div class="footer-text">© 2026 Examsphere. All rights reserved.</div>
         </div>
       </div>
     </body>
@@ -113,7 +113,7 @@ const emailTemplates = {
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>Welcome to KIDOKOOL</title>
+      <title>Welcome to Examsphere</title>
       <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background-color: #f5f5f5; margin: 0; padding: 40px 20px; line-height: 1.6; }
         .container { max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e5e5e5; }
@@ -133,11 +133,11 @@ const emailTemplates = {
     <body>
       <div class="container">
         <div class="header">
-          <div class="logo">KIDOKOOL</div>
+          <div class="logo">Examsphere</div>
         </div>
         
         <div class="content">
-          <h1 class="title">Welcome to KIDOKOOL</h1>
+          <h1 class="title">Welcome to Examsphere</h1>
           <p>Hi ${data.userName},</p>
           <p>Welcome to our learning platform. We're excited to have you on board.</p>
           
@@ -162,9 +162,9 @@ const emailTemplates = {
         </div>
         
         <div class="footer">
-          <div class="footer-text"><strong>KIDOKOOL</strong></div>
+          <div class="footer-text"><strong>Examsphere</strong></div>
           <div class="footer-text">Learning Management System</div>
-          <div class="footer-text">© 2026 KIDOKOOL. All rights reserved.</div>
+          <div class="footer-text">© 2026 Examsphere. All rights reserved.</div>
         </div>
       </div>
     </body>
@@ -195,7 +195,7 @@ const emailTemplates = {
     <body>
       <div class="container">
         <div class="header">
-          <div class="logo">KIDOKOOL</div>
+          <div class="logo">Examsphere</div>
         </div>
         
         <div class="content">
@@ -217,9 +217,9 @@ const emailTemplates = {
         </div>
         
         <div class="footer">
-          <div class="footer-text"><strong>KIDOKOOL</strong></div>
+          <div class="footer-text"><strong>Examsphere</strong></div>
           <div class="footer-text">Learning Management System</div>
-          <div class="footer-text">© 2026 KIDOKOOL. All rights reserved.</div>
+          <div class="footer-text">© 2026 Examsphere. All rights reserved.</div>
         </div>
       </div>
     </body>
@@ -250,7 +250,7 @@ const emailTemplates = {
     <body>
       <div class="container">
         <div class="header">
-          <div class="logo">KIDOKOOL</div>
+          <div class="logo">Examsphere</div>
         </div>
         
         <div class="content">
@@ -264,9 +264,9 @@ const emailTemplates = {
         </div>
         
         <div class="footer">
-          <div class="footer-text"><strong>KIDOKOOL</strong></div>
+          <div class="footer-text"><strong>Examsphere</strong></div>
           <div class="footer-text">Learning Management System</div>
-          <div class="footer-text">© 2026 KIDOKOOL. All rights reserved.</div>
+          <div class="footer-text">© 2026 Examsphere. All rights reserved.</div>
         </div>
       </div>
     </body>
@@ -298,7 +298,7 @@ const emailTemplates = {
     <body>
       <div class="container">
         <div class="header">
-          <div class="logo">KIDOKOOL</div>
+          <div class="logo">Examsphere</div>
         </div>
         
         <div class="content">
@@ -329,9 +329,9 @@ const emailTemplates = {
         </div>
         
         <div class="footer">
-          <div class="footer-text"><strong>KIDOKOOL</strong></div>
+          <div class="footer-text"><strong>Examsphere</strong></div>
           <div class="footer-text">Learning Management System</div>
-          <div class="footer-text">© 2026 KIDOKOOL. All rights reserved.</div>
+          <div class="footer-text">© 2026 Examsphere. All rights reserved.</div>
         </div>
       </div>
     </body>
@@ -363,7 +363,7 @@ const emailTemplates = {
     <body>
       <div class="container">
         <div class="header">
-          <div class="logo">KIDOKOOL</div>
+          <div class="logo">Examsphere</div>
         </div>
         
         <div class="content">
@@ -394,9 +394,9 @@ const emailTemplates = {
         </div>
         
         <div class="footer">
-          <div class="footer-text"><strong>KIDOKOOL</strong></div>
+          <div class="footer-text"><strong>Examsphere</strong></div>
           <div class="footer-text">Admin Notification</div>
-          <div class="footer-text">© 2026 KIDOKOOL. All rights reserved.</div>
+          <div class="footer-text">© 2026 Examsphere. All rights reserved.</div>
         </div>
       </div>
     </body>
@@ -427,7 +427,7 @@ const emailTemplates = {
     <body>
       <div class="container">
         <div class="header">
-          <div class="logo">KIDOKOOL</div>
+          <div class="logo">Examsphere</div>
         </div>
         
         <div class="content">
@@ -448,9 +448,9 @@ const emailTemplates = {
         </div>
         
         <div class="footer">
-          <div class="footer-text"><strong>KIDOKOOL</strong></div>
+          <div class="footer-text"><strong>Examsphere</strong></div>
           <div class="footer-text">Admin Notification</div>
-          <div class="footer-text">© 2026 KIDOKOOL. All rights reserved.</div>
+          <div class="footer-text">© 2026 Examsphere. All rights reserved.</div>
         </div>
       </div>
     </body>

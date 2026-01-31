@@ -31,7 +31,7 @@ const authOptions = {
     async sendResetPassword({ user, url }: { user: any; url: string }) {
       await sendEmail({
         to: user.email,
-        subject: "KIDOKOOL - Reset Your Password",
+        subject: "Examsphere - Reset Your Password",
         html: `
           <!DOCTYPE html>
           <html>
@@ -57,7 +57,7 @@ const authOptions = {
           <body>
             <div class="container">
               <div class="header">
-                <div class="logo">KIDOKOOL</div>
+                <div class="logo">Examsphere</div>
                 <div class="subtitle">Learning Management System</div>
               </div>
               
@@ -79,9 +79,9 @@ const authOptions = {
               </div>
               
               <div class="footer">
-                <div class="footer-text"><strong>KIDOKOOL</strong></div>
+                <div class="footer-text"><strong>Examsphere</strong></div>
                 <div class="footer-text">Learning Management System</div>
-                <div class="footer-text">© 2026 KIDOKOOL. All rights reserved.</div>
+                <div class="footer-text">© 2026 Examsphere. All rights reserved.</div>
               </div>
             </div>
           </body>
@@ -113,7 +113,7 @@ const authOptions = {
         try {
           const success = await sendEmail({
             to: email,
-            subject: "KIDOKOOL - Verify your email",
+            subject: "Examsphere - Verify your email",
             html: `
               <!DOCTYPE html>
               <html>
@@ -142,7 +142,7 @@ const authOptions = {
               <body>
                 <div class="container">
                   <div class="header">
-                    <div class="logo">KIDOKOOL</div>
+                    <div class="logo">Examsphere</div>
                     <div class="subtitle">Learning Management System</div>
                   </div>
                   
@@ -162,9 +162,9 @@ const authOptions = {
                   </div>
                   
                   <div class="footer">
-                    <div class="footer-text"><strong>KIDOKOOL</strong></div>
+                    <div class="footer-text"><strong>Examsphere</strong></div>
                     <div class="footer-text">Learning Management System</div>
-                    <div class="footer-text">© 2026 KIDOKOOL. All rights reserved.</div>
+                    <div class="footer-text">© 2026 Examsphere. All rights reserved.</div>
                   </div>
                 </div>
               </body>

@@ -15,7 +15,7 @@ const trendingTopics = [
 
 export function TopicTicker() {
     return (
-        <div className="border-y border-gray-100 dark:border-gray-800 bg-white/50 dark:bg-black/50 backdrop-blur-sm">
+        <div className="border-y border-slate-200 dark:border-gray-800 bg-white/50 dark:bg-black/50 backdrop-blur-sm">
             <Marquee pauseOnHover className="[--duration:30s] py-3">
                 {trendingTopics.map((topic, i) => (
                     <div key={i} className="flex items-center gap-2 mx-8 text-sm font-medium text-muted-foreground whitespace-nowrap">

@@ -58,7 +58,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "kidokool-sanket-dev.s3.us-west-2.amazonaws.com",
+        hostname: "Examsphere-sanket-dev.s3.us-west-2.amazonaws.com",
       },
       {
         protocol: "https",

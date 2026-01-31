@@ -8,7 +8,7 @@ Implemented a secure password change feature for all user roles (Student, Teache
 
 ## Component Details
 
-### [ChangePasswordForm.tsx](file:///c:/Users/rohan/Documents/Kidokool-latest/components/settings/ChangePasswordForm.tsx)
+### [ChangePasswordForm.tsx](file:///c:/Users/rohan/Documents/Examsphere-latest/components/settings/ChangePasswordForm.tsx)
 
 **Location**: `components/settings/ChangePasswordForm.tsx`
 
@@ -47,17 +47,17 @@ Score Ranges:
 ## Integration Points
 
 ### Student Settings
-**Path**: [/dashboard/settings](file:///c:/Users/rohan/Documents/Kidokool-latest/app/dashboard/settings/settings-form.tsx)
+**Path**: [/dashboard/settings](file:///c:/Users/rohan/Documents/Examsphere-latest/app/dashboard/settings/settings-form.tsx)
 
 Added `ChangePasswordForm` component after the profile settings form.
 
 ### Admin Settings
-**Path**: [/admin/settings](file:///c:/Users/rohan/Documents/Kidokool-latest/app/admin/settings/_components/settings-form.tsx)
+**Path**: [/admin/settings](file:///c:/Users/rohan/Documents/Examsphere-latest/app/admin/settings/_components/settings-form.tsx)
 
 Added `ChangePasswordForm` component after the site settings form.
 
 ### Teacher Settings
-**Path**: [/teacher/settings](file:///c:/Users/rohan/Documents/Kidokool-latest/app/teacher/settings/page.tsx)
+**Path**: [/teacher/settings](file:///c:/Users/rohan/Documents/Examsphere-latest/app/teacher/settings/page.tsx)
 
 Replaced placeholder "Security" card with functional `ChangePasswordForm` component.
 

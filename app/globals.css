@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* KIDOKOOL Premium Palette (Yo-Coach Inspired) */
+  /* Examsphere Premium Palette (Yo-Coach Inspired) */
   --background: oklch(0.98 0.01 240);
   /* Soft White */
   --foreground: oklch(0.15 0.05 240);
@@ -154,6 +154,16 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  .bg-grid-kalvi {
+    background-size: 3rem 3rem;
+    background-image: linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 0), 
+                      linear-gradient(180deg, rgba(0, 0, 0, 0.1) 1px, transparent 0);
+  }
+
+  .bg-radial-fade {
+    background: radial-gradient(circle at center, transparent 40%, var(--background) 90%);
   }
 }
 

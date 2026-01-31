@@ -49,7 +49,7 @@ export function SettingsForm({ settings }: { settings: SiteSettings | null }) {
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="siteUrl">Site URL</Label>
-                            <Input id="siteUrl" name="siteUrl" defaultValue={settings?.siteUrl || ""} placeholder="https://kidokool.com" />
+                            <Input id="siteUrl" name="siteUrl" defaultValue={settings?.siteUrl || ""} placeholder="https://Examsphere.com" />
                         </div>
                         <div className="space-y-2">
                             <Label>Logo</Label>
@@ -88,7 +88,7 @@ export function SettingsForm({ settings }: { settings: SiteSettings | null }) {
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="contactEmail">Contact Email</Label>
-                                <Input id="contactEmail" name="contactEmail" defaultValue={settings?.contactEmail || ""} placeholder="support@kidokool.com" />
+                                <Input id="contactEmail" name="contactEmail" defaultValue={settings?.contactEmail || ""} placeholder="support@Examsphere.com" />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="contactPhone">Contact Phone</Label>

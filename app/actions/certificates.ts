@@ -73,7 +73,7 @@ export async function generateCertificate(courseId: string) {
                 certificateNumber: certNumber,
                 studentName: session.name || "Student",
                 courseName: course.title,
-                teacherName: "Kidokool Instructor", // Placeholder usually fetched from TeacherProfile
+                teacherName: "Examsphere Instructor", // Placeholder usually fetched from TeacherProfile
                 completionDate: new Date(),
             },
         });

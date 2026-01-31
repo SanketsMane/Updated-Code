@@ -152,7 +152,7 @@ function ComparisonModal() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                     {selectedCourses.map(course => (
-                        <div key={course.id} className="border border-gray-100 dark:border-gray-800 rounded-xl p-4 bg-gray-50/50 dark:bg-card">
+                        <div key={course.id} className="border border-slate-200 dark:border-gray-800 rounded-xl p-4 bg-gray-50/50 dark:bg-card">
                             <div className="relative h-32 w-full mb-4 rounded-lg overflow-hidden">
                                 <Image src={course.image} alt={course.title} fill className="object-cover" />
                             </div>

@@ -1,11 +1,11 @@
-// Enhanced Security Extensions for KIDOKOOL
+// Enhanced Security Extensions for Examsphere
 import crypto from 'crypto';
 
 /**
  * CSRF Protection utilities
  */
 export class CSRFProtection {
-  private static readonly tokenName = 'kidokool-csrf-token';
+  private static readonly tokenName = 'Examsphere-csrf-token';
 
   static generateToken(): string {
     return crypto.randomBytes(32).toString('hex');

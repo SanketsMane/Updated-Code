@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ChevronRight, Sparkles, User, BookOpen, Target, Wand2 } from "lucide-react";
+import { Check, ChevronRight, Sparkles, User, BookOpen, Target, Wand2, HeartPulse, Search, BrainCircuit, ShieldCheck, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
@@ -16,30 +16,31 @@ type Step = {
 const steps: Step[] = [
     {
         id: 1,
-        question: "What do you want to learn today?",
+        question: "What subject do you want to master?",
         options: [
-            { label: "English", icon: BookOpen },
-            { label: "Programming", icon: CodeIcon },
-            { label: "Mathematics", icon: CalculatorIcon },
-            { label: "Music", icon: CloudLightningIcon }, // Placeholder icons
+            { label: "Anatomy", icon: BookOpen },
+            { label: "Pharmacology", icon: HeartPulse },
+            { label: "Pathology", icon: Search },
+            { label: "Biochemistry", icon: BrainCircuit },
         ]
     },
     {
         id: 2,
-        question: "What is your current level?",
+        question: "What is your current level of study?",
         options: [
-            { label: "Beginner", icon: User },
-            { label: "Intermediate", icon: TrendingUpIcon },
-            { label: "Advanced", icon: TrophyIcon },
+            { label: "Pre-Clinical", icon: User },
+            { label: "Para-Clinical", icon: ShieldCheck },
+            { label: "Clinical Student", icon: GraduationCap },
+            { label: "Intern / Post-Intern", icon: TrophyIcon },
         ]
     },
     {
         id: 3,
-        question: "What is your main goal?",
+        question: "What is your primary preparation goal?",
         options: [
-            { label: "Career Growth", icon: Target },
-            { label: "Hobby / Fun", icon: SmileIcon },
-            { label: "Exam Prep", icon: FileTextIcon },
+            { label: "NEET PG Rank", icon: Target },
+            { label: "INI-CET Prep", icon: Sparkles },
+            { label: "University Exams", icon: FileTextIcon },
         ]
     }
 ];
@@ -125,7 +126,7 @@ export function MentorMatchWizard() {
                                                 <button
                                                     key={option.label}
                                                     onClick={() => handleOptionSelect(option.label)}
-                                                    className="w-full text-left p-4 rounded-xl border border-gray-100 dark:border-gray-800 hover:border-violet-500 hover:bg-violet-50 dark:hover:bg-violet-900/10 transition-all group flex items-center gap-4"
+                                                    className="w-full text-left p-4 rounded-xl border border-slate-200 dark:border-gray-800 hover:border-violet-500 hover:bg-violet-50 dark:hover:bg-violet-900/10 transition-all group flex items-center gap-4"
                                                 >
                                                     <div className="w-10 h-10 rounded-full bg-gray-50 dark:bg-gray-900 flex items-center justify-center group-hover:bg-violet-100 dark:group-hover:bg-violet-900/30 transition-colors">
                                                         <Icon className="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-violet-600 dark:group-hover:text-violet-400" />

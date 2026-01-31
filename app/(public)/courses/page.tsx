@@ -15,8 +15,8 @@ import { Metadata } from "next";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Explore Premium Courses - KIDOKOOL",
-  description: "Browse our extensive collection of expert-led courses in Programming, Design, Business, and more. Start learning today.",
+  title: "Explore Premium Courses - Examsphere",
+  description: "Browse our extensive collection of expert-led medical courses for NEET PG, INI-CET, and Professional Exams. Start your journey to excellence today.",
 };
 
 interface SearchParams {
@@ -31,9 +31,9 @@ interface Props {
 }
 
 const trendingTopics = [
-  "React & Next.js", "AI & Machine Learning", "Python Programming",
-  "UI/UX Design", "Digital Marketing", "Data Analytics",
-  "Cloud Computing", "Cybersecurity"
+  "Anatomy High-Yield", "Pharmacology Recalls", "Pathology Cases",
+  "Clinical Medicine", "Surgery IBQs", "Pediatrics Notes",
+  "Biochemistry Simplified", "Radiology Basics"
 ];
 
 export default async function PublicCoursesRoute({ searchParams }: Props) {
@@ -95,7 +95,7 @@ export default async function PublicCoursesRoute({ searchParams }: Props) {
                 Explore Premium <span className="text-primary">Courses</span>
               </h1>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-                Unlock your potential with our extensive library of expert-led courses. From coding to design, find the perfect path for your career.
+                Unlock your potential with our extensive library of expert-led medical courses. From Anatomy to Clinical Surgery, find the perfect path for your PG preparation.
               </p>
 
               {/* Trending Tags */}

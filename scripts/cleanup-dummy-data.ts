@@ -6,8 +6,8 @@ async function cleanup() {
     console.log("🧹 Starting dummy data cleanup...");
 
     const dummyEmails = [
-        "teacher@kidokool.com",
-        "mike@kidokool.com",
+        "teacher@Examsphere.com",
+        "mike@Examsphere.com",
         "test-student@example.com"
     ];
 

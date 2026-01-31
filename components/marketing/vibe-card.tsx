@@ -1,61 +1,61 @@
 "use client";
 
 import Link from "next/link";
-import { Sparkles, ArrowRight, Search, Code, Palette, Music, Calculator, Megaphone, Smartphone, BrainCircuit } from "lucide-react";
+import { Sparkles, ArrowRight, Search, Code, Palette, Music, Calculator, Megaphone, Smartphone, BrainCircuit, User, GraduationCap } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const SCENARIOS = [
     {
-        text: "I want to learn React Native...",
-        resultTitle: "React Native Expert",
-        resultSubtitle: "Mobile Development",
-        icon: Smartphone,
+        text: "Mastering Human Anatomy...",
+        resultTitle: "Anatomy Professor",
+        resultSubtitle: "Pre-Clinical Specialist",
+        icon: User,
         color: "bg-blue-100 text-blue-600",
         ring: "ring-blue-100",
         gradient: "from-blue-500 to-indigo-600"
     },
     {
-        text: "Need help with Guitar...",
-        resultTitle: "Guitar Instructor",
-        resultSubtitle: "Music & Arts",
-        icon: Music,
+        text: "High-yield Pharma recalled...",
+        resultTitle: "Pharma Expert",
+        resultSubtitle: "Para-Clinical Mentor",
+        icon: BrainCircuit,
         color: "bg-amber-100 text-amber-600",
         ring: "ring-amber-100",
         gradient: "from-amber-400 to-orange-500"
     },
     {
-        text: "Calculus tutor for exam...",
-        resultTitle: "Math Professor",
-        resultSubtitle: "Academic Support",
-        icon: Calculator,
+        text: "Solving complex Pathology cases...",
+        resultTitle: "Pathology Specialist",
+        resultSubtitle: "Diagnostic Support",
+        icon: Search,
         color: "bg-emerald-100 text-emerald-600",
         ring: "ring-emerald-100",
         gradient: "from-emerald-400 to-green-600"
     },
     {
-        text: "Digital Marketing Strategy...",
-        resultTitle: "Marketing Guru",
-        resultSubtitle: "Business Growth",
-        icon: Megaphone,
+        text: "NEET PG High-Yield Radiology...",
+        resultTitle: "Radiology Consultant",
+        resultSubtitle: "Visual Diagnostics",
+        icon: Sparkles,
         color: "bg-pink-100 text-pink-600",
         ring: "ring-pink-100",
         gradient: "from-pink-500 to-rose-500"
     },
     {
-        text: "UI/UX Design principles...",
-        resultTitle: "Senior Designer",
-        resultSubtitle: "Creative Design",
-        icon: Palette,
+        text: "Biochemistry simplified for INI-CET...",
+        resultTitle: "Biochem Mentor",
+        resultSubtitle: "Enzyme Mastery",
+        icon: Calculator,
         color: "bg-purple-100 text-purple-600",
         ring: "ring-purple-100",
         gradient: "from-purple-500 to-violet-600"
     },
     {
-        text: "Intro to Machine Learning...",
-        resultTitle: "AI Specialist",
-        resultSubtitle: "Data Science",
-        icon: BrainCircuit,
+        text: "Clinical Surgery IBQ practice...",
+        resultTitle: "Surgery Specialist",
+        resultSubtitle: "Clinical Excellence",
+        icon: GraduationCap,
         color: "bg-cyan-100 text-cyan-600",
         ring: "ring-cyan-100",
         gradient: "from-cyan-500 to-blue-600"
@@ -132,7 +132,7 @@ export function VibeCard() {
                             </span>
                         </h2>
                         <p className="text-lg md:text-xl text-white/90 font-medium leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0">
-                            From coding to creative arts, get matched with expert tutors who fit your learning style.
+                            From Anatomy to Surgery, get matched with expert medical mentors who fit your preparation style.
                         </p>
 
                         <Link
@@ -149,10 +149,10 @@ export function VibeCard() {
 
                         <div className="relative group perspective-[1200px]">
                             {/* The Browser Window */}
-                            <div className="relative bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-500 hover:rotate-1 hover:shadow-[0_30px_60px_rgba(0,0,0,0.3)] border border-white/50">
+                            <div className="relative bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-500 hover:rotate-1 hover:shadow-[0_30px_60px_rgba(0,0,0,0.3)] border border-slate-200 dark:border-white/50">
 
                                 {/* Window Title Bar */}
-                                <div className="h-10 bg-slate-50/80 border-b border-slate-100 flex items-center px-4 gap-2">
+                                <div className="h-10 bg-slate-50/80 border-b border-slate-200 flex items-center px-4 gap-2">
                                     <div className="w-3 h-3 rounded-full bg-red-400/80" />
                                     <div className="w-3 h-3 rounded-full bg-amber-400/80" />
                                     <div className="w-3 h-3 rounded-full bg-green-400/80" />
@@ -200,7 +200,7 @@ export function VibeCard() {
                                                     transition={{ type: "spring", stiffness: 300, damping: 20 }}
                                                     className="absolute inset-0 z-0"
                                                 >
-                                                    <div className="bg-white rounded-2xl p-4 shadow-xl border border-slate-100 flex items-center gap-5 relative overflow-hidden group/card">
+                                                    <div className="bg-white rounded-2xl p-4 shadow-xl border border-slate-200 flex items-center gap-5 relative overflow-hidden group/card">
 
                                                         {/* Result Shine Effect */}
                                                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent translate-x-[-150%] animate-shine" />
@@ -218,7 +218,7 @@ export function VibeCard() {
                                                                     <div key={i} className="w-6 h-6 rounded-full border-2 border-white bg-slate-200" />
                                                                 ))}
                                                             </div>
-                                                            <span className="text-xs text-slate-400 font-semibold">120+ Tutors</span>
+                                                            <span className="text-xs text-slate-400 font-semibold">120+ Doctors</span>
                                                         </div>
                                                     </div>
                                                 </motion.div>

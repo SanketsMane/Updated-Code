@@ -7,28 +7,28 @@ const benefitFeatures = [
     {
         icon: Video,
         title: "HD Video Quality",
-        desc: "Crystal clear video for immersive learning"
+        desc: "Crystal clear clinical demonstrations"
     },
     {
         icon: MessageSquare,
         title: "Real-time Q&A",
-        desc: "Get your doubts resolved instantly"
+        desc: "Clear your clinical doubts instantly"
     },
     {
         icon: Shield,
-        title: "Verified Experts",
-        desc: "Learn from industry professionals"
+        title: "Verified Specialists",
+        desc: "Learn from top-ranked practicing doctors"
     },
     {
         icon: Award,
-        title: "Certification",
-        desc: "Earn valid certificates upon completion"
+        title: "Course Credits",
+        desc: "Earn valid certificates of completion"
     }
 ];
 
 export function LiveSessionFeatures() {
     return (
-        <section className="py-16 bg-gray-50/50 dark:bg-white/5 border-b border-gray-100 dark:border-gray-800">
+        <section className="py-16 bg-gray-50/50 dark:bg-white/5 border-b border-slate-200 dark:border-gray-800">
             <div className="container mx-auto px-4">
                 <div className="grid md:grid-cols-4 gap-6">
                     {benefitFeatures.map((feat, i) => (

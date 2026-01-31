@@ -35,7 +35,7 @@ export function QuickBookDrawer({ teacher, trigger, open, onOpenChange }: QuickB
         <Sheet open={open} onOpenChange={onOpenChange}>
             {trigger}
             <SheetContent className="w-full sm:max-w-md p-0 flex flex-col bg-white dark:bg-card">
-                <SheetHeader className="p-6 border-b border-gray-100 dark:border-gray-800">
+                <SheetHeader className="p-6 border-b border-slate-200 dark:border-gray-800">
                     <div className="flex items-center gap-4">
                         <Image
                             src={teacher.image}
@@ -106,7 +106,7 @@ export function QuickBookDrawer({ teacher, trigger, open, onOpenChange }: QuickB
                     </div>
                 </ScrollArea>
 
-                <SheetFooter className="p-6 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-muted/10">
+                <SheetFooter className="p-6 border-t border-slate-200 dark:border-gray-800 bg-gray-50/50 dark:bg-muted/10">
                     <Button
                         className="w-full h-12 text-base font-bold shadow-lg shadow-primary/20"
                         disabled={!date || !timeSlot}

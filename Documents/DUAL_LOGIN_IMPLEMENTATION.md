@@ -12,7 +12,7 @@ Successfully implemented **dual authentication methods** for all user roles (Stu
 
 ### File Modified
 
-**[login/page.tsx](file:///c:/Users/rohan/Documents/Kidokool-latest/app/(auth)/login/page.tsx)**
+**[login/page.tsx](file:///c:/Users/rohan/Documents/Examsphere-latest/app/(auth)/login/page.tsx)**
 
 ### Changes Made
 

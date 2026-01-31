@@ -88,7 +88,7 @@ export function HeroSection() {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.5, delay: 0.2 }}
-                        className="bg-white p-3 md:p-4 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-gray-100 mt-8 max-w-2xl relative"
+                        className="bg-white p-3 md:p-4 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-slate-200 mt-8 max-w-2xl relative"
                     >
                         {/* Field Type Tabs */}
                         <div className="absolute -top-12 left-4 flex gap-2">

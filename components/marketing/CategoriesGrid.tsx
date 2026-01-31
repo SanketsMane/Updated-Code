@@ -2,31 +2,37 @@
 
 import { motion } from "framer-motion";
 import { FeaturedCategory } from "@/app/data/marketing/get-marketing-data";
-import { Code, GraduationCap, Briefcase, FileText, Calculator, Monitor, Music, Megaphone, HeartPulse, icons } from "lucide-react";
+import { Code, GraduationCap, Briefcase, FileText, Calculator, Monitor, Music, Megaphone, HeartPulse, Stethoscope, Activity, Brain, Microscope, FlaskConical, Dna } from "lucide-react";
 
 interface CategoriesGridProps {
     categories: FeaturedCategory[];
 }
 
-// Fallback icons map
+// Medical specialized icons map
 const IconMap: any = {
-    development: Code,
-    design: Monitor,
-    business: Briefcase,
-    marketing: Megaphone,
-    // Add more mappings or generic fallback
+    anatomy: Brain,
+    physiology: Activity,
+    biochemistry: FlaskConical,
+    pharmacology: FlaskConical,
+    pathology: Microscope,
+    microbiology: Dna,
+    medicine: Stethoscope,
+    surgery: Activity,
+    pediatrics: BabyIcon,
     default: GraduationCap
 };
+
+function BabyIcon(props: any) { return <span {...props}>👶</span> }
 
 export function CategoriesGrid({ categories }: CategoriesGridProps) {
     // If no categories, return null or empty state
     if (!categories || categories.length === 0) return null;
 
     return (
-        <section className="py-20 bg-gray-50/50 dark:bg-background border-t border-gray-100 dark:border-gray-800">
+        <section className="py-20 bg-gray-50/50 dark:bg-background border-t border-slate-200 dark:border-gray-800">
             <div className="container mx-auto px-4">
                 <div className="text-center mb-12">
-                    <h2 className="text-3xl font-bold text-[#011E21] dark:text-white">Most demanding categories</h2>
+                    <h2 className="text-3xl font-bold text-[#011E21] dark:text-white">High-Yield Categories</h2>
                 </div>
 
                 <motion.div
@@ -53,7 +59,7 @@ export function CategoriesGrid({ categories }: CategoriesGridProps) {
                                 viewport={{ once: true }}
                                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
                                 whileHover={{ y: -5, boxShadow: "0 10px 30px -10px rgba(0,0,0,0.1)" }}
-                                className="bg-white dark:bg-card rounded-2xl p-6 flex flex-col items-center text-center justify-center gap-4 border border-gray-100 dark:border-gray-800 h-[180px] transition-all cursor-pointer group hover:border-gray-200 dark:hover:border-gray-700"
+                                className="bg-white dark:bg-card rounded-2xl p-6 flex flex-col items-center text-center justify-center gap-4 border border-slate-200 dark:border-gray-800 h-[180px] transition-all cursor-pointer group hover:border-slate-300 dark:hover:border-gray-700 shadow-sm"
                             >
                                 <div className={`w-14 h-14 rounded-full flex items-center justify-center ${colorClass} group-hover:scale-110 transition-transform duration-300`}>
                                     <Icon className="w-7 h-7" />

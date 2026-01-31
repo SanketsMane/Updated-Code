@@ -60,8 +60,8 @@ export async function Footer() {
           {/* Brand Column */}
           <div className="lg:col-span-2 space-y-6">
             <Link href="/" className="flex items-center gap-2">
-              <Image src={Logo} alt={settings?.siteName || "KIDOKOOL"} width={40} height={40} className="w-10 h-10" />
-              <span className="text-2xl font-bold text-white tracking-tight">{settings?.siteName || "KIDOKOOL"}</span>
+              <Image src={Logo} alt={settings?.siteName || "Examsphere"} width={40} height={40} className="w-10 h-10" />
+              <span className="text-2xl font-bold text-white tracking-tight">{settings?.siteName || "Examsphere"}</span>
             </Link>
             <p className="text-slate-400 leading-relaxed max-w-sm">
               The world's leading online learning platform. Join millions of learners and instructors gathering to master new skills.
@@ -151,7 +151,7 @@ export async function Footer() {
       {/* Bottom Bar */}
       <div className="border-t border-slate-800 bg-[#060a15]">
         <div className="container mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-500">
-          <p>© {new Date().getFullYear()} {settings?.siteName || "KIDOKOOL Inc."} All rights reserved.</p>
+          <p>© {new Date().getFullYear()} {settings?.siteName || "Examsphere Inc."} All rights reserved.</p>
           <div className="flex items-center gap-6">
             <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
             <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>

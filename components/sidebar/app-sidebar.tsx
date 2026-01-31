@@ -182,7 +182,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <IconDashboard className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-bold text-lg tracking-wide">KIDOKOOL</span>
+                  <span className="truncate font-bold text-lg tracking-wide">Examsphere</span>
                   <span className="truncate text-xs text-muted-foreground/70">Admin Console</span>
                 </div>
               </div>

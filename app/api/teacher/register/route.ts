@@ -84,18 +84,18 @@ export async function POST(req: NextRequest) {
     // Send welcome email with verification instructions
     await sendEmail({
       to: validatedData.email,
-      subject: "Welcome to KIDOKOOL - Teacher Application Received",
+      subject: "Welcome to Examsphere - Teacher Application Received",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 10px; margin-bottom: 30px;">
-            <h1>🎓 Welcome to KIDOKOOL!</h1>
+            <h1>🎓 Welcome to Examsphere!</h1>
             <p style="margin: 0; font-size: 18px;">Your teacher application has been received</p>
           </div>
           
           <div style="padding: 20px;">
             <p>Hi ${validatedData.name},</p>
             
-            <p>Thank you for applying to become a teacher on KIDOKOOL! We're excited about your interest in sharing knowledge with our students worldwide.</p>
+            <p>Thank you for applying to become a teacher on Examsphere! We're excited about your interest in sharing knowledge with our students worldwide.</p>
             
             <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
               <h3 style="color: #065f46; margin-top: 0;">Application Details:</h3>
@@ -127,7 +127,7 @@ export async function POST(req: NextRequest) {
             
             <p>If you have any questions or concerns, please don't hesitate to reach out to our support team.</p>
             
-            <p>Best regards,<br>The KIDOKOOL Team</p>
+            <p>Best regards,<br>The Examsphere Team</p>
           </div>
           
           <div style="text-align: center; margin-top: 30px; color: #6b7280; font-size: 14px;">
@@ -146,11 +146,11 @@ export async function POST(req: NextRequest) {
     for (const admin of adminUsers) {
       await sendEmail({
         to: admin.email,
-        subject: "New Teacher Application - KIDOKOOL",
+        subject: "New Teacher Application - Examsphere",
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <h2>🆕 New Teacher Application</h2>
-            <p>A new teacher has applied to join KIDOKOOL:</p>
+            <p>A new teacher has applied to join Examsphere:</p>
             
             <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
               <p><strong>Name:</strong> ${validatedData.name}</p>
