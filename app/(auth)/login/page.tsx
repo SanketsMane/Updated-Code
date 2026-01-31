@@ -33,20 +33,20 @@ import { MotionWrapper } from "@/components/ui/motion-wrapper";
 const testimonials = [
   {
     quote: "Examsphere has completely transformed the way I learn. The courses are structured, easy to follow, and the instructors are world-class.",
-    author: "Happy Student",
-    role: "Full Stack Developer",
+    author: "Dr. Anjali Verma",
+    role: "NEET PG Aspirant",
     avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80"
   },
   {
     quote: "As a teacher, this platform gave me the tools to reach thousands of students globally. The analytics and support are unmatched.",
-    author: "Verified Instructor",
-    role: "Senior Math Instructor",
+    author: "Dr. Rajesh Kumar",
+    role: "Senior Anatomy Faculty",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80"
   },
   {
-    quote: "I landed my dream job after completing the Bootcamp here. The certificate actually carries weight in the industry.",
-    author: "Recent Graduate",
-    role: "Software Engineer",
+    quote: "I cleared my FMGE exam on the first attempt after completing the revision course here. The certificate actually carries weight in the industry.",
+    author: "Dr. Sarah Khan",
+    role: "Junior Resident",
     avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&q=80"
   }
 ];

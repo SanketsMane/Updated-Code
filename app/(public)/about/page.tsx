@@ -10,15 +10,15 @@ export default function AboutPage() {
           About Examsphere
         </h1>
         <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-autoLeading-relaxed">
-          Examsphere is the world's leading online learning platform. Join millions of learners and instructors gathering to master new skills.
+          Examsphere is the premier destination for NEET PG and FMGE preparation. Join thousands of medical professionals mastering clinical concepts.
         </p>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-4xl pt-8">
         {[
-          { title: "Our Mission", desc: "To empower learners worldwide through accessible, high-quality education." },
-          { title: "Expert Mentors", desc: "Learn from industry professionals and passionate educators." },
-          { title: "Community Driven", desc: "A vibrant ecosystem where curiosity meets opportunity." }
+          { title: "Our Mission", desc: "To empower aspiring doctors with high-yield, accessible medical education." },
+          { title: "Expert Faculty", desc: "Learn from India's top medical specialists and educators." },
+          { title: "Clinical Focus", desc: "Bridging the gap between theory and clinical practice." }
         ].map((item) => (
           <div key={item.title} className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 text-left">
             <h3 className="font-bold text-lg mb-2">{item.title}</h3>

@@ -64,7 +64,7 @@ export async function Footer() {
               <span className="text-2xl font-bold text-white tracking-tight">{settings?.siteName || "Examsphere"}</span>
             </Link>
             <p className="text-slate-400 leading-relaxed max-w-sm">
-              The world's leading online learning platform. Join millions of learners and instructors gathering to master new skills.
+              The premier destination for NEET PG preparation. Join thousands of medical professionals mastering clinical concepts.
             </p>
 
             <div className="flex items-center gap-4 text-sm text-slate-400 pt-4">

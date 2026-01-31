@@ -1,3 +1,5 @@
+"use client";
+
 import Link from 'next/link';
 import { useState } from 'react';
 import { motion, MotionConfig } from 'framer-motion';
@@ -9,6 +11,7 @@ export type IMenu = {
     url: string;
     dropdown?: boolean;
     items?: IMenu[];
+    icon?: any;
 };
 
 type MenuProps = {
